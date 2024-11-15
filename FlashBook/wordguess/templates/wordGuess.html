@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guess Game</title>
+    <link rel="stylesheet" href="{% static 'wordguess/wordGuess.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Word Guess Game</h1>
+
+        {% if game_over %}
+            <h2>{{ message }}</h2>
+            
+            <!-- Show Reset Button only when the game is over -->
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="reset" value="true">
+                <button type="submit">Restart Game</button>
+            </form>
+        {% else %}
+            <h3>Guess the word:</h3>
+            <p>{{ display_word }}</p>
+
+            <h3>Incorrect Guesses:</h3>
+            <p>{{ incorrect_guesses }}</p>
+
+            <h3>Hearts Left:</h3>
+            <p>
+                {% for i in hearts_range %}
+                    ❤️
+                {% endfor %}
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+                <label for="guess">Guess a letter:</label>
+                <input type="text" id="guess" name="guess" maxlength="1" required>
+                <button type="submit">Submit Guess</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>
