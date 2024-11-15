@@ -102,10 +102,6 @@
 <button class="nav-link" style="border: none; background: transparent" data-toggle="modal" data-target="#addWordModal">Add New Word</button>
 {% endblock %} 
 
-{% block add_new_link_2 %}
-<a class="nav-link" href="#">Edit Word</a>
-{% endblock %} 
-
 {% block content %}
 
 <div class="container">
@@ -128,9 +124,10 @@
     {% for word in words %}
     <div class="card">
       <!-- ปุ่ม Edit -->
-      <a href="{% url 'edit_word' word_id=word.id folder_id=folder.folder_id%}" data-toggle="modal" data-target="#editWordModal-{{ word.id }}" class="edit-btn">
+      <a href="{% url 'edit_word' word_id=word.id folder_id=folder.folder_id %}" data-toggle="modal" data-target="#editWordModal-{{ word.id }}" class="edit-btn" style="text-decoration: none;">
         ✏️
       </a>
+      
       <div class="card-body">
         <h5 class="word-title">{{ word.word }}</h5>
         <p class="word-meaning">{{ word.meaning }}</p>
