@@ -78,6 +78,10 @@
 </style>
 {% endblock %} 
 
+{% block search_url %}
+{% url 'search_folder' %}
+{% endblock %}
+
 {% block add_new_link_1 %}
 <button class="nav-link" style="border: none; background: transparent" data-toggle="modal" data-target="#addFolderModal">
   Add New Folder

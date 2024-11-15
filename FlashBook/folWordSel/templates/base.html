@@ -95,8 +95,8 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <!-- Centered Search Bar -->
           <div class="mx-auto" style="width: 50%">
-            <form class="d-flex">
-              <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" style="height: 30px"/>
+            <form class="d-flex" method="GET" action="{% block search_url %}{% endblock %}"> 
+              <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" style="height: 30px" name='query'/>
               <button class="btn btn-outline-success btn-sm" type="submit" style="padding: 0.25rem 0.5rem">
                 Search
               </button>

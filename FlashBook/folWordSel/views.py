@@ -87,7 +87,7 @@ def add_word(request,folder_id):
                 folder = folder,
                 word = word,
             )
-            
+
         newWord.save()
     words = Word.objects.filter(user=user,folder=folder)
     return render(request,'word.html',{'words' : words,'folder':folder})
@@ -117,3 +117,16 @@ def edit_word(request,folder_id,word_id):
     words = Word.objects.filter(user=user,folder=folder)
 
     return render(request,'word.html',{'words' : words,'folder':folder})
+
+def search_folder(request):
+    query = request.GET.get('query', '')
+    user = User.objects.get(user_id=1)
+
+    if not query:
+        return folder_view(request) 
+    else:
+        search_results = Folder.objects.filter(folder_name__icontains=query, user=user)
+
+    return render(request, 'folder.html', {'user': user, 'folders': search_results})
+
+
