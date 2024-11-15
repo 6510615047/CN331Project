@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-q7f4e+27(%j7v^jf)+6%w+--$o2_=*%6)*$8712-#j2u$$@m+j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["Flashbook.pythonanywhere.com"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',"Flashbook.pythonanywhere.com"]
 
 
 # Application definition
