@@ -114,15 +114,15 @@
                 <h5 class="card-title">{{ folder.folder_name }}</h5>
             </a>
         
-            <a href="{% url 'edit_folder' folder_id=folder.folder_id %}" data-toggle="modal" data-target="#editFolderModal-{{ folder.id }}" class="edit-btn" style="text-decoration: none;">✏️</a>
+            <a href="{% url 'edit_folder' folder_id=folder.folder_id %}" data-toggle="modal" data-target="#editFolderModal-{{ folder.folder_id }}" class="edit-btn" style="text-decoration: none;">✏️</a>
             </div>
         </div>
 
-        <div class="modal fade" id="editFolderModal-{{ folder.id }}" tabindex="-1" role="dialog" aria-labelledby="editFolderModalLabel-{{ folder.id }}" aria-hidden="true">
+        <div class="modal fade" id="editFolderModal-{{ folder.folder_id }}" tabindex="-1" role="dialog" aria-labelledby="editFolderModalLabel-{{ folder.folder_id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="editFolderModal-{{ folder.id }}">Edit Folder</h5>
+                <h5 class="modal-title" id="editFolderModal-{{ folder.folder_id }}">Edit Folder</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -131,8 +131,8 @@
                     <form action="{% url 'edit_folder' folder_id=folder.folder_id %}" method="POST">
                     {% csrf_token %}
                     <div class="form-group">
-                    <label for="folderName-{{ folder.id }}">Folder name</label>
-                    <input type="text" class="form-control" id="folderName-{{ folder.id }}" name="folder_name" value="{{ folder.folder_name }}" required />
+                    <label for="folderName-{{ folder.folder_id }}">Folder name</label>
+                    <input type="text" class="form-control" id="folderName-{{ folder.folder_id }}" name="folder_name" value="{{ folder.folder_name }}" required />
                     <br>
                     </div>
                     <br />
