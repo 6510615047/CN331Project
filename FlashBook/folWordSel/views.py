@@ -5,10 +5,10 @@ from homepage.models import *
 
 # user = User.objects.get(user_id=request.session.get('user_id'))
 
-def folder_view(request):
+def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
     user = User.objects.get(user_id=1)
     folders = Folder.objects.filter(user=user)
-    return render(request,'folder.html',{'user':user,'folders' : folders})
+    return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti})
 
 def word_view(request, folder_id):
     user = User.objects.get(user_id=1)
@@ -127,6 +127,9 @@ def search_folder(request):
     else:
         search_results = Folder.objects.filter(folder_name__icontains=query, user=user)
 
-    return render(request, 'folder.html', {'user': user, 'folders': search_results})
-
+    if search_results:
+        return render(request, 'folder.html', {'user': user, 'folders': search_results})
+    else:
+        error_message = "No folders found matching " + query + ". Try another search term."
+        return render(request, 'folder.html', {'user': user, 'folders': search_results, 'noti': error_message})
 
