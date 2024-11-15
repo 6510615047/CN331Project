@@ -112,7 +112,13 @@
 
     <div class='d-flex justify-content-between'>
         <h2 class="text-start pb-3">Word List in {{ folder.folder_name }}</h2>
-        <a href='{% url "select_game" folder_id=folder.folder_id %}' class="btn btn-primary" style='height:50%'>Play</a>
+        <a href='{% url "select_game" folder_id=folder.folder_id %}' class="btn btn-primary" 
+        {% if not words %} 
+            style = 'height:50%; pointer-events: none; background-color: gray; border-color:gray;'
+            onclick="return false;"
+        {% endif %} style='height:50%'>
+        Play
+        </a>
     </div>
 
   {% if messages %}
