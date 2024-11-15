@@ -54,6 +54,7 @@ def add_word(request,folder_id):
         
         if Word.objects.filter(user=user, folder=folder,word=word).exists():
             messages.error(request,"Word with this name already exists.")
+
         else:
 
             newWord = Word.objects.create(
@@ -64,6 +65,26 @@ def add_word(request,folder_id):
             )
             
             newWord.save()
+
+    words = Word.objects.filter(user=user,folder=folder)
+
+    return render(request,'word.html',{'words' : words,'folder':folder})
+
+def edit_word(request,folder_id,word_id):
+
+    if request.method == 'POST':
+        user = User.objects.get(user_id=1)  
+        folder = Folder.objects.get(user=user,folder_id=folder_id)
+
+        word = request.POST['word_name']
+        meaning = request.POST['meaning']
+
+        editWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
+
+        editWord.word = word
+        editWord.meaning = meaning
+            
+        editWord.save()
 
     words = Word.objects.filter(user=user,folder=folder)
 

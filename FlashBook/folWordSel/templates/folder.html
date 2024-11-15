@@ -96,7 +96,6 @@
     <h2 class="text-start">Welcome, {{ user.fname }}</h2>
   </div>
 
-  <!-- Display messages (error or success) -->
   {% if messages %}
   <div class="alert alert-warning">
 
@@ -120,24 +119,12 @@
 </div>
 
 <!-- Modal for Adding Folder -->
-<div
-  class="modal fade"
-  id="addFolderModal"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="addFolderModalLabel"
-  aria-hidden="true"
->
+<div class="modal fade" id="addFolderModal" tabindex="-1" role="dialog" aria-labelledby="addFolderModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="addFolderModalLabel">Add New Folder</h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -146,13 +133,7 @@
           {% csrf_token %}
           <div class="form-group">
             <label for="folderName">Folder Name</label>
-            <input
-              type="text"
-              class="form-control"
-              id="folderName"
-              name="folder_name"
-              required
-            />
+            <input type="text" class="form-control" id="folderName" name="folder_name" required/>
           </div>
           <br />
           <button type="submit" class="btn btn-primary">Add Folder</button>

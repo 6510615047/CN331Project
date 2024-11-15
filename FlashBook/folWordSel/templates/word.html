@@ -128,13 +128,40 @@
     {% for word in words %}
     <div class="card">
       <!-- ปุ่ม Edit -->
-      <button class="edit-btn" onclick="window.location.href='/edit-word/{{ word.id }}'">
+      <a href="{% url 'edit_word' word_id=word.id folder_id=folder.folder_id%}" data-toggle="modal" data-target="#editWordModal-{{ word.id }}" class="edit-btn">
         ✏️
-      </button>
+      </a>
       <div class="card-body">
         <h5 class="word-title">{{ word.word }}</h5>
         <p class="word-meaning">{{ word.meaning }}</p>
       </div>
+    </div>
+
+    <div class="modal fade" id="editWordModal-{{ word.id }}" tabindex="-1" role="dialog" aria-labelledby="editWordModalLabel-{{ word.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editWordModalLabel-{{ word.id }}">Edit Word</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'edit_word' word_id=word.id folder_id=folder.folder_id%}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label for="wordName-{{ word.id }}">Word</label>
+                  <input type="text" class="form-control" id="wordName-{{ word.id }}" name="word_name" value="{{ word.word }}" required />
+                  <br>
+                  <label for="meaning-{{ word.id }}">Meaning</label>
+                  <input type="text" class="form-control" id="meaning-{{ word.id }}" name="meaning" value="{{ word.meaning }}" required />
+                </div>
+                <br />
+                <button type="submit" class="btn btn-primary">Edit Word</button>
+              </form>
+            </div>
+          </div>
+        </div>
     </div>
     {% endfor %}
 
@@ -166,7 +193,9 @@
         </div>
       </div>
     </div>
-  </div>
+</div>
+
+
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
