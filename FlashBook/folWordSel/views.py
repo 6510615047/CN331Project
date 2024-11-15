@@ -73,18 +73,23 @@ def add_word(request,folder_id):
 def edit_word(request,folder_id,word_id):
 
     if request.method == 'POST':
+        action = request.POST.get('action')
         user = User.objects.get(user_id=1)  
         folder = Folder.objects.get(user=user,folder_id=folder_id)
 
-        word = request.POST['word_name']
-        meaning = request.POST['meaning']
+        if action == 'edit':
+            word = request.POST['word_name']
+            meaning = request.POST['meaning']
+            editWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
 
-        editWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
+            editWord.word = word
+            editWord.meaning = meaning
+                
+            editWord.save()
+        elif action == 'delete':
+            deleteWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
 
-        editWord.word = word
-        editWord.meaning = meaning
-            
-        editWord.save()
+            deleteWord.delete()
 
     words = Word.objects.filter(user=user,folder=folder)
 

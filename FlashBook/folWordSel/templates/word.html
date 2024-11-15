@@ -158,7 +158,8 @@
                   <input type="text" class="form-control" id="meaning-{{ word.id }}" name="meaning" value="{{ word.meaning }}" required />
                 </div>
                 <br />
-                <button type="submit" class="btn btn-primary">Edit Word</button>
+                <button type="submit" name="action" value="edit" class="btn btn-primary">Edit Word</button>
+                <button type="submit" name="action" value="delete" class="btn btn-danger">Delete Word</button>
               </form>
             </div>
           </div>
