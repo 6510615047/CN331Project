@@ -102,11 +102,41 @@
 
   {% for folder in folders %}
   <div class="card folder-card">
-    <a href="/folder/{{ folder.folder_id }}" class="folder-name">
-      <h5 class="card-title">{{ folder.folder_name }}</h5>
-      <span class="arrow" style="font-size: 1.5rem; color: #007bff">></span>
-    </a>
+    <div class="d-flex justify-content-between align-items-center">
+
+      <a href="/folder/{{ folder.folder_id }}" class="folder-name">
+        <h5 class="card-title">{{ folder.folder_name }}</h5>
+      </a>
+  
+      <a href="{% url 'edit_folder' folder_id=folder.folder_id %}" data-toggle="modal" data-target="#editFolderModal-{{ folder.id }}" class="edit-btn" style="text-decoration: none;">✏️</a>
+    </div>
   </div>
+
+  <div class="modal fade" id="editFolderModal-{{ folder.id }}" tabindex="-1" role="dialog" aria-labelledby="editFolderModalLabel-{{ folder.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editFolderModal-{{ folder.id }}">Edit Folder</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form action="{% url 'edit_folder' folder_id=folder.folder_id %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="folderName-{{ folder.id }}">Folder name</label>
+              <input type="text" class="form-control" id="folderName-{{ folder.id }}" name="folder_name" value="{{ folder.folder_name }}" required />
+              <br>
+            </div>
+            <br />
+            <button type="submit" name="action" value="edit" class="btn btn-primary">Edit Folder</button>
+            <button type="submit" name="action" value="delete" class="btn btn-danger">Delete Folder</button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
   {% endfor %}
 
 </div>

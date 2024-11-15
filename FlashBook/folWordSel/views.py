@@ -40,8 +40,26 @@ def add_folder(request):
 
     return redirect('folder')
 
-def edit_folder(request):
-    return
+def edit_folder(request,folder_id):
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        user = User.objects.get(user_id=1)  
+        actionFolder = Folder.objects.get(user=user,folder_id=folder_id)
+
+        if action == 'edit':
+
+            actionFolder_name = request.POST['folder_name']
+            actionFolder.folder_name = actionFolder_name
+                
+            actionFolder.save()
+        elif action == 'delete':
+
+            actionFolder.delete()
+
+    folders = Folder.objects.filter(user=user)
+
+    return render(request,'folder.html',{'user':user,'folders':folders})
 
 def add_word(request,folder_id):
 
@@ -87,6 +105,7 @@ def edit_word(request,folder_id,word_id):
                 
             editWord.save()
         elif action == 'delete':
+            
             deleteWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
 
             deleteWord.delete()
