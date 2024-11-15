@@ -98,6 +98,10 @@
 </style>
 {% endblock %} 
 
+{% block search_url %}
+{% url 'search_word' folder_id=folder.folder_id %}
+{% endblock %}
+
 {% block add_new_link_1 %}
 <button class="nav-link" style="border: none; background: transparent" data-toggle="modal" data-target="#addWordModal">Add New Word</button>
 {% endblock %} 
@@ -125,47 +129,51 @@
   <!-- Grid สำหรับแสดงการ์ดคำศัพท์ -->
   <div class="card-container">
 
-    {% for word in words %}
-    <div class="card">
-      <!-- ปุ่ม Edit -->
-      <a href="{% url 'edit_word' word_id=word.id folder_id=folder.folder_id %}" data-toggle="modal" data-target="#editWordModal-{{ word.id }}" class="edit-btn" style="text-decoration: none;">
-        ✏️
-      </a>
-      
-      <div class="card-body">
-        <h5 class="word-title">{{ word.word }}</h5>
-        <p class="word-meaning">{{ word.meaning }}</p>
-      </div>
-    </div>
-
-    <div class="modal fade" id="editWordModal-{{ word.id }}" tabindex="-1" role="dialog" aria-labelledby="editWordModalLabel-{{ word.id }}" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editWordModalLabel-{{ word.id }}">Edit Word</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <form action="{% url 'edit_word' word_id=word.id folder_id=folder.folder_id%}" method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                  <label for="wordName-{{ word.id }}">Word</label>
-                  <input type="text" class="form-control" id="wordName-{{ word.id }}" name="word_name" value="{{ word.word }}" required />
-                  <br>
-                  <label for="meaning-{{ word.id }}">Meaning</label>
-                  <input type="text" class="form-control" id="meaning-{{ word.id }}" name="meaning" value="{{ word.meaning }}" required />
-                </div>
-                <br />
-                <button type="submit" name="action" value="edit" class="btn btn-primary">Edit Word</button>
-                <button type="submit" name="action" value="delete" class="btn btn-danger">Delete Word</button>
-              </form>
-            </div>
-          </div>
+    {% if words %}
+        {% for word in words %}
+        <div class="card">
+        <!-- ปุ่ม Edit -->
+        <a href="{% url 'edit_word' word_id=word.word_id folder_id=folder.folder_id %}" data-toggle="modal" data-target="#editWordModal-{{ word.word_id }}" class="edit-btn" style="text-decoration: none;">
+            ✏️
+        </a>
+        
+        <div class="card-body">
+            <h5 class="word-title">{{ word.word }}</h5>
+            <p class="word-meaning">{{ word.meaning }}</p>
         </div>
-    </div>
-    {% endfor %}
+        </div>
+
+        <div class="modal fade" id="editWordModal-{{ word.word_id }}" tabindex="-1" role="dialog" aria-labelledby="editWordModalLabel-{{ word.word_id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="editWordModalLabel-{{ word.word_id }}">Edit Word</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'edit_word' word_id=word.word_id folder_id=folder.folder_id%}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                    <label for="wordName-{{ word.word_id }}">Word</label>
+                    <input type="text" class="form-control" id="wordName-{{ word.word_id }}" name="word_name" value="{{ word.word }}" required />
+                    <br>
+                    <label for="meaning-{{ word.word_id }}">Meaning</label>
+                    <input type="text" class="form-control" id="meaning-{{ word.word_id }}" name="meaning" value="{{ word.meaning }}" required />
+                    </div>
+                    <br />
+                    <button type="submit" name="action" value="edit" class="btn btn-primary">Edit Word</button>
+                    <button type="submit" name="action" value="delete" class="btn btn-danger">Delete Word</button>
+                </form>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>{{ noti }}</p>
+    {% endif %}
 
   </div>
 </div>

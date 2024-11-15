@@ -10,11 +10,11 @@ def folder_view(request,noti="Looks like you don't have any folders yet. Let's a
     folders = Folder.objects.filter(user=user)
     return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti})
 
-def word_view(request, folder_id):
+def word_view(request, folder_id, noti='This folder is empty. Start by adding words!'):
     user = User.objects.get(user_id=1)
     folder = Folder.objects.get(user=user,folder_id=folder_id)
     words = Word.objects.filter(user=user,folder=folder)
-    return render(request,'word.html',{'words' : words,'folder':folder})
+    return render(request,'word.html',{'words' : words,'folder':folder,'noti':noti})
 
 def select_game_view(request,folder_id):
     return render(request,'selGame.html')
@@ -73,7 +73,7 @@ def add_word(request,folder_id):
         if Word.objects.filter(user=user, folder=folder,word=word).exists():
                 messages.error(request,"Word with this name already exists.")
 
-        if action == 'edit':
+        if action == 'add':
             meaning = request.POST['meaning']
             newWord = Word.objects.create(
                 user = user,
@@ -81,16 +81,10 @@ def add_word(request,folder_id):
                 word = word,
                 meaning = meaning
             )
-        elif action == 'auto_meaning':
-            newWord = Word.objects.create(
-                user = user,
-                folder = folder,
-                word = word,
-            )
-
-        newWord.save()
-    words = Word.objects.filter(user=user,folder=folder)
-    return render(request,'word.html',{'words' : words,'folder':folder})
+            newWord.save()
+    
+    # words = Word.objects.filter(user=user,folder=folder)
+    return word_view(request,folder_id)
 
 def edit_word(request,folder_id,word_id):
 
@@ -132,4 +126,20 @@ def search_folder(request):
     else:
         error_message = "No folders found matching " + query + ". Try another search term."
         return render(request, 'folder.html', {'user': user, 'folders': search_results, 'noti': error_message})
+    
+def search_word(request,folder_id):
+    query = request.GET.get('query', '')
+    user = User.objects.get(user_id=1)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
+
+    if not query:
+        return word_view(request,folder_id) 
+    else:
+        search_results = Word.objects.filter(word__icontains=query, user=user,folder=folder)
+
+    if search_results:
+        return render(request, 'word.html', {'user': user, 'folder': folder, 'words' : search_results})
+    else:
+        error_message = "No words found matching " + query + ". Try another search term."
+        return render(request, 'word.html', {'user': user, 'folder': folder, 'words' : search_results, 'noti':error_message})
 
