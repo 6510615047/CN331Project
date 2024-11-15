@@ -104,8 +104,12 @@
 
 {% block content %}
 
-<div class="container">
-  <h2 class="text-start pb-3">Word List in {{ folder.folder_name }}</h2>
+<div class="container ">
+
+    <div class='d-flex justify-content-between'>
+        <h2 class="text-start pb-3">Word List in {{ folder.folder_name }}</h2>
+        <a href='{% url "select_game" folder_id=folder.folder_id %}' class="btn btn-primary" style='height:50%'>Play</a>
+    </div>
 
   {% if messages %}
   <div class="alert alert-warning">

@@ -16,7 +16,7 @@ def word_view(request, folder_id):
     words = Word.objects.filter(user=user,folder=folder)
     return render(request,'word.html',{'words' : words,'folder':folder})
 
-def select_game_view(request):
+def select_game_view(request,folder_id):
     return render(request,'selGame.html')
 
 def add_folder(request):
