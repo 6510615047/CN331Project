@@ -1,33 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {% load static %}
 
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     {% block title %}
+    <title>FlashBook</title>
     {% endblock %}
 
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #754de0, #472bbf);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ปรับโลโก้ให้เป็นวงกลม */
+        .navbar-brand img {
+            height: 60px;
+            width: 60px;
+            border-radius: 100%;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 36px;
+            font-weight: bold;
+            color: rgb(243, 154, 37);
+            letter-spacing: 1px;
+        }
+
+        .logo-highlight {
+            color: #FFD700;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #ddd;
+        }
+
+        /* ปรับแต่งปุ่ม Homepage และ About ให้เหมือนกัน */
+        .nav-link[href="{% url 'homepage' %}"], .nav-link[href="{% url 'about' %}"] {
+            font-size: 16px;
+            color: rgb(255, 255, 255); /* สีทองอ่อนในสถานะปกติ */
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: 8px 16px;  /* เพิ่ม padding ให้เท่ากับปุ่ม Register และ Login */
+            border-radius: 20px;
+            margin-right: 10px;
+            background-color: #FFC107; /* สีพื้นหลังทองอ่อน */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* เพิ่มการเปลี่ยนแปลงสีพื้นหลังและเงา */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* เพิ่มแสงเงาให้ปุ่ม Homepage และ About */
+        }
+
+        /* ปรับแต่งเมื่อ hover สำหรับปุ่ม Homepage และ About */
+        .nav-link[href="{% url 'homepage' %}"]:hover,
+        .nav-link[href="{% url 'about' %}"]:hover {
+            background-color: #ffe867; /* สีเหลืองเข้มเมื่อ hover */
+            color: rgb(255, 92, 16);
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); /* เพิ่มแสงเงาเข้มเมื่อ hover */
+        }
+
+        /* ปรับแต่งปุ่ม Register และ Login ให้เหมือนกัน */
+        .btn-custom {
+            border-radius: 20px;
+            font-weight: bold;
+            padding: 8px 16px;  /* ขนาดปุ่มเท่ากับปุ่ม Homepage และ About */
+            text-transform: uppercase;
+            color: white;
+            background-color: #6A3FCB;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);  /* แสงเงาให้กับปุ่ม Register และ Login */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* เพิ่มการเปลี่ยนแปลงสีพื้นหลังและเงา */
+        }
+
+        /* ปรับแต่งเมื่อ hover สำหรับปุ่ม Register และ Login */
+        .btn-custom:hover {
+            background-color: #8967e7;
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); /* เพิ่มแสงเงาเข้มเมื่อ hover */
+        }
+    </style>
 </head>
+
 <body>
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
-            <a class="navbar-brand">FLASHBOOK</a>
-            <a href="about" class="ms-3" style="color: gray;">About</a> 
-            <button type="button" class="btn btn-primary ms-auto" style="border-radius: 10px; background-color: #4255FF;">Login</button>
+            <a class="navbar-brand" href="{% url 'homepage' %}">
+                <!-- ใส่โลโก้ที่เป็นวงกลม -->
+                <img src="{% static 'images/FlashbookLogo.png' %}" alt="Logo">
+                <span class="logo-text">Flash<span class="logo-highlight">Book</span></span>
+            </a>
+            <div class="d-flex">
+                <!-- ปรับตำแหน่งของปุ่ม Homepage และ About ให้อยู่ใกล้กัน -->
+                <a href="{% url 'homepage' %}" class="nav-link">Homepage</a>
+                <a href="{% url 'about' %}" class="nav-link">About</a>
+            </div>
+            <div class="d-flex ms-auto">
+                <!-- ปรับปุ่ม Register และ Login ให้เหมือนกัน -->
+                <a href="{% url 'register' %}" class="btn btn-custom ms-2">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-custom ms-2">Login</a>
+            </div>
         </div>
     </nav>
-    
-    
+
+    <!-- Main Content -->
     <div class="container">
         {% block content %}
         {% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
+
 </html>

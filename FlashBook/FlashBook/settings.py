@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-q7f4e+27(%j7v^jf)+6%w+--$o2_=*%6)*$8712-#j2u$$@m+j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["Flashbook.pythonanywhere.com"]
+ALLOWED_HOSTS = ["Flashbook.pythonanywhere.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -122,3 +122,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_REDIRECT_URL = 'homepage' 
+LOGOUT_REDIRECT_URL = 'login'  
+LOGIN_URL = 'login'

@@ -1,9 +1,61 @@
 {% extends "base_homepage.html" %}
-
-{% block tile %}
-<title>Homepage</title>
-{% endblock %}
-
+{% load static %}
 {% block content %}
+<div class="homepage-container d-flex align-items-center justify-content-between">
+    <!-- Left Section: Image -->
+    <div class="image-section">
+        <img src="{% static 'images/FlashbookLogo.png' %}" alt="Flashbook Logo" class="img-fluid"
+            style="max-width: 500px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+    </div>
 
+    <!-- Right Section: Welcome Text -->
+    <div class="text-section text-center" style="max-width: 50%; padding: 20px;">
+        <h1 style="font-size: 3rem; font-weight: bold; color: #472bbf; margin-bottom: 20px;">
+            Welcome to <span style="color: #ff7043;">FlashBook</span>
+        </h1>
+        <p style="font-size: 1.5rem; color: #555; margin-bottom: 30px;">
+            Your ultimate destination for learning and inspiration.
+            Dive into our world of fast, high-quality, and accessible learning solutions.
+        </p>
+    </div>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    .homepage-container {
+        background: linear-gradient(135deg, #5e5ec9, #e8f0fe);
+        padding: 40px 20px;
+    }
+
+    .image-section img {
+        animation: fadeIn 1.5s ease-in-out;
+    }
+
+    .text-section h1 span {
+        animation: textColorChange 2s infinite;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes textColorChange {
+        0% {
+            color: #ff7043;
+        }
+        50% {
+            color: #FFD700;
+        }
+        100% {
+            color: #ff7043;
+        }
+    }
+</style>
 {% endblock %}
