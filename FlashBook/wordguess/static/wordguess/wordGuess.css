@@ -1,56 +1,56 @@
 /* Body Styling */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #f5f5f5;
+    font-family: 'Creepster', cursive, Arial, sans-serif; /* Use a creepy font */
+    background-color: #000;  /* Black background */
+    color: #ffa500; /* Pumpkin orange text */
     margin: 0;
     padding: 20px;
-    display: block;  /* No flexbox centering here */
+    background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png"); /* Subtle texture */
 }
 
 /* Container */
 .container {
-    width: 100%;  /* Make the container take up the full width */
-    max-width: 600px;  /* Limit max width */
-    margin: 0 auto;  /* Center the container */
+    max-width: 600px;
+    margin: 0 auto;
     padding: 20px;
-    background-color: #1e1e1e;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #1a1a1a; /* Dark gray background */
+    border: 3px solid #ffa500; /* Pumpkin orange border */
+    border-radius: 15px;
+    box-shadow: 0 0 20px 5px rgba(255, 165, 0, 0.5); /* Glowing effect */
+    text-align: center;
 }
 
 /* Header */
-header h1 {
-    font-size: 2rem;
+h1 {
+    font-size: 2.5rem;
+    color: #ffa500; /* Pumpkin orange */
     margin-bottom: 20px;
-    color: #00bcd4;
-    text-align: center; /* Center text */
 }
 
 /* Word Display */
-.word-display p {
-    font-size: 1.5rem;
+.word-display {
+    font-size: 1.8rem;
     letter-spacing: 0.5em;
     margin: 20px 0;
-    text-align: center; /* Center text */
+    color: #fff;
 }
 
 /* Incorrect Guesses */
-.incorrect-guesses p {
-    font-size: 1rem;
-    color: #e57373;
+.incorrect-guesses {
+    font-size: 1.2rem;
+    color: #ff6347; /* Blood red */
     margin: 10px 0;
-    text-align: center; /* Center text */
 }
 
 /* Form Styling */
 form {
     margin-top: 20px;
-    text-align: center; /* Center the form elements */
+    text-align: center;
 }
 
 label {
     font-size: 1rem;
+    color: #ffa500;
     margin-right: 10px;
 }
 
@@ -60,20 +60,31 @@ input {
     width: 50px;
     text-align: center;
     margin-right: 10px;
+    background-color: #1a1a1a; /* Dark gray */
+    color: #ffa500; /* Pumpkin orange */
+    border: 2px solid #ffa500;
+    border-radius: 5px;
 }
 
 button {
     font-size: 1rem;
-    padding: 5px 10px;
-    background-color: #00bcd4;
-    color: #1e1e1e;
+    padding: 5px 15px;
+    background-color: #ffa500;
+    color: #000;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
+    box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.8);
 }
 
 button:hover {
-    background-color: #008c9e;
+    background-color: #ff4500; /* Darker orange */
+}
+
+/* Hearts and Icons */
+p {
+    font-size: 1.5rem;
+    color: #ffa500;
 }
 
 /* Footer */
@@ -81,5 +92,5 @@ footer {
     margin-top: 20px;
     font-size: 0.9rem;
     color: #aaaaaa;
-    text-align: center; /* Center text */
+    text-align: center;
 }

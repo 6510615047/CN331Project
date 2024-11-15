@@ -72,4 +72,4 @@ def word_guess_view(request):
         'message': message,
     }
 
-    return render(request, 'wordGuess.html', context)
+    return render(request, 'wordguess/wordGuess.html', context)
