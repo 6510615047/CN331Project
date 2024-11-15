@@ -1,11 +1,175 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends "base.html" %} 
+
+{% block tile %}
+<title>Folder</title>
+{% endblock %} 
+
+{% block custom_styles %}
+<style>
+  body {
+    background-color: #f8f9fa;
+    font-family: "Helvetica", "Arial", sans-serif;
+    color: #333;
+  }
+
+  .container {
+    margin-top: 6rem;
+    position: relative; /* ให้ container เป็นตำแหน่ง relative */
+  }
+
+  .card-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .card {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1rem;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .word-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+  }
+
+  .word-meaning {
+    font-size: 1.2rem;
+    color: #555;
+  }
+
+  .row {
+    margin-top: 2rem;
+  }
+
+  /* ปุ่ม Edit */
+  .edit-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    color: #007bff;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  /* ปุ่ม + อยู่ขวาบนของหน้า */
+  .add-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px; /* ให้ปุ่ม + อยู่ขวาบนของ container */
+    background-color: transparent;
+    color: #007bff;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    border-radius: 50%;
+  }
+
+  .add-btn:hover {
+    color: #fff;
+    background-color: #007bff;
+  }
+
+  h2 {
+    text-align: center;
+    font-weight: 600;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+</style>
+{% endblock %} 
+
+{% block add_new_link_1 %}
+<button class="nav-link" style="border: none; background: transparent" data-toggle="modal" data-target="#addWordModal">Add New Word</button>
+{% endblock %} 
+
+{% block add_new_link_2 %}
+<a class="nav-link" href="#">Edit Word</a>
+{% endblock %} 
+
+{% block content %}
+
+<div class="container">
+  <h2 class="text-start pb-3">Word List in {{ folder.folder_name }}</h2>
+
+  {% if messages %}
+  <div class="alert alert-warning">
+
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+
+  </div>
+
+  {% endif %}
+
+  <!-- Grid สำหรับแสดงการ์ดคำศัพท์ -->
+  <div class="card-container">
+
+    {% for word in words %}
+    <div class="card">
+      <!-- ปุ่ม Edit -->
+      <button class="edit-btn" onclick="window.location.href='/edit-word/{{ word.id }}'">
+        ✏️
+      </button>
+      <div class="card-body">
+        <h5 class="word-title">{{ word.word }}</h5>
+        <p class="word-meaning">{{ word.meaning }}</p>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<div class="modal fade" id="addWordModal" tabindex="-1" role="dialog" aria-labelledby="addFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addWordModalLabel">Add New Word</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form action="{% url 'add_word' folder_id=folder.folder_id %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="folderName">Word</label>
+              <input type="text" class="form-control" id="wordName" name="word_name" required/>
+              <br>
+              <label for="folderName">Meaning</label>
+              <input type="text" class="form-control" id="meaning" name="meaning" required/>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">Add Word</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock %}

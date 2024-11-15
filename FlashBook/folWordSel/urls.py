@@ -3,6 +3,9 @@ from folWordSel import views
 
 urlpatterns = [
     path('',views.folder_view,name='folder'),
-    path('word/',views.word_view,name='word'),
+    path('add_folder/',views.add_folder,name='add_folder'),
+    path('<int:folder_id>',views.word_view,name='word'),
     path('selectGame/',views.select_game_view,name='select_game'),
+    path('edit_folder',views.edit_folder,name='edit_folder'),
+    path('<int:folder_id>/add_word',views.add_word,name='add_word') 
 ]
