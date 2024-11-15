@@ -84,18 +84,10 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
         <!-- Home Link on the Left -->
-        <a class="navbar-brand" href="#" style="font-size: 1rem">FLASHBOOK</a>
+        <a class="navbar-brand" href="#">FLASHBOOK</a>
 
         <!-- Toggle Button for Small Screens -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
-          aria-controls="navbarContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -104,18 +96,8 @@
           <!-- Centered Search Bar -->
           <div class="mx-auto" style="width: 50%">
             <form class="d-flex">
-              <input
-                class="form-control form-control-sm me-2"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                style="height: 30px"
-              />
-              <button
-                class="btn btn-outline-success btn-sm"
-                type="submit"
-                style="padding: 0.25rem 0.5rem"
-              >
+              <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" style="height: 30px"/>
+              <button class="btn btn-outline-success btn-sm" type="submit" style="padding: 0.25rem 0.5rem">
                 Search
               </button>
             </form>
@@ -124,17 +106,8 @@
           <!-- Profile Section on the Right -->
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
-              <a
-                class="nav-link d-flex align-items-center"
-                href="#"
-                style="font-size: 0.9rem"
-              >
-                <img
-                  src="https://via.placeholder.com/30"
-                  alt="Profile"
-                  class="rounded-circle me-2"
-                  style="width: 30px; height: 30px"
-                />
+              <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
                 <span>Profile</span>
               </a>
             </li>
@@ -152,6 +125,9 @@
         <li class="nav-item">
           <a class="nav-link" href="#">Rewards</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Community</a>
+          </li>
         <hr />
         <li class="nav-item">
           {% block add_new_link_1 %}

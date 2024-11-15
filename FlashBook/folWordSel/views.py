@@ -62,30 +62,34 @@ def edit_folder(request,folder_id):
     return render(request,'folder.html',{'user':user,'folders':folders})
 
 def add_word(request,folder_id):
-
+    
     if request.method == 'POST':
+        action = request.POST.get('action')
         user = User.objects.get(user_id=1)  
         folder = Folder.objects.get(user=user,folder_id=folder_id)
 
         word = request.POST['word_name']
-        meaning = request.POST['meaning']
-        
+
         if Word.objects.filter(user=user, folder=folder,word=word).exists():
-            messages.error(request,"Word with this name already exists.")
+                messages.error(request,"Word with this name already exists.")
 
-        else:
-
+        if action == 'edit':
+            meaning = request.POST['meaning']
             newWord = Word.objects.create(
                 user = user,
                 folder = folder,
                 word = word,
                 meaning = meaning
             )
+        elif action == 'auto_meaning':
+            newWord = Word.objects.create(
+                user = user,
+                folder = folder,
+                word = word,
+            )
             
-            newWord.save()
-
+        newWord.save()
     words = Word.objects.filter(user=user,folder=folder)
-
     return render(request,'word.html',{'words' : words,'folder':folder})
 
 def edit_word(request,folder_id,word_id):
