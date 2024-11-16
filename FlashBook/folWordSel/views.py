@@ -72,6 +72,7 @@ def add_word(request,folder_id):
 
         if Word.objects.filter(user=user, folder=folder,word=word).exists():
                 messages.error(request,"Word with this name already exists.")
+                return word_view(request,folder_id)
 
         if action == 'add':
             meaning = request.POST['meaning']
