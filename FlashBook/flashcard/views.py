@@ -93,8 +93,9 @@ def next_word(request):
     
     # If there's no next word, we could cycle back or handle it differently.
     if not next_word:
-        # return render(request,'finish.html')
         next_word = Word.objects.filter(user=user, folder=folder, word_id=1).first()  # Cycle back to the first word if needed
+        request.session['current_word_id'] = next_word.word_id if next_word else current_word
+        return redirect('finish')
     
     # Set the current word in the session for the next call
     request.session['current_word_id'] = next_word.word_id if next_word else current_word
