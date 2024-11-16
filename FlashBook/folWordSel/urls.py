@@ -15,3 +15,4 @@ urlpatterns = [
     path('timeSet/', views.time_set_view, name='time_set'),  # เพิ่มเส้นทางนี้
     path('modeSet/', views.mode_set_view, name='mode_set'),  # เพิ่มเส้นทางนี้
 ]
+ 

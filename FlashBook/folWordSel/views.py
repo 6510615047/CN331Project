@@ -152,7 +152,7 @@ def search_word(request,folder_id):
         error_message = "No words found matching " + query + ". Try another search term."
         return render(request, 'word.html', {'user': user, 'folder': folder, 'words' : search_results, 'noti':error_message})
 
-def select_game_view(request):
+def select_game_view(request,folder_id):
     return render(request, 'selGame.html')
 
 # ฟังก์ชันใหม่สำหรับแสดงหน้า timeSet.html
