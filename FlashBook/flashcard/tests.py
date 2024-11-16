@@ -50,12 +50,12 @@ class FlashcardViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)  # Should redirect to flashcard page
         
         # Check if the next word is set correctly in the session
-        self.assertEqual(self.client.session.get('current_word_id'), 2)
+        self.assertEqual(self.client.session.get('currentWordId'), 2)
 
     def test_no_next_word_view(self):
         # Set up the current_word_id in the session
         session = self.client.session
-        session['current_word_id'] = 2  # Set to the last word's word_id
+        session['currentWordId'] = 2  # Set to the last word's word_id
         session.save()  # Save the session
 
         # Simulate a request to the 'next_word' view
@@ -63,7 +63,7 @@ class FlashcardViewsTest(TestCase):
 
         # Verify the response
         self.assertEqual(response.status_code, 302)  # Expect a redirect (to 'flashcard')
-        self.assertEqual(self.client.session['current_word_id'], 1)  # Should cycle back to the first word
+        self.assertEqual(self.client.session['currentWordId'], 1)  # Should cycle back to the first word
 
     def test_finish_view(self):
         """Test the finish page"""
