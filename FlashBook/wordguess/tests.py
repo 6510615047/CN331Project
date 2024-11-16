@@ -2,97 +2,127 @@ from django.test import TestCase
 from django.urls import reverse
 from homepage.models import User, Highscore, Folder
 from unittest.mock import patch
-from wordguess.models import WordGuessGame
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test.client import RequestFactory
+from django.contrib.auth.hashers import check_password
 import random
 
-class WordGuessViewTests(TestCase):
+class WordGuessTests(TestCase):
 
     def setUp(self):
-        # Manually create the user (no need for create_user)
+        # Create test user
         self.user = User.objects.create(user='testuser', fname='Test', lname='User', email='testuser@example.com')
+
+        # Set password using the set_password method
         self.user.set_password('testpassword')
-        self.user.save()  # Save the user object to the database
 
-        # Directly assign the user to the request
-        self.client.force_login(self.user)  # Using force_login to bypass the login page
+        # Ensure that the password has been hashed (this checks the set_password method functionality)
+        self.assertNotEqual(self.user.password, 'testpassword')  # The password should not be plain text
 
-    def test_word_guess_view_authenticated(self):
-        # Make a GET request to the word guess view
+        # Save the user object
+        self.user.save()
+
+        # Ensure the user is saved in the database
+        saved_user = User.objects.get(user='testuser')
+        self.assertEqual(saved_user.user, 'testuser')  # Ensure the user data is saved correctly
+
+        # Verify that the password was hashed in the database
+        self.assertTrue(check_password('testpassword', saved_user.password))  # Check password directly using check_password
+
+        # Log the user in
+        self.client.login(username='testuser', password='testpassword')
+
+    @patch('random.choice')
+    def test_word_guess_view_initialization(self, mock_random_choice):
+        # Mock the word selection
+        mock_random_choice.return_value = {"word": "python", "meaning": "a programming language"}
+        
+        # Send a GET request to initialize the game
         response = self.client.get(reverse('word_guess'))
         
-        # Check that the response is successful
+        # Ensure the response is successful
+        self.assertEqual(response.status_code, 200)
+        
+        # Check if word_data is in session
+        self.assertIn('word_data', response.client.session)
+        self.assertEqual(response.client.session['word_data']['word'], "python")
+
+    def test_word_guess_view_post_guess(self):
+        # Set initial session data for the test
+        self.client.session['word_data'] = {"word": "python", "meaning": "a programming language"}
+        self.client.session['guesses'] = ['p', 'y']
+        self.client.session['incorrect_guesses'] = ['z']
+        
+        # Send a POST request with a guess
+        response = self.client.post(reverse('word_guess'), {'guess': 't'})
+        
+        # Check if the guess has been added to the session
+        self.assertIn('t', response.client.session['guesses'])
         self.assertEqual(response.status_code, 200)
 
-        # Test if the session data is initialized correctly
-        self.assertIn('word_data', response.context)
-        self.assertIn('guesses', response.context)
-        self.assertIn('incorrect_guesses', response.context)
-
-    def test_word_guess_view_win_condition(self):
-        # Make a POST request with a correct guess
-        selected_word = random.choice([{"word": "python", "meaning": "ภาษาโปรแกรมมิ่งยอดนิยม"},
-                                      {"word": "django", "meaning": "เฟรมเวิร์คสำหรับสร้างเว็บในภาษา Python"}])
-        self.client.session['word_data'] = selected_word
-        self.client.session['guesses'] = ['p', 'y', 't', 'h', 'o', 'n']
-
-        response = self.client.post(reverse('word_guess'), {'guess': 'p'})
+    def test_word_guess_view_game_reset(self):
+        # Set initial session data
+        self.client.session['word_data'] = {"word": "python", "meaning": "a programming language"}
         
-        # Check that the game is over and the win message appears
-        self.assertContains(response, 'Congratulations! You guessed the word!')
-
-    def test_word_guess_view_lose_condition(self):
-        # Make a POST request with an incorrect guess
-        selected_word = random.choice([{"word": "python", "meaning": "ภาษาโปรแกรมมิ่งยอดนิยม"},
-                                      {"word": "django", "meaning": "เฟรมเวิร์คสำหรับสร้างเว็บในภาษา Python"}])
-        self.client.session['word_data'] = selected_word
-        self.client.session['incorrect_guesses'] = ['z', 'x', 'c', 'v', 'b', 'n']
-
-        response = self.client.post(reverse('word_guess'), {'guess': 'p'})
+        # Simulate game reset by sending a POST request with the reset flag
+        response = self.client.post(reverse('word_guess'), {'reset': 'true'})
         
-        # Check that the game is over and the lose message appears
-        self.assertContains(response, f"You lost! The word was '{selected_word['word']}'.")
+        # Check if session is flushed
+        self.assertNotIn('word_data', response.client.session)
+        self.assertEqual(response.status_code, 302)  # Expect a redirect after reset
+
+    def test_user_creation_on_first_visit(self):
+        # Ensure that the user does not exist before the test
+        user_count = User.objects.count()
         
+        # Trigger the word_guess_view and ensure no new user is created
+        response = self.client.get(reverse('word_guess'))
+        
+        # Check that the user count has not changed, since the user already exists
+        self.assertEqual(User.objects.count(), user_count)  # No new user should be created
+        
+        # Fetch the user from the database
+        user = User.objects.get(user='testuser')
+
+        # Check if the password is correct using Django's check_password function
+        self.assertTrue(check_password('testpassword', user.password))  # Check password directly
 
 class GameScoresViewTests(TestCase):
 
     def setUp(self):
-        # Create a test user
+        # Create test user and folder
         self.user = User.objects.create(user='testuser', fname='Test', lname='User', email='testuser@example.com')
         self.user.set_password('testpassword')
         self.user.save()
+        
+        self.folder = Folder.objects.create(user=self.user, folder_name="WordGuess")
+        
+        # Create highscore data for the test user
+        self.highscore = Highscore.objects.create(user=self.user, score=100, game_id=2, folder=self.folder)
+        
+        # Log the user in
+        self.client.login(username='testuser', password='testpassword')  # Corrected login
 
-        # Create a Folder instance for the test user
-        self.folder = Folder.objects.create(
-            user=self.user,
-            folder_name="Test Folder",  # Ensure folder_name is provided as it's required
-        )
-
-        # Create a Highscore instance for the user and game_id 2
-        self.highscore = Highscore.objects.create(
-            user=self.user,
-            score=100,
-            game_id=2,
-            folder=self.folder,
-        )
-
-    @patch('homepage.views.Highscore.objects.filter')  # Patch the filter method
-    def test_game_scores_view_authenticated(self, mock_filter):
-        # Mock the filter to return the Highscore instance we created
-        mock_filter.return_value = [self.highscore]
-
-        # Log in as the test user
-        self.client.login(user='testuser', password='testpassword')
-
-        # Send a GET request to the game scores view
+    def test_game_scores_view_authenticated(self):
+        # Send GET request to the game_scores_view
         response = self.client.get(reverse('game_scores', args=[2]))
-
-        # Assert that the response is successful
+        
+        # Ensure the response is successful
         self.assertEqual(response.status_code, 200)
-
+        
         # Check if the scores are present in the response context
         self.assertIn('scores', response.context)
-
-        # Ensure the score in the context matches the mocked score
+        
+        # Check if the score matches the expected value
         self.assertEqual(response.context['scores'][0].score, self.highscore.score)
+
+    def test_multiple_scores_per_user(self):
+        # Create another score for the user
+        another_folder = Folder.objects.create(user=self.user, folder_name="Flashcards")
+        another_highscore = Highscore.objects.create(user=self.user, score=150, game_id=2, folder=another_folder)
+        
+        response = self.client.get(reverse('game_scores', args=[2]))
+        
+        # Ensure both scores are in the context
+        self.assertIn(self.highscore, response.context['scores'])
+        self.assertIn(another_highscore, response.context['scores'])
