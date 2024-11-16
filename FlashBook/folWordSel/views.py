@@ -102,6 +102,11 @@ def edit_word(request,folder_id,word_id):
 
         if action == 'edit':
             word = request.POST['word_name']
+
+            if Word.objects.filter(user=user, folder=folder,word=word).exists():
+                messages.error(request,"Word with this name already exists.")
+                return word_view(request,folder_id)
+
             meaning = request.POST['meaning']
             editWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
 
