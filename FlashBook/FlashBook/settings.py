@@ -119,10 +119,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
 STATIC_ROOT = '/home/Flashbook/FlashBook/static/'
 
 # Default primary key field type
@@ -137,3 +133,6 @@ SESSION_COOKIE_AGE = 86400  # 1 day
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_SAVE_EVERY_REQUEST = False
+
+AUTH_USER_MODEL = 'auth.User'
+

@@ -94,3 +94,11 @@ footer {
     color: #aaaaaa;
     text-align: center;
 }
+
+.word-meaning {
+    font-size: 1.2rem;
+    color: #ffa500; /* Pumpkin orange */
+    margin: 15px 0;
+    text-align: center;
+    font-style: italic;
+}
