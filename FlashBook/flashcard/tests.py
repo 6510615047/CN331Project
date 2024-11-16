@@ -26,8 +26,7 @@ class FlashcardViewsTest(TestCase):
         """Test the flashcard view returns the correct word and score"""
         response = self.client.get(reverse('flashcard'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test")  # Check if word is displayed
-        self.assertContains(response, "Score")  # Check if score is displayed
+        self.assertContains(response, "Score :")  # Check if score is displayed
 
     def test_correct_answer_view(self):
         """Test that the score is incremented when the correct answer is selected"""

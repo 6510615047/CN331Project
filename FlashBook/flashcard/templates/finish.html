@@ -14,8 +14,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #2196F3, #4CAF50);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -27,46 +27,46 @@
 
         /* Container */
         .finish-container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 50px;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
             width: 100%;
         }
 
         /* Heading */
         .finish-heading {
-            font-size: 3em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: black;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
         }
 
         /* Subheading */
         .finish-subheading {
-            font-size: 1.3em;
-            margin-bottom: 30px;
-            color: #333;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            color: #555;
         }
 
         /* Button */
         .finish-button {
-            background-color: #4CAF50;
-            color: #ffffff;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
+            background-color: #2193b0;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 500;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            width: 100%;
+            width: auto;
         }
 
         .finish-button:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
+            background-color: #186d8e;
+            transform: translateY(-2px);
         }
 
         .finish-button:focus {
@@ -75,18 +75,18 @@
 
         /* Animation */
         .finish-container {
-            animation: fadeIn 1s ease-in-out;
+            animation: popIn 0.8s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes popIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: scale(0.9);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1);
             }
         }
     </style>
@@ -94,9 +94,9 @@
 
 <body>
     <div class="finish-container">
-        <div class="finish-heading">Congratulations!</div>
-        <div class="finish-subheading">You’ve completed the flashcard.</div>
-        <button class="finish-button" onclick="window.location.href='/flashcard'">Go to Home</button>
+        <h1 class="finish-heading">Congratulations!</h1>
+        <p class="finish-subheading">You’ve successfully completed your flashcards.</p>
+        <button class="finish-button" onclick="window.location.href='/flashcard'">Return to Home</button>
     </div>
 </body>
 

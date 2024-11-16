@@ -32,7 +32,7 @@ def flashcard(request):
         'show_meaning': show_meaning,
     }
 
-    return render(request, 'index.html', context)
+    return render(request, 'flashcard.html', context)
 
 
 def correct_answer(request):
@@ -95,6 +95,7 @@ def next_word(request):
     if not next_word:
         next_word = Word.objects.filter(user=user, folder=folder, word_id=1).first()  # Cycle back to the first word if needed
         request.session['current_word_id'] = next_word.word_id if next_word else current_word
+        request.session['show_meaning'] = False
         return redirect('finish')
     
     # Set the current word in the session for the next call
