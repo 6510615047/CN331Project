@@ -4,6 +4,7 @@ from homepage.models import User, Folder, Highscore,Word
 # Create your views here.
 
 def flashcard(request):
+    # user = request.user
     user = User.objects.get(user="wern")
     folder = Folder.objects.filter(user=user)
     
@@ -37,6 +38,7 @@ def flashcard(request):
 
 def correct_answer(request):
     # Retrieve the test user
+    # user = request.user
     user = User.objects.get(user="wern")
     folder = Folder.objects.get(user=user)
 
@@ -60,6 +62,7 @@ def correct_answer(request):
 
 def wrong_answer(request):
     # Retrieve the test user
+    # user = request.user
     user = User.objects.get(user="wern")
     folder = Folder.objects.get(user=user)
 
@@ -82,6 +85,7 @@ def wrong_answer(request):
     return redirect('flashcard')
 
 def next_word(request):
+    # user = request.user
     user = User.objects.get(user="wern")
     folder = Folder.objects.get(user=user)
     
