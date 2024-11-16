@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from homepage.models import User, Highscore, Folder
 from django.contrib.auth.decorators import login_required
 import random
-
 WORDS = [
     {"word": "python", "meaning": "ภาษาโปรแกรมมิ่งยอดนิยม"},
     {"word": "django", "meaning": "เฟรมเวิร์คสำหรับสร้างเว็บในภาษา Python"}
@@ -11,7 +10,6 @@ WORDS = [
 
 # @login_required
 def word_guess_view(request):
-    print("Word Guess View is running...")
     
     user, created = User.objects.get_or_create(user='testuser', defaults={'password': 'testpassword'})
     if created:
