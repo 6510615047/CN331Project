@@ -50,9 +50,15 @@ def edit_folder(request,folder_id):
         if action == 'edit':
 
             actionFolder_name = request.POST['folder_name']
+            print(actionFolder_name)
+            if Folder.objects.filter(user=user,folder_name=actionFolder_name).exists():
+                messages.error(request,"A folder with this name already exists.")
+                return redirect('folder')
+            
             actionFolder.folder_name = actionFolder_name
-                
+                    
             actionFolder.save()
+
         elif action == 'delete':
 
             actionFolder.delete()
