@@ -16,9 +16,6 @@ def word_view(request, folder_id, noti='This folder is empty. Start by adding wo
     words = Word.objects.filter(user=user,folder=folder)
     return render(request,'word.html',{'words' : words,'folder':folder,'noti':noti})
 
-def select_game_view(request,folder_id):
-    return render(request,'selGame.html')
-
 def add_folder(request):
 
     if request.method == 'POST':
@@ -154,4 +151,15 @@ def search_word(request,folder_id):
     else:
         error_message = "No words found matching " + query + ". Try another search term."
         return render(request, 'word.html', {'user': user, 'folder': folder, 'words' : search_results, 'noti':error_message})
+
+def select_game_view(request):
+    return render(request, 'selGame.html')
+
+# ฟังก์ชันใหม่สำหรับแสดงหน้า timeSet.html
+def time_set_view(request):
+    return render(request, 'timeSet.html')
+
+# ฟังก์ชันใหม่สำหรับแสดงหน้า modeSet.html
+def mode_set_view(request):
+    return render(request, 'wordGuessMode.html')
 

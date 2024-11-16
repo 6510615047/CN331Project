@@ -1,11 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select game</title>
+    <style>
+        /* ทำให้หน้าต่างเต็มหน้าจอ */
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* สไตล์สำหรับแถบด้านบน */
+        .header {
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* การตั้งค่าของ container ที่จะจัดตำแหน่งปุ่ม */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            /* จัดเรียงปุ่มให้ห่างกัน */
+            align-items: center;
+            /* จัดให้อยู่กลางแนวตั้ง */
+            height: calc(100% - 80px - 60px);
+            /* ความสูงของ container ลดลงจากแถบด้านบนและข้อความเตือน */
+            padding: 0 20px;
+            /* ให้มีระยะห่างขอบด้านซ้ายและขวา */
+        }
+
+        /* สไตล์ของปุ่ม */
+        button {
+            width: 48%;
+            /* ให้ปุ่มมีขนาดกว้าง 48% ของหน้าจอ */
+            padding: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border: 2px solid #007BFF;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        /* เปลี่ยนสีปุ่มเมื่อ hover */
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            /* ขยายขนาดปุ่มเล็กน้อยเมื่อ hover */
+        }
+
+        /* เปลี่ยนขนาดปุ่มเมื่อกด */
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* สไตล์สำหรับกล่องข้อความเตือน */
+        .warning {
+            position: fixed;
+            /* ทำให้แสดงอยู่ที่ตำแหน่งที่ต้องการตลอด */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* ให้กล่องครอบคลุมความกว้างของหน้าจอ */
+            background-color: #f8d7da;
+            color: #501b22;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 2px solid #f5c6cb;
+        }
+    </style>
 </head>
+
 <body>
-    
+
+    <!-- แถบด้านบน -->
+    <div class="header">
+        Select Game
+    </div>
+
+    <!-- ปุ่มเลือกเกม -->
+    <div class="container">
+
+        <button onclick="window.location.href='/folder/timeSet/'">Flashcard</button>
+        <button onclick="window.location.href='/folder/modeSet/'">Wordguess</button>
+    </div>
+
+    <!-- กล่องข้อความเตือน -->
+    <div class="warning">
+        Please add at least 4 words first
+    </div>
+
 </body>
+
 </html>
