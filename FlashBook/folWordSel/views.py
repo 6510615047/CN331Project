@@ -155,9 +155,9 @@ def select_game_view(request,folder_id):
 
 # ฟังก์ชันใหม่สำหรับแสดงหน้า timeSet.html
 def time_set_view(request,folder_id):
-    return render(request, 'timeSet.html')
+    return render(request, 'timeSet.html',{'folder_id':folder_id})
 
 # ฟังก์ชันใหม่สำหรับแสดงหน้า modeSet.html
 def mode_set_view(request,folder_id):
-    return render(request, 'wordGuessMode.html')
+    return render(request, 'wordGuessMode.html',{'folder_id':folder_id})
 

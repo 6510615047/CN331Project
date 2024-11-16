@@ -183,19 +183,19 @@
         <div class="flashcard_word">{{ word }}</div>
 
         <!-- Correct Button -->
-        <form action="{% url 'correct_answer' %}" method="post">
+        <form action="{% url 'correct_answer' folder_id=folder.folder_id playtime=playtime %}" method="post">
             {% csrf_token %}
             <button type="submit" class="action_button correct_button" name="correct">Got it!</button>
         </form>
 
         <!-- Wrong Button -->
-        <form action="{% url 'wrong_answer' %}" method="post">
+        <form action="{% url 'wrong_answer' folder_id=folder.folder_id %}" method="post">
             {% csrf_token %}
             <button type="submit" class="action_button wrong_button" name="wrong">Can't Remember</button>
         </form>
 
         <!-- Next Button -->
-        <form action="{% url 'next_word' %}" method="post">
+        <form action="{% url 'next_word' folder_id=folder.folder_id playtime=playtime %}" method="post">
             {% csrf_token %}
             <button type="submit" class="action_button next_button" name="next">Next</button>
         </form>

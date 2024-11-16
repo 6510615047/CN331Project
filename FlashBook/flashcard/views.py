@@ -1,26 +1,45 @@
 from django.shortcuts import render, redirect
 from homepage.models import User, Folder, Highscore,Word
+from django.db.models import Min,Max
 
 # Create your views here.
 
-def flashcard(request):
-    # user = request.user
-    user = User.objects.get(user="wern")
-    folder = Folder.objects.filter(user=user)
-    
-    # Retrieve the current word ID from the session, default to 1
-    currentWordId = request.session.get('currentWordId', 1)
-    
-    # Retrieve the current word based on the word_id
-    word = Word.objects.filter(user=user, folder__in=folder, word_id=currentWordId).first()
-    
-    # Get or create Highscore entry for the user and folder
-    highscore, created = Highscore.objects.get_or_create(
-        user=user,
-        folder=folder.first(),
-        game_id=1,
-        defaults={'score': 0, 'play_time': 1}
-    )
+def flashcard(request,folder_id):
+    username = request.user
+    user = User.objects.get(user=username)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
+
+    min_word_id = Word.objects.filter(user=user, folder=folder).aggregate(Min('word_id'))['word_id__min']
+
+    max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=1).aggregate(Max('play_time'))['play_time__max']
+
+    default_word_id = min_word_id if min_word_id is not None else 1
+
+    currentWordId = request.session.get('currentWordId', default_word_id)
+    request.session['currentWordId'] = currentWordId
+
+    word = Word.objects.filter(user=user, folder=folder, word_id=currentWordId).first()
+
+    # check page that user come from
+    referrer = request.META.get('HTTP_REFERER', None)
+
+    if referrer:
+        if "flashcard" in referrer:
+            highscore = Highscore.objects.get(
+                user=user,
+                folder=folder,
+                game_id=1,
+                play_time = max_play_time
+            )
+        else:
+            highscore = Highscore.objects.create(
+                user=user,
+                folder=folder,
+                game_id=1,
+                score = 0
+            ) 
+
+    playtime = highscore.play_time
 
     # Check if the user wants to see the meaning
     showMeaning = request.session.get('showMeaning', False)
@@ -31,23 +50,24 @@ def flashcard(request):
         'user': user,
         'word': word.word if word and not showMeaning else word.meaning if word else None,
         'showMeaning': showMeaning,
+        'folder':folder,
+        'playtime':playtime
     }
 
     return render(request, 'flashcard.html', context)
 
 
-def correct_answer(request):
-    # Retrieve the test user
-    # user = request.user
-    user = User.objects.get(user="wern")
-    folder = Folder.objects.get(user=user)
+def correct_answer(request,folder_id,playtime):
+    username = request.user
+    user = User.objects.get(user=username)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
 
     # Retrieve or create Highscore for the user and folder
-    highscore, created = Highscore.objects.get_or_create(
+    highscore = Highscore.objects.get(
         user=user,
         folder=folder,
         game_id=1,
-        defaults={'score': 0}
+        play_time=playtime
     )
     
     # Increment score
@@ -56,65 +76,36 @@ def correct_answer(request):
 
     # Set the session to show the meaning after either "correct" or "wrong"
     request.session['showMeaning'] = True
-
     # Redirect to flashcard page
-    return redirect('flashcard')
+    return redirect('flashcard',folder_id=folder.folder_id)
 
-def wrong_answer(request):
-    # Retrieve the test user
-    # user = request.user
-    user = User.objects.get(user="wern")
-    folder = Folder.objects.get(user=user)
-
-    # Retrieve or create Highscore for the user and folder
-    highscore, created = Highscore.objects.get_or_create(
-        user=user,
-        folder=folder,
-        game_id=1,
-        defaults={'score': 0}
-    )
-
-    # Decrement score (optional)
-    highscore.score -= 0
-    highscore.save()
-
+def wrong_answer(request,folder_id):
+    username = request.user
+    user = User.objects.get(user=username)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
     # Set the session to show the meaning after either "correct" or "wrong"
     request.session['showMeaning'] = True
 
     # Redirect to flashcard page
-    return redirect('flashcard')
+    return redirect('flashcard',folder_id=folder.folder_id)
 
-def next_word(request):
-    # user = request.user
-    user = User.objects.get(user="wern")
-    folder = Folder.objects.get(user=user)
+def next_word(request,folder_id,playtime):
+    username = request.user
+    user = User.objects.get(user=username)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
     
     # Get the current word from session or default to word_id 1
-    currentWord = request.session.get('currentWordId', 1)
-    
+    currentWord = request.session.get('currentWordId')
+    print(currentWord)
     # Retrieve the next word based on the current word_id
     nextWord = Word.objects.filter(user=user, folder=folder, word_id=currentWord + 1).first()
     
-    # If there's no next word, we cycle back to the first word
-    if not nextWord:
-        # Cycle back to the first word if needed
-        nextWord = Word.objects.filter(user=user, folder=folder, word_id=1).first()
-        
-        # Reset score to 0 if no next word (i.e., end of words or cycle back)
-        highscore, created = Highscore.objects.get_or_create(
-            user=user,
-            folder=folder,
-            game_id=1,
-            defaults={'score': 0}  # Initialize score to 0 if it's the end
-        )
-        highscore.score = 0
-        highscore.save()
+    request.session['currentWordId'] = request.session.get('currentWordId') + 1
 
-        # Reset session variables and show the finish screen
-        request.session['currentWordId'] = nextWord.word_id if nextWord else currentWord
+    if not nextWord:
         request.session['showMeaning'] = False
-        
-        return redirect('finish')
+        del request.session['currentWordId']
+        return redirect('finish',folder_id=folder.folder_id)
     
     # Set the current word in the session for the next call
     request.session['currentWordId'] = nextWord.word_id if nextWord else currentWord
@@ -122,9 +113,9 @@ def next_word(request):
     # Reset session to show the word, not the meaning, after moving to the next word
     request.session['showMeaning'] = False
     
-    return redirect('flashcard')
+    return redirect('flashcard',folder_id=folder.folder_id)
 
-def finish(request):
+def finish(request,folder_id):
     return render(request,'finish.html')
 
 
