@@ -65,16 +65,16 @@
             color: #ddd;
         }
 
-        /* ปรับแต่งปุ่ม Homepage และ About ให้เหมือนกัน */
+        /* ปรับแต่งปุ่ม Homepage และ About */
         .nav-link[href="{% url 'homepage' %}"], .nav-link[href="{% url 'about' %}"] {
             font-size: 16px;
-            color: rgb(255, 255, 255); /* สีทองอ่อนในสถานะปกติ */
+            color: rgb(255, 255, 255);
             text-transform: uppercase;
             font-weight: bold;
-            padding: 8px 16px;  /* เพิ่ม padding ให้เท่ากับปุ่ม Register และ Login */
+            padding: 8px 16px; 
             border-radius: 20px;
             margin-right: 10px;
-            background-color: #FFC107; /* สีพื้นหลังทองอ่อน */
+            background-color: #FFC107; 
             transition: background-color 0.3s ease, box-shadow 0.3s ease; /* เพิ่มการเปลี่ยนแปลงสีพื้นหลังและเงา */
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* เพิ่มแสงเงาให้ปุ่ม Homepage และ About */
         }
@@ -82,28 +82,28 @@
         /* ปรับแต่งเมื่อ hover สำหรับปุ่ม Homepage และ About */
         .nav-link[href="{% url 'homepage' %}"]:hover,
         .nav-link[href="{% url 'about' %}"]:hover {
-            background-color: #ffe867; /* สีเหลืองเข้มเมื่อ hover */
+            background-color: #ffe867;
             color: rgb(255, 92, 16);
-            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); /* เพิ่มแสงเงาเข้มเมื่อ hover */
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); 
         }
 
-        /* ปรับแต่งปุ่ม Register และ Login ให้เหมือนกัน */
+        /* ปรับแต่งปุ่ม Register และ Login */
         .btn-custom {
             border-radius: 20px;
             font-weight: bold;
-            padding: 8px 16px;  /* ขนาดปุ่มเท่ากับปุ่ม Homepage และ About */
+            padding: 8px 16px; 
             text-transform: uppercase;
             color: white;
             background-color: #6A3FCB;
             border: none;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);  /* แสงเงาให้กับปุ่ม Register และ Login */
-            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* เพิ่มการเปลี่ยนแปลงสีพื้นหลังและเงา */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);  
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; 
         }
 
         /* ปรับแต่งเมื่อ hover สำหรับปุ่ม Register และ Login */
         .btn-custom:hover {
             background-color: #8967e7;
-            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); /* เพิ่มแสงเงาเข้มเมื่อ hover */
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); 
         }
     </style>
 </head>
@@ -112,17 +112,17 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'homepage' %}">
-                <!-- ใส่โลโก้ที่เป็นวงกลม -->
+                
                 <img src="{% static 'images/FlashbookLogo.png' %}" alt="Logo">
                 <span class="logo-text">Flash<span class="logo-highlight">Book</span></span>
             </a>
             <div class="d-flex">
-                <!-- ปรับตำแหน่งของปุ่ม Homepage และ About ให้อยู่ใกล้กัน -->
+                
                 <a href="{% url 'homepage' %}" class="nav-link">Homepage</a>
                 <a href="{% url 'about' %}" class="nav-link">About</a>
             </div>
             <div class="d-flex ms-auto">
-                <!-- ปรับปุ่ม Register และ Login ให้เหมือนกัน -->
+                
                 <a href="{% url 'register' %}" class="btn btn-custom ms-2">Register</a>
                 <a href="{% url 'login' %}" class="btn btn-custom ms-2">Login</a>
             </div>

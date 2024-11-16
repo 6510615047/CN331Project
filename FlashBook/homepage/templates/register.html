@@ -18,17 +18,17 @@
                 {% endif %}
             </div>
             <div class="mb-3">
-                {{ form.first_name.label_tag }}
-                {{ form.first_name }}
-                {% if form.first_name.errors %}
-                    <p class="form-error">{{ form.first_name.errors|striptags }}</p>
+                {{ form.fname.label_tag }}
+                {{ form.fname }}
+                {% if form.fname.errors %}
+                    <p class="form-error">{{ form.fname.errors|striptags }}</p>
                 {% endif %}
             </div>
             <div class="mb-3">
-                {{ form.last_name.label_tag }}
-                {{ form.last_name }}
-                {% if form.last_name.errors %}
-                    <p class="form-error">{{ form.last_name.errors|striptags }}</p>
+                {{ form.lname.label_tag }}
+                {{ form.lname }}
+                {% if form.lname.errors %}
+                    <p class="form-error">{{ form.lname.errors|striptags }}</p>
                 {% endif %}
             </div>
             <div class="mb-3">
@@ -39,10 +39,10 @@
                 {% endif %}
             </div>
             <div class="mb-3">
-                {{ form.birth_date.label_tag }}
-                {{ form.birth_date }}
-                {% if form.birth_date.errors %}
-                    <p class="form-error">{{ form.birth_date.errors|striptags }}</p>
+                {{ form.birthdate.label_tag }}
+                {{ form.birthdate }}
+                {% if form.birthdate.errors %}
+                    <p class="form-error">{{ form.birthdate.errors|striptags }}</p>
                 {% endif %}
             </div>
             <div class="mb-3">
@@ -127,7 +127,7 @@
     }
 
     .container {
-    padding-bottom: 25px;  /* เพิ่มพื้นที่ว่างระหว่างฟอร์มกับด้านล่าง */
+    padding-bottom: 25px;
 }
 </style>
 {% endblock %}

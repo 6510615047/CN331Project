@@ -15,9 +15,9 @@ def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            form.save()  # บันทึกผู้ใช้ลงฐานข้อมูล
+            form.save()
             messages.success(request, 'Account created successfully! Please log in.')
-            return redirect('login')  # เปลี่ยนไปหน้า Login หลังจากลงทะเบียนเสร็จ
+            return redirect('login') 
         else:
             messages.error(request, 'Please correct the error below.')
     else:
@@ -34,10 +34,10 @@ def login_views(request):
             login(request, user)
             messages.success(request, 'Logged in successfully!')
 
-            if user.is_staff:  # หากผู้ใช้เป็น Admin
-                return redirect('/admin/')  # พาไปที่ Django Admin Panel
-            else:  # หากเป็น User ทั่วไป
-                return redirect('user_dashboard')  # เปลี่ยน 'home' เป็นชื่อ path ของหน้าแรก
+            if user.is_staff: 
+                return redirect('/admin/')  
+            else:  
+                return redirect('homepage')  # จริง ๆ ต้องไปหน้า dashboard ของแต่ละ user
         """else:
             messages.error(request, 'Invalid username or password.')"""
     else:
@@ -49,9 +49,3 @@ def logout_views(request):
     logout(request)
     messages.info(request, 'Logged out successfully!')
     return redirect('login')
-
-from django.contrib.auth.decorators import login_required
-
-@login_required
-def user_dashboard(request):
-    return render(request, 'dashboard.html', {'user': request.user})
