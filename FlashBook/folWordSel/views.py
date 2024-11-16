@@ -151,13 +151,13 @@ def search_word(request,folder_id):
         return render(request, 'word.html', {'user': user, 'folder': folder, 'words' : search_results, 'noti':error_message})
 
 def select_game_view(request,folder_id):
-    return render(request, 'selGame.html')
+    return render(request, 'selGame.html',{'folder_id':folder_id})
 
 # ฟังก์ชันใหม่สำหรับแสดงหน้า timeSet.html
-def time_set_view(request):
+def time_set_view(request,folder_id):
     return render(request, 'timeSet.html')
 
 # ฟังก์ชันใหม่สำหรับแสดงหน้า modeSet.html
-def mode_set_view(request):
+def mode_set_view(request,folder_id):
     return render(request, 'wordGuessMode.html')
 

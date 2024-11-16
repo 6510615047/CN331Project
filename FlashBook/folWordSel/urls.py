@@ -12,7 +12,6 @@ urlpatterns = [
     path('search_folder',views.search_folder,name='search_folder'),
     path('<int:folder_id>/search_word',views.search_word,name='search_word'),
     # path('selectGame/', views.select_game_view, name='select_game'),
-    path('timeSet/', views.time_set_view, name='time_set'),  # เพิ่มเส้นทางนี้
-    path('modeSet/', views.mode_set_view, name='mode_set'),  # เพิ่มเส้นทางนี้
+    path('<int:folder_id>/select_game/timeSet', views.time_set_view, name='time_set'),  # เพิ่มเส้นทางนี้
+    path('<int:folder_id>/select_game/modeSet', views.mode_set_view, name='mode_set'),  # เพิ่มเส้นทางนี้
 ]
- 
