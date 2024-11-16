@@ -85,23 +85,37 @@ def next_word(request):
     user = User.objects.get(user="wern")
     folder = Folder.objects.get(user=user)
     
-    # Get the current word from session or another method
-    current_word = request.session.get('current_word_id', 1)  # Default to word_id 1 if not set
+    # Get the current word from session or default to word_id 1
+    current_word = request.session.get('current_word_id', 1)
     
     # Retrieve the next word based on the current word_id
     next_word = Word.objects.filter(user=user, folder=folder, word_id=current_word + 1).first()
     
-    # If there's no next word, we could cycle back or handle it differently.
+    # If there's no next word, we cycle back to the first word or handle it differently
     if not next_word:
-        next_word = Word.objects.filter(user=user, folder=folder, word_id=1).first()  # Cycle back to the first word if needed
+        # Cycle back to the first word if needed
+        next_word = Word.objects.filter(user=user, folder=folder, word_id=1).first()
+        
+        # Reset score to 0 if no next word (i.e., end of words or cycle back)
+        highscore, created = Highscore.objects.get_or_create(
+            user=user,
+            folder=folder,
+            game_id=1,
+            defaults={'score': 0}  # Initialize score to 0 if it's the end
+        )
+        highscore.score = 0
+        highscore.save()
+
+        # Reset session variables and show the finish screen
         request.session['current_word_id'] = next_word.word_id if next_word else current_word
         request.session['show_meaning'] = False
+        
         return redirect('finish')
     
     # Set the current word in the session for the next call
     request.session['current_word_id'] = next_word.word_id if next_word else current_word
     
-    # Reset the session to show the word, not the meaning, after moving to the next word
+    # Reset session to show the word, not the meaning, after moving to the next word
     request.session['show_meaning'] = False
     
     return redirect('flashcard')
@@ -110,4 +124,4 @@ def finish(request):
     return render(request,'finish.html')
 
 
-    
+
