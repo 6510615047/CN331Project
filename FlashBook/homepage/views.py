@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from .forms import RegisterForm, LoginForm
+from homepage.models import User
+from folWordSel.views import folder_view
 # Create your views here.
 
 def homepage(request):
@@ -16,6 +18,14 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
+            newUser = User.objects.create(
+                user = form.cleaned_data['username'],
+                fname = form.cleaned_data['fname'],
+                lname = form.cleaned_data['lname'],
+                email = form.cleaned_data['email'],
+            )
+            newUser.set_password(form.cleaned_data['password1'])
+            newUser.save()
             messages.success(request, 'Account created successfully! Please log in.')
             return redirect('login') 
         else:
@@ -36,8 +46,10 @@ def login_views(request):
 
             if user.is_staff: 
                 return redirect('/admin/')  
-            else:  
-                return redirect('homepage')  # จริง ๆ ต้องไปหน้า dashboard ของแต่ละ user
+            else:
+                request.session['user_id'] = User.objects.get(user=user).user_id
+                user = User.objects.get(user=user)
+                return folder_view(request) # จริง ๆ ต้องไปหน้า dashboard ของแต่ละ user
         """else:
             messages.error(request, 'Invalid username or password.')"""
     else:

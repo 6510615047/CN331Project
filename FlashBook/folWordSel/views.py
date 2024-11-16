@@ -3,15 +3,13 @@ from django.contrib import messages
 from homepage.models import *
 # Create your views here.
 
-# user = User.objects.get(user_id=request.session.get('user_id'))
-
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
-    user = User.objects.get(user_id=1)
+    user = User.objects.get(user_id=request.session.get('user_id'))
     folders = Folder.objects.filter(user=user)
     return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti})
 
 def word_view(request, folder_id, noti='This folder is empty. Start by adding words!'):
-    user = User.objects.get(user_id=1)
+    user = User.objects.get(user_id=request.session.get('user_id'))
     folder = Folder.objects.get(user=user,folder_id=folder_id)
     words = Word.objects.filter(user=user,folder=folder)
     return render(request,'word.html',{'words' : words,'folder':folder,'noti':noti})
@@ -19,7 +17,7 @@ def word_view(request, folder_id, noti='This folder is empty. Start by adding wo
 def add_folder(request):
 
     if request.method == 'POST':
-        user = User.objects.get(user_id=1)  
+        user = User.objects.get(user_id=request.session.get('user_id'))  
 
         folder_name = request.POST['folder_name']
         
@@ -41,7 +39,7 @@ def edit_folder(request,folder_id):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        user = User.objects.get(user_id=1)  
+        user = User.objects.get(user_id=request.session.get('user_id'))  
         actionFolder = Folder.objects.get(user=user,folder_id=folder_id)
 
         if action == 'edit':
@@ -68,7 +66,7 @@ def add_word(request,folder_id):
     
     if request.method == 'POST':
         action = request.POST.get('action')
-        user = User.objects.get(user_id=1)  
+        user = User.objects.get(user_id=request.session.get('user_id')) 
         folder = Folder.objects.get(user=user,folder_id=folder_id)
 
         word = request.POST['word_name']
@@ -94,7 +92,7 @@ def edit_word(request,folder_id,word_id):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        user = User.objects.get(user_id=1)  
+        user = User.objects.get(user_id=request.session.get('user_id'))  
         folder = Folder.objects.get(user=user,folder_id=folder_id)
 
         if action == 'edit':
@@ -123,7 +121,7 @@ def edit_word(request,folder_id,word_id):
 
 def search_folder(request):
     query = request.GET.get('query', '')
-    user = User.objects.get(user_id=1)
+    user = User.objects.get(user_id=request.session.get('user_id'))
 
     if not query:
         return folder_view(request) 
@@ -138,7 +136,7 @@ def search_folder(request):
     
 def search_word(request,folder_id):
     query = request.GET.get('query', '')
-    user = User.objects.get(user_id=1)
+    user = User.objects.get(user_id=request.session.get('user_id'))
     folder = Folder.objects.get(user=user,folder_id=folder_id)
 
     if not query:
