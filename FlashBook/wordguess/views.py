@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from homepage.models import User, Highscore, Folder
-from django.contrib.auth.decorators import login_required
+from django.db.models import Min,Max
 import random
 WORDS = [
     {"word": "python", "meaning": "ภาษาโปรแกรมมิ่งยอดนิยม"},
@@ -8,15 +8,11 @@ WORDS = [
     
 ]
 
-# @login_required
-def word_guess_view(request):
-    
-    user, created = User.objects.get_or_create(user='testuser', defaults={'password': 'testpassword'})
-    if created:
-        user.set_password('testpassword')
-        user.save()
-
-    request.user = user
+def word_guess_view(request,folder_id):
+    username = request.user
+    user = User.objects.get(user=username)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
+    max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=1).aggregate(Max('play_time'))['play_time__max']
 
     if request.method == "POST" and 'reset' in request.POST:
         request.session.flush()  
@@ -34,7 +30,6 @@ def word_guess_view(request):
     guesses = request.session['guesses']
     incorrect_guesses = request.session['incorrect_guesses']
 
-    
     if request.method == "POST":
         guess = request.POST.get('guess', '').lower()
         if guess and guess not in guesses:
@@ -86,11 +81,11 @@ def word_guess_view(request):
 
     return render(request, 'wordguess/wordGuess.html', context)
 
-def game_scores_view(request, game_id):
+def game_scores_view(request,game_id,folder_id):
     
-    user, _ = User.objects.get_or_create(user='testuser')
-    request.user = user
-
+    username = request.user
+    user = User.objects.get(user=username)
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
     scores = Highscore.objects.filter(user=request.user, game_id=game_id)
 
     return render(request, 'wordguess/wordGuess.html', {
