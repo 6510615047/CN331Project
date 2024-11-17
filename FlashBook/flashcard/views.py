@@ -36,7 +36,8 @@ def flashcard(request,folder_id):
             folder=folder,
             game_id=1,
             score = 0
-        ) 
+        )
+        request.session['answered'] = False
 
     playtime = highscore.play_time
 
@@ -52,6 +53,7 @@ def flashcard(request,folder_id):
         'folder':folder,
         'playtime':playtime
     }
+    # request.session['answered'] = False
 
     return render(request, 'flashcard.html', context)
 
@@ -69,9 +71,13 @@ def correct_answer(request,folder_id,playtime):
         play_time=playtime
     )
     
-    # Increment score
-    highscore.score += 1
-    highscore.save()
+    if not request.session.get('answered', False):
+        # Increment score if user has not already answered
+        highscore.score += 1
+        highscore.save()
+
+        # Mark that the user has answered
+        request.session['answered'] = True
 
     # Set the session to show the meaning after either "correct" or "wrong"
     request.session['showMeaning'] = True
@@ -93,7 +99,7 @@ def next_word(request,folder_id,playtime):
     user = User.objects.get(user=username)
     folder = Folder.objects.get(user=user,folder_id=folder_id)
     currentWord = request.session.get('currentWordId')
-    
+
     nextWord = Word.objects.filter(user=user, folder=folder, word_id=currentWord + 1).first()
     
     request.session['currentWordId'] = request.session.get('currentWordId') + 1
@@ -107,6 +113,7 @@ def next_word(request,folder_id,playtime):
     request.session['currentWordId'] = nextWord.word_id if nextWord else currentWord
     
     # Reset session to show the word, not the meaning, after moving to the next word
+    request.session['answered'] = False
     request.session['showMeaning'] = False
     
     return redirect('flashcard',folder_id=folder.folder_id)
