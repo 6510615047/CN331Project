@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-q7f4e+27(%j7v^jf)+6%w+--$o2_=*%6)*$8712-#j2u$$@m+j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',"Flashbook.pythonanywhere.com"]
+ALLOWED_HOSTS = ['localhost','127.0.0.1',"Flashbook.pythonanywhere.com"]
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'homepage',
     'folWordSel',
     'flashcard',
+    'wordguess'
 ]
 
 MIDDLEWARE = [
@@ -120,10 +121,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# ตรวจสอบว่ามีการเพิ่ม path ไปยัง static folder (ถ้ามี static ที่ใช้ร่วมกันในโปรเจกต์)
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATIC_ROOT = '/home/Flashbook/FlashBook/static/'
 
 # Path สำหรับการรวบรวม static files เมื่อใช้ `collectstatic`
 #STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -135,3 +133,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'homepage' # *
 LOGOUT_REDIRECT_URL = 'login' # * 
 LOGIN_URL = 'login' # *
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 86400  # 1 day
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = False
+
+AUTH_USER_MODEL = 'auth.User'
+
