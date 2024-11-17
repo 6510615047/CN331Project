@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash card</title>
+    <style>
+        /* กำหนดความสูงให้เต็มหน้าจอ */
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f7f7f7;
+            flex-direction: column;
+            /* ใช้สำหรับจัดเรียงในแนวตั้ง */
+        }
+
+        /* สไตล์แถบด้านบน */
+        .header {
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 32px;
+            font-weight: bold;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* กล่องหลักที่ใช้จัดตำแหน่งของ Set Time, Timer และ Score */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            /* ระยะห่างระหว่างกล่อง */
+            margin-top: 80px;
+            /* ปรับให้ไม่ชนกับแถบ header */
+        }
+
+        /* สไตล์สำหรับกล่อง Score */
+        .score-box {
+            background-color: #ffffff;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .score-display {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* สไตล์สำหรับกล่อง Set time */
+        .modal {
+            background-color: #ffffff;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* สไตล์ของแถบตัวเลือก (select) */
+        .time-select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* สไตล์ปุ่ม confirm */
+        .confirm-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* การเปลี่ยนแปลงของปุ่ม confirm เมื่อ hover */
+        .confirm-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* การเปลี่ยนแปลงของปุ่ม confirm เมื่อกด */
+        .confirm-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* สไตล์ของกล่อง Timer */
+        .timer-box {
+            background-color: #ffffff;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* สไตล์ของข้อความ Timer */
+        .timer-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .timer-display {
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* สไตล์ปุ่ม Back */
+        .back-btn {
+            background-color: #ccc;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* การเปลี่ยนแปลงของปุ่ม Back เมื่อ hover */
+        .back-btn:hover {
+            background-color: #bbb;
+        }
+
+        /* การเปลี่ยนแปลงของปุ่ม Back เมื่อกด */
+        .back-btn:active {
+            transform: translateX(-50%) scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- แถบด้านบน -->
+    <div class="header">
+        Flash card
+    </div>
+
+    <!-- กล่องหลักที่ใช้จัดตำแหน่งของ Set Time, Timer และ Score -->
+    <div class="container">
+
+        <!-- กล่อง Score -->
+        <div class="score-box">
+            <div class="score-header">Score</div>
+            <div class="score-display" id="scoreDisplay">0</div>
+        </div>
+
+        <!-- กล่อง Set Time -->
+        <div class="modal">
+            <h2>Set time</h2>
+            <select class="time-select" id="timeSelect">
+                <option value="10">10 seconds</option>
+                <option value="20">20 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="60">60 seconds</option>
+            </select>
+            <button class="confirm-btn" onclick="window.location.href='/folder/{{ folder_id }}/select_game/timeSet/flashcard'">Confirm</button>
+        </div>
+
+        <!-- กล่อง Timer -->
+        <div class="timer-box">
+            <div class="timer-header">Timer</div>
+            <div class="timer-display" id="timerDisplay">0</div>
+        </div>
+
+    </div>
+
+    <!-- ปุ่ม Back -->
+    <button class="back-btn" onclick="goBack()">Back</button>
+
+    <script>
+        // ฟังก์ชันสำหรับการกลับไปยังหน้าเดิม
+        function goBack() {
+            window.history.back(); // ฟังก์ชันนี้จะพาผู้ใช้กลับไปหน้าก่อนหน้า
+        }
+
+    </script>
+
+</body>
+
+</html>

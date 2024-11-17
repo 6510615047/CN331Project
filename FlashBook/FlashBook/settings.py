@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'homepage',
+    'folWordSel',
+    'flashcard',,
     'wordguess'
 ]
 
@@ -125,13 +127,13 @@ STATIC_ROOT = '/home/Flashbook/FlashBook/static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_REDIRECT_URL = 'homepage' # *
+LOGOUT_REDIRECT_URL = 'login' # * 
+LOGIN_URL = 'login' # *
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
 SESSION_COOKIE_AGE = 86400  # 1 day
-
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
 SESSION_SAVE_EVERY_REQUEST = False
 
 AUTH_USER_MODEL = 'auth.User'

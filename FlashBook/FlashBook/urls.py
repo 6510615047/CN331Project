@@ -20,5 +20,7 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('homepage.urls')),
+    path('folder/',include('folWordSel.urls')),
+    path('flashcard/',include('flashcard.urls')),
     path('wordguess/', include('wordguess.urls')),
 ]
