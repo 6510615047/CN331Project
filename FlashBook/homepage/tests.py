@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .forms import RegisterForm, LoginForm
 from django.contrib.messages import get_messages
 from .models import User as User_model
+from .models import Folder,Word,Highscore
 
 class RegisterLoginTests(TestCase):
     # เตรียมข้อมูลสำหรับทดสอบ
@@ -130,3 +131,28 @@ class RegisterLoginTests(TestCase):
         response = self.client.get(self.homepage_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'homepage.html')
+
+    def test_str_user_method(self):
+        expected_str = f"{self.user_model.user}"
+        self.assertEqual(str(self.user_model), expected_str)
+
+    def test_str_folder_method(self):
+        folder = Folder.objects.create(user=self.user_model, folder_name="Test Folder")
+        expected_str = f"Folder 1 for User {self.user_model.user}"
+        self.assertEqual(str(folder), expected_str)
+
+    def test_str_word_method(self):
+        folder = Folder.objects.create(user=self.user_model, folder_name="Test Folder")
+        word = Word.objects.create(user=self.user_model, folder=folder, word="Test", meaning="This is a test.")
+        expected_str = f"Word 1 in Folder {folder.folder_id} for User {self.user_model.user}"
+        self.assertEqual(str(word), expected_str)
+
+    def test_highscore_str_method(self):
+        folder = Folder.objects.create(user=self.user_model, folder_name="Test Folder")
+        highscore = Highscore.objects.create(user=self.user_model, folder=folder, game_id=1,play_time=1,score=0)
+        expected_str = f"{self.user.username} - Folder {folder.folder_id} - Game {highscore.game_id} - Play {highscore.play_time} - Score: {highscore.score}"
+        
+        # Check if the string representation matches
+        self.assertEqual(str(highscore), expected_str)
+
+    
