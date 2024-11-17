@@ -1,27 +1,51 @@
 from django.test import TestCase, Client
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User as UserBuiltIn
 from homepage.models import *
 from django.urls import reverse
+
 
 class FolderTests(TestCase):
     def setUp(self):
         # Create a test user
         self.user = User.objects.create(
-            user_id=1, 
+            user_id=1,
             user='testuser',
-            fname='testfname',
-            lname='testlname', 
+            fname='Test',
+            lname='User',
+            email='testuser@example.com',
+            password='testpassword'
+        )
+
+        self.user_built_in = UserBuiltIn.objects.create_user(
+            username='testuser',
             password='testpassword',
-            email='testemail@test.com'
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com'
         )
 
         self.client = Client()
+        
+        login_url = reverse('login')
+        response = self.client.get(login_url)
+        csrf_token = response.cookies['csrftoken'].value
 
-        # Create initial folders and words
+        response = self.client.post(
+            login_url,
+            {   
+                'csrfmiddlewaretoken': csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
+
+        # Create initial folders for the user
         self.folder1 = Folder.objects.create(user=self.user, folder_name='Folder1')
         self.folder2 = Folder.objects.create(user=self.user, folder_name='Folder2')
 
+
     def test_folder_view(self):
+
         response = self.client.get(reverse('folder'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Folder1')
@@ -84,15 +108,39 @@ class WordTests(TestCase):
     def setUp(self):
         # Create a test user
         self.user = User.objects.create(
-            user_id=1, 
+            user_id=1,
             user='testuser',
-            fname='testfname',
-            lname='testlname', 
+            fname='Test',
+            lname='User',
+            email='testuser@example.com',
+            password='testpassword'
+        )
+
+        self.user_built_in = UserBuiltIn.objects.create_user(
+            username='testuser',
             password='testpassword',
-            email='testemail@test.com'
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com'
         )
 
         self.client = Client()
+        
+        login_url = reverse('login')
+
+        # Get the CSRF token first by making a GET request
+        response = self.client.get(login_url)
+        csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
+
+        # Now submit the POST request with the CSRF token
+        response = self.client.post(
+            login_url,
+            {   
+                'csrfmiddlewaretoken': csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
 
         # Create initial folders and words
         self.folder = Folder.objects.create(user=self.user, folder_name='Folder')
@@ -166,3 +214,27 @@ class WordTests(TestCase):
         response = self.client.get(reverse('search_word', args=[self.folder.folder_id]) + '?query=')
         self.assertContains(response, 'testword1')
         self.assertContains(response, 'testword2')
+
+    def test_time_set_view(self):
+        """Test loading of the timeSet page"""
+        response = self.client.get(reverse('time_set', args=[self.folder.folder_id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Set time")
+
+    def test_select_game_view(self):
+        """Test loading of the selectGame page"""
+        response = self.client.get(reverse('select_game', args=[self.folder.folder_id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Select Game")  # Check that the page contains the phrase "Select Game"
+
+    def test_back_button(self):
+        """Test the functionality of the Back button"""
+        response = self.client.get(reverse('mode_set', args=[self.folder.folder_id]))
+        self.assertContains(response, '<button class="back-btn"')  # Check if the Back button is present in modeSet.html
+        self.assertContains(response, 'onclick="goBack()"')  # Check if the Back button's onclick uses the goBack() function
+
+    def test_select_game_buttons(self):
+        """Test the functionality of the buttons on the selectGame page"""
+        response = self.client.get(reverse('select_game', args=[self.folder.folder_id]))
+        self.assertContains(response, 'timeSet')  # Check if the Flashcard button links to '/folder/timeSet'
+        self.assertContains(response, 'modeSet')  # Check if the Wordguess button links to '/folder/modeSet'
