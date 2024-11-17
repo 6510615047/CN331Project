@@ -77,7 +77,7 @@
       /* Sidebar styling */
       .sidebar {
         width: 250px;
-        background-color: #754de0;
+        background-color: white;
         padding: 1rem;
         position: fixed;
         top: 56px;
@@ -94,20 +94,19 @@
 
 
       .sidebar .nav-link {
-        color: white;
+        color: #333;
         text-decoration: none;
         font-size: 1rem;
         font-weight: bold;
         padding: 12px 15px;
         margin-bottom: 0.6rem;
         border-radius: 8px;
-        background-color: #6A3FCB;
+        background-color: white;
         transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .sidebar .nav-link:hover {
-        background-color: #5A2FB0;
-        color: #FFD700;
+        background-color: #E5E4E2;
       }
 
       .sidebar hr {
@@ -137,6 +136,16 @@
         margin-left: 270px;
         margin-top: 80px;
       }
+
+      .logo-text {
+        font-size: 30px;
+        font-weight: bold;
+        color: rgb(243, 154, 37);
+        letter-spacing: 1px;
+      }
+      .logo-highlight {
+          color: #FFD700;
+      }
     </style>
 
     {% block custom_styles %} {% endblock %}
@@ -147,7 +156,7 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="/folder">
           <img src="{% static 'images/FlashbookLogo.png' %}" alt="Logo">
-          <span>Flash<span class="logo-highlight" style="color: #FFD700;">Book</span></span>
+          <span class="logo-text">Flash<span class="logo-highlight">Book</span></span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
