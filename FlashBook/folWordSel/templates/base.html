@@ -14,6 +14,8 @@
       body {
         margin: 0;
         padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
       }
 
       .navbar {
@@ -21,12 +23,85 @@
         top: 0;
         width: 100%;
         z-index: 1030;
+        background-color: #754de0; /* Purple similar to the prototype */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         border-bottom: 1px solid #ddd;
       }
 
+      .navbar .navbar-brand {
+        font-weight: bold;
+        font-size: 28px;
+        color: white;
+        letter-spacing: 1px;
+      }
+
+      .navbar .navbar-brand:hover {
+        color: #ffd700; /* Gold color for hover */
+      }
+
+      .navbar .navbar-toggler {
+        border-color: white;
+      }
+
+      .navbar .navbar-toggler-icon {
+        background-color: white;
+      }
+
+      .navbar-nav .nav-link {
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-right: 1rem;
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #ffd700;
+      }
+
+      .navbar .form-control {
+        border-radius: 20px;
+        font-size: 0.9rem;
+      }
+
+      .nav-search {
+        font-size: 16px;
+        color: rgb(255, 255, 255);
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 8px 16px; 
+        border-radius: 20px;
+        background-color: #FFC107; 
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); 
+        border: none;
+        height: 30px;
+        display: flex;               /* Enable Flexbox */
+        justify-content: center;     /* Center horizontally */
+        align-items: center;         /* Center vertically */
+        text-align: center;
+      }
+
+      .nav-search:hover{
+          background-color: #ffe867;
+          color: rgb(255, 92, 16);
+          box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); 
+      }
+
+
+      .navbar {
+        font-size: 0.9rem;
+        color: #6A3FCB;
+        border: 1px solid #6A3FCB;
+      }
+
+      .navbar .btn-outline-success:hover {
+        background-color: #6A3FCB;
+        color: white;
+      }
+
       .sidebar {
-        width: 200px;
-        background-color: #f8f9fa;
+        width: 250px;
+        background-color: #ffffff;
         padding: 1rem;
         position: fixed;
         top: 56px; /* Height of the navbar */
@@ -35,6 +110,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
       }
 
       .sidebar .nav-item {
@@ -44,12 +120,15 @@
       .sidebar .nav-link {
         color: #333;
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 10px 15px;
+        border-radius: 10px;
       }
 
       .sidebar .nav-link:hover {
-        color: #007bff;
-        text-decoration: underline;
+        background-color: #f1f1f1;
+        color: #6A3FCB;
       }
 
       .sidebar hr {
@@ -57,58 +136,94 @@
       }
 
       .content {
-        margin-left: 200px; /* Width of the sidebar */
+        margin-left: 250px; /* Width of the sidebar */
         margin-top: 56px; /* Height of the navbar */
-        padding: 1rem;
+        padding: 2rem;
       }
 
       .sidebar .image-links {
         display: flex;
         justify-content: space-between;
-        padding-top: 20px; /* Adds space above the images */
+        padding-top: 20px;
       }
 
       .sidebar .image-links img {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         cursor: pointer;
+        transition: transform 0.3s ease;
       }
 
-      {% block custom_styles %}
-      {% endblock %}
+      .sidebar .image-links img:hover {
+        transform: scale(1.1);
+      }
+
+      /* Logo styling */
+      .navbar-brand img {
+        height: 45px; /* Set logo size */
+        width: 45px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .logo-text {
+        font-size: 36px;
+        font-weight: bold;
+        color: rgb(243, 154, 37);
+        letter-spacing: 1px;
+      }
+
+      .logo-highlight {
+        color: #FFD700;
+      }
+
+      .profile {
+        font-size: 16px;
+        color: rgb(255, 255, 255);
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 8px 16px;   
+        border: none;
+        height: 30px;
+        display: flex;               /* Enable Flexbox */
+        justify-content: center;     /* Center horizontally */
+        align-items: center;         /* Center vertically */
+        text-align: center;
+      }
+
+      {% block custom_styles %} {% endblock %}
     </style>
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid">
-        <!-- Home Link on the Left -->
-        <a class="navbar-brand" href="#">FLASHBOOK</a>
+        <a class="navbar-brand" href="#">
+          <!-- Add logo here -->
+          {% comment %} <img src="{% static 'homepage/images/FlashbookLogo.png' %}" alt="Logo"> {% endcomment %}
+          <span class="logo-text">Flash<span class="logo-highlight">Book</span></span>
+        </a>
 
-        <!-- Toggle Button for Small Screens -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Navbar Content -->
         <div class="collapse navbar-collapse" id="navbarContent">
-          <!-- Centered Search Bar -->
           <div class="mx-auto" style="width: 50%">
-            <form class="d-flex" method="GET" action="{% block search_url %}{% endblock %}"> 
+            <form class="d-flex" method="GET" action="{% block search_url %}{% endblock %}">
               <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" style="height: 30px" name='query'/>
-              <button class="btn btn-outline-success btn-sm" type="submit" style="padding: 0.25rem 0.5rem">
+              <button class="nav-search" type="submit">
                 Search
               </button>
             </form>
           </div>
 
-          <!-- Profile Section on the Right -->
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
-                <span>Profile</span>
+                <span class='profile'>Profile</span>
               </a>
             </li>
           </ul>
@@ -117,7 +232,7 @@
     </nav>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar mt-3">
       <ul class="nav flex-column">
         <li class="nav-item">
           <a class="nav-link" href="#">Score</a>
@@ -136,7 +251,6 @@
         </li>
       </ul>
 
-      <!-- Image Links Section at the Bottom -->
       <div class="image-links">
         <a href='https://github.com/6510615047/CN331Project'>
             <img src="https://images.seeklogo.com/logo-png/30/1/github-logo-png_seeklogo-304612.png?v=638664844220000000" alt="Github" />
@@ -146,7 +260,7 @@
         </a>
         <a href='https://docs.google.com/document/d/1er6FhLIjA15bvJsXNkVrvJ4ipueN2B2I_awsXeoXCII/edit?tab=t.0'>
             <img src="https://www.iconpacks.net/icons/1/free-document-icon-901-thumb.png" alt="Document" />
-        </a>           
+        </a>
       </div>
     </div>
 
