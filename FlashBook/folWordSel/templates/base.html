@@ -3,15 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
     {% load static %}
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
-    />
+    >
     {% block title %} {% endblock %}
+
     <style>
+      /* General body styling */
       body {
         margin: 0;
         padding: 0;
@@ -19,140 +23,108 @@
         background-color: #f8f9fa;
       }
 
+      /* Navbar styling */
       .navbar {
         position: fixed;
         top: 0;
         width: 100%;
         z-index: 1030;
-        background-color: #754de0; /* Purple similar to the prototype */
+        background-color: #754de0;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         border-bottom: 1px solid #ddd;
       }
 
       .navbar .navbar-brand {
+        display: flex;
+        align-items: center;
         font-weight: bold;
         font-size: 28px;
         color: white;
         letter-spacing: 1px;
       }
 
-      .navbar .navbar-brand:hover {
-        color: #ffd700; /* Gold color for hover */
-      }
-
-      .navbar .navbar-toggler {
-        border-color: white;
-      }
-
-      .navbar .navbar-toggler-icon {
-        background-color: white;
-      }
-
-      .navbar-nav .nav-link {
-        color: white;
-        font-weight: bold;
-        font-size: 1rem;
-        margin-right: 1rem;
-      }
-
-      .navbar-nav .nav-link:hover {
-        color: #ffd700;
+      .navbar-brand img {
+        margin-right: 15px;
+        height: 50px;
+        width: 50px;
       }
 
       .navbar .form-control {
         border-radius: 20px;
+        height: 36px;
         font-size: 0.9rem;
       }
 
       .nav-search {
         font-size: 16px;
-        color: rgb(255, 255, 255);
+        color: white;
         text-transform: uppercase;
         font-weight: bold;
-        padding: 8px 16px; 
+        padding: 8px 20px;
         border-radius: 20px;
-        background-color: #FFC107; 
+        background-color: #FFC107;
         transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); 
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         border: none;
-        height: 30px;
-        display: flex;               /* Enable Flexbox */
-        justify-content: center;     /* Center horizontally */
-        align-items: center;         /* Center vertically */
-        text-align: center;
+        height: 36px;
       }
 
-      .nav-search:hover{
-          background-color: #ffe867;
-          color: rgb(255, 92, 16);
-          box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3); 
+      .nav-search:hover {
+        background-color: #FFD700;
+        color: #754de0;
       }
 
-
-      .navbar {
-        font-size: 0.9rem;
-        color: #6A3FCB;
-        border: 1px solid #6A3FCB;
-      }
-
-      .navbar .btn-outline-success:hover {
-        background-color: #6A3FCB;
-        color: white;
-      }
-
+      /* Sidebar styling */
       .sidebar {
         width: 250px;
-        background-color: #ffffff;
+        background-color: #754de0;
         padding: 1rem;
         position: fixed;
-        top: 56px; /* Height of the navbar */
+        top: 56px;
         bottom: 0;
-        border-right: 1px solid #ddd;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
       }
 
-      .sidebar .nav-item {
-        margin-bottom: 1rem;
+      .sidebar ul.nav.flex-column {
+        margin-top: 20px; /* เว้นระยะจากขอบด้านบน */
       }
 
+
       .sidebar .nav-link {
-        color: #333;
+        color: white;
         text-decoration: none;
         font-size: 1rem;
         font-weight: bold;
-        padding: 10px 15px;
-        border-radius: 10px;
+        padding: 12px 15px;
+        margin-bottom: 0.6rem;
+        border-radius: 8px;
+        background-color: #6A3FCB;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .sidebar .nav-link:hover {
-        background-color: #f1f1f1;
-        color: #6A3FCB;
+        background-color: #5A2FB0;
+        color: #FFD700;
       }
 
       .sidebar hr {
-        margin: 1rem 0;
-      }
-
-      .content {
-        margin-left: 250px; /* Width of the sidebar */
-        margin-top: 56px; /* Height of the navbar */
-        padding: 2rem;
+        margin: 1.5rem 0;
+        border-color: #ddd;
       }
 
       .sidebar .image-links {
         display: flex;
-        justify-content: space-between;
-        padding-top: 20px;
+        justify-content: space-evenly;
+        margin-top: 20px;
       }
 
       .sidebar .image-links img {
-        width: 35px;
-        height: 35px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        cursor: pointer;
         transition: transform 0.3s ease;
       }
 
@@ -160,49 +132,22 @@
         transform: scale(1.1);
       }
 
-      /* Logo styling */
-      .navbar-brand img {
-        height: 45px; /* Set logo size */
-        width: 45px;
-        border-radius: 50%;
-        margin-right: 10px;
+      /* Main content styling */
+      .container {
+        margin-left: 270px;
+        margin-top: 80px;
       }
-
-      .logo-text {
-        font-size: 36px;
-        font-weight: bold;
-        color: rgb(243, 154, 37);
-        letter-spacing: 1px;
-      }
-
-      .logo-highlight {
-        color: #FFD700;
-      }
-
-      .profile {
-        font-size: 16px;
-        color: rgb(255, 255, 255);
-        text-transform: uppercase;
-        font-weight: bold;
-        padding: 8px 16px;   
-        border: none;
-        height: 30px;
-        display: flex;               /* Enable Flexbox */
-        justify-content: center;     /* Center horizontally */
-        align-items: center;         /* Center vertically */
-        text-align: center;
-      }
-
-      {% block custom_styles %} {% endblock %}
     </style>
+
+    {% block custom_styles %} {% endblock %}
   </head>
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid">
         <a class="navbar-brand" href="/folder">
-          <img src="{% static 'homepage/images/FlashbookLogo.png' %}" alt="Logo">
-          <span class="logo-text">Flash<span class="logo-highlight">Book</span></span>
+          <img src="{% static 'images/FlashbookLogo.png' %}" alt="Logo">
+          <span>Flash<span class="logo-highlight" style="color: #FFD700;">Book</span></span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -212,18 +157,15 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <div class="mx-auto" style="width: 50%">
             <form class="d-flex" method="GET" action="{% block search_url %}{% endblock %}">
-              <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" style="height: 30px" name='query'/>
-              <button class="nav-search" type="submit">
-                Search
-              </button>
+              <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search" name="query"/>
+              <button class="nav-search" type="submit">Search</button>
             </form>
           </div>
-
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
-                <span class='profile'>Profile</span>
+                <span class="profile">Profile</span>
               </a>
             </li>
           </ul>
@@ -232,7 +174,7 @@
     </nav>
 
     <!-- Sidebar -->
-    <div class="sidebar mt-3">
+    <div class="sidebar">
       <ul class="nav flex-column">
         <li class="nav-item">
           <a class="nav-link" href="#">Score</a>
@@ -241,31 +183,30 @@
           <a class="nav-link" href="#">Rewards</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">Community</a>
-          </li>
+          <a class="nav-link" href="#">Community</a>
+        </li>
         <hr />
         <li class="nav-item">
-          {% block add_new_link_1 %}
           <a class="nav-link" href="#">Add New Folder</a>
-          {% endblock %}
         </li>
       </ul>
-
       <div class="image-links">
-        <a href='https://github.com/6510615047/CN331Project'>
-            <img src="https://images.seeklogo.com/logo-png/30/1/github-logo-png_seeklogo-304612.png?v=638664844220000000" alt="Github" />
+        <a href="https://github.com/6510615047/CN331Project">
+          <img src="https://images.seeklogo.com/logo-png/30/1/github-logo-png_seeklogo-304612.png" alt="Github" />
         </a>
-        <a href='https://trello.com/b/5YABm7nL/flashbook-board'>
-            <img src="https://cdn.icon-icons.com/icons2/3053/PNG/512/trello_macos_bigsur_icon_189616.png" alt="Trello" />
+        <a href="https://trello.com/b/5YABm7nL/flashbook-board">
+          <img src="https://cdn.icon-icons.com/icons2/3053/PNG/512/trello_macos_bigsur_icon_189616.png" alt="Trello" />
         </a>
-        <a href='https://docs.google.com/document/d/1er6FhLIjA15bvJsXNkVrvJ4ipueN2B2I_awsXeoXCII/edit?tab=t.0'>
-            <img src="https://www.iconpacks.net/icons/1/free-document-icon-901-thumb.png" alt="Document" />
+        <a href="https://docs.google.com/document/d/1er6FhLIjA15bvJsXNkVrvJ4ipueN2B2I_awsXeoXCII/edit?tab=t.0">
+          <img src="https://www.iconpacks.net/icons/1/free-document-icon-901-thumb.png" alt="Document" />
         </a>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="container mt-14">{% block content %} {% endblock %}</div>
+    <div class="container">
+      {% block content %} {% endblock %}
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>

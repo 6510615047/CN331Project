@@ -118,7 +118,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# ตรวจสอบว่ามีการเพิ่ม path ไปยัง static folder (ถ้ามี static ที่ใช้ร่วมกันในโปรเจกต์)
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Path สำหรับการรวบรวม static files เมื่อใช้ `collectstatic`
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

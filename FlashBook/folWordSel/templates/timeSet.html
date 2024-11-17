@@ -5,24 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash card</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
-        /* กำหนดความสูงให้เต็มหน้าจอ */
+        /* Full-screen container */
         body,
         html {
             height: 100%;
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #5A2FB0, #A29BFE);
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f7f7f7;
             flex-direction: column;
-            /* ใช้สำหรับจัดเรียงในแนวตั้ง */
         }
 
-        /* สไตล์แถบด้านบน */
+        /* Header style */
         .header {
-            background-color: #007BFF;
+            background-color: #5A2FB0;
             color: white;
             text-align: center;
             padding: 20px 0;
@@ -32,21 +32,20 @@
             position: fixed;
             top: 0;
             left: 0;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* กล่องหลักที่ใช้จัดตำแหน่งของ Set Time, Timer และ Score */
+        /* Main container for Set Time, Timer, and Score */
         .container {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             gap: 40px;
-            /* ระยะห่างระหว่างกล่อง */
-            margin-top: 80px;
-            /* ปรับให้ไม่ชนกับแถบ header */
+            margin-top: 100px;
         }
 
-        /* สไตล์สำหรับกล่อง Score */
-        .score-box {
+        /* Box styling */
+        .box {
             background-color: #ffffff;
             padding: 20px;
             width: 250px;
@@ -59,6 +58,7 @@
             align-items: center;
         }
 
+        /* Score box styling */
         .score-header {
             font-size: 18px;
             margin-bottom: 10px;
@@ -71,20 +71,7 @@
             color: #333;
         }
 
-        /* สไตล์สำหรับกล่อง Set time */
-        .modal {
-            background-color: #ffffff;
-            padding: 20px;
-            width: 300px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* สไตล์ของแถบตัวเลือก (select) */
+        /* Set time box styling */
         .time-select {
             width: 100%;
             padding: 10px;
@@ -94,43 +81,27 @@
             border-radius: 5px;
         }
 
-        /* สไตล์ปุ่ม confirm */
         .confirm-btn {
-            background-color: #007BFF;
+            background-color: #5A2FB0;
             color: white;
             padding: 10px 20px;
             font-size: 18px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
 
-        /* การเปลี่ยนแปลงของปุ่ม confirm เมื่อ hover */
         .confirm-btn:hover {
-            background-color: #0056b3;
+            background-color: #FFD700;
+            color: #000;
         }
 
-        /* การเปลี่ยนแปลงของปุ่ม confirm เมื่อกด */
         .confirm-btn:active {
             transform: scale(0.98);
         }
 
-        /* สไตล์ของกล่อง Timer */
-        .timer-box {
-            background-color: #ffffff;
-            padding: 20px;
-            width: 250px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* สไตล์ของข้อความ Timer */
+        /* Timer box styling */
         .timer-header {
             font-size: 18px;
             margin-bottom: 10px;
@@ -143,28 +114,26 @@
             color: #333;
         }
 
-        /* สไตล์ปุ่ม Back */
+        /* Back button styling */
         .back-btn {
-            background-color: #ccc;
-            color: #333;
+            background-color: #333;
+            color: #FFD700;
             padding: 10px 20px;
             font-size: 18px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s;
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
         }
 
-        /* การเปลี่ยนแปลงของปุ่ม Back เมื่อ hover */
         .back-btn:hover {
-            background-color: #bbb;
+            background-color: #444;
         }
 
-        /* การเปลี่ยนแปลงของปุ่ม Back เมื่อกด */
         .back-btn:active {
             transform: translateX(-50%) scale(0.98);
         }
@@ -173,22 +142,22 @@
 
 <body>
 
-    <!-- แถบด้านบน -->
+    <!-- Top header -->
     <div class="header">
         Flash card
     </div>
 
-    <!-- กล่องหลักที่ใช้จัดตำแหน่งของ Set Time, Timer และ Score -->
+    <!-- Main container for Set Time, Timer, and Score -->
     <div class="container">
 
-        <!-- กล่อง Score -->
-        <div class="score-box">
+        <!-- Score box -->
+        <div class="box">
             <div class="score-header">Score</div>
             <div class="score-display" id="scoreDisplay">0</div>
         </div>
 
-        <!-- กล่อง Set Time -->
-        <div class="modal">
+        <!-- Set time box -->
+        <div class="box">
             <h2>Set time</h2>
             <select class="time-select" id="timeSelect">
                 <option value="10">10 seconds</option>
@@ -199,23 +168,22 @@
             <button class="confirm-btn" onclick="window.location.href='/folder/{{ folder_id }}/select_game/timeSet/flashcard'">Confirm</button>
         </div>
 
-        <!-- กล่อง Timer -->
-        <div class="timer-box">
+        <!-- Timer box -->
+        <div class="box">
             <div class="timer-header">Timer</div>
             <div class="timer-display" id="timerDisplay">0</div>
         </div>
 
     </div>
 
-    <!-- ปุ่ม Back -->
+    <!-- Back button -->
     <button class="back-btn" onclick="goBack()">Back</button>
 
     <script>
-        // ฟังก์ชันสำหรับการกลับไปยังหน้าเดิม
+        // Function for going back to the previous page
         function goBack() {
-            window.history.back(); // ฟังก์ชันนี้จะพาผู้ใช้กลับไปหน้าก่อนหน้า
+            window.history.back();
         }
-
     </script>
 
 </body>
