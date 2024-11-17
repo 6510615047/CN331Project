@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from .forms import RegisterForm, LoginForm
 from django.contrib.messages import get_messages
+from .models import User as User_model
 
 class RegisterLoginTests(TestCase):
     # เตรียมข้อมูลสำหรับทดสอบ
@@ -25,6 +26,15 @@ class RegisterLoginTests(TestCase):
         }
         self.user = User.objects.create_user(**self.user_credentials)
         self.admin_user = User.objects.create_user(**self.admin_credentials)
+
+        self.user_model = User_model.objects.create(
+            user_id=1,
+            user='testuser',
+            fname='Test',
+            lname='User',
+            email='testuser@example.com',
+            password='testpassword123'
+        )
 
     # ทดสอบหน้า homepage เพื่อให้แน่ใจว่าสามารถโหลดได้สำเร็จและใช้ template ที่ถูกต้อง
     def test_homepage_view(self):
@@ -89,8 +99,8 @@ class RegisterLoginTests(TestCase):
     # ทดสอบหน้า login ด้วยการส่งข้อมูล POST ที่ถูกต้อง (happy path)
     def test_login_view_post_valid(self):
         response = self.client.post(self.login_url, data=self.user_credentials)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'folder.html')
 
     # ทดสอบหน้า login ด้วยการส่งข้อมูล POST ที่ไม่ถูกต้อง (sad path) 
     def test_login_view_post_invalid(self):
