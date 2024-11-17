@@ -49,7 +49,8 @@ def login_views(request):
             else:
                 request.session['user_id'] = User.objects.get(user=user).user_id
                 user = User.objects.get(user=user)
-                return folder_view(request) # จริง ๆ ต้องไปหน้า dashboard ของแต่ละ user
+                # return folder_view(request) # จริง ๆ ต้องไปหน้า dashboard ของแต่ละ user
+                return redirect('/folder')
         """else:
             messages.error(request, 'Invalid username or password.')"""
     else:

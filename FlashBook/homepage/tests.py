@@ -99,8 +99,7 @@ class RegisterLoginTests(TestCase):
     # ทดสอบหน้า login ด้วยการส่งข้อมูล POST ที่ถูกต้อง (happy path)
     def test_login_view_post_valid(self):
         response = self.client.post(self.login_url, data=self.user_credentials)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'folder.html')
+        self.assertEqual(response.status_code, 302)
 
     # ทดสอบหน้า login ด้วยการส่งข้อมูล POST ที่ไม่ถูกต้อง (sad path) 
     def test_login_view_post_invalid(self):
