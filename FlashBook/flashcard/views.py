@@ -23,21 +23,20 @@ def flashcard(request,folder_id):
     # check page that user come from
     referrer = request.META.get('HTTP_REFERER', None)
 
-    if referrer:
-        if "flashcard" in referrer:
-            highscore = Highscore.objects.get(
-                user=user,
-                folder=folder,
-                game_id=1,
-                play_time = max_play_time
-            )
-        else:
-            highscore = Highscore.objects.create(
-                user=user,
-                folder=folder,
-                game_id=1,
-                score = 0
-            ) 
+    if referrer and "flashcard" in referrer:
+        highscore = Highscore.objects.get(
+            user=user,
+            folder=folder,
+            game_id=1,
+            play_time = max_play_time
+        )
+    else:
+        highscore = Highscore.objects.create(
+            user=user,
+            folder=folder,
+            game_id=1,
+            score = 0
+        ) 
 
     playtime = highscore.play_time
 
@@ -93,11 +92,8 @@ def next_word(request,folder_id,playtime):
     username = request.user
     user = User.objects.get(user=username)
     folder = Folder.objects.get(user=user,folder_id=folder_id)
-    
-    # Get the current word from session or default to word_id 1
     currentWord = request.session.get('currentWordId')
-    print(currentWord)
-    # Retrieve the next word based on the current word_id
+    
     nextWord = Word.objects.filter(user=user, folder=folder, word_id=currentWord + 1).first()
     
     request.session['currentWordId'] = request.session.get('currentWordId') + 1
