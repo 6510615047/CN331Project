@@ -4,7 +4,7 @@ from homepage.models import User, Highscore, Folder
 from unittest.mock import patch
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test.client import RequestFactory
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password,make_password
 import random
 from django.core.management import call_command
 
@@ -61,27 +61,31 @@ class WordGuessTests(TestCase):
         self.assertEqual(response.status_code, 302)  # Expect a redirect after reset
     
     def test_user_creation(self):
-        # Check the initial user count and log it
+        # Ensure the database starts clean, by deleting any user with 'testuser' before the test
+        User.objects.filter(user='testuser').delete()
+
+        # Check initial user count
         initial_count = User.objects.count()
-        print(f"Initial user count: {initial_count}")
 
-        # Ensure no user with the same 'user' field exists before creating a new one
-        User.objects.filter(user='testuser').delete()  # Delete any existing user with the same 'user'
+        # Simulate calling the word_guess_view
+        user, created = User.objects.get_or_create(user='testuser', defaults={'email': 'testuser@example.com'})
+        
+        if created:
+            # Hash the password manually
+            user.password = make_password('testpassword')
+            user.save()  # Save the user with the hashed password
 
-        # Manually create the user
-        user = User.objects.create(user='testuser', fname='Test', lname='User', email='testuser@example.com')
-        user.set_password('testpassword')
-        user.save()
-
-        # Log the count after user creation
+        # Check the user count after creation
         after_creation_count = User.objects.count()
-        print(f"User count after creation: {after_creation_count}")
 
-        # Check the final user count
+        # Assert the count has increased by 1
         self.assertEqual(after_creation_count, initial_count + 1)
 
-        # Check if the password was set correctly
-        self.assertTrue(check_password('testpassword', user.password))
+        # Verify that the password is set (hashed)
+        user = User.objects.get(user='testuser')
+        # Manually check if the password hashes match
+        self.assertTrue(user.password.startswith('pbkdf2_sha256$'))  # Ensure it’s hashed
+        self.assertTrue(check_password('testpassword', user.password))  # Verify password with check_password function
 
 
     def test_user_creation_on_first_visit(self):
