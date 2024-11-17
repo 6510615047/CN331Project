@@ -173,23 +173,26 @@
       </div>
     </nav>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a class="nav-link" href="#">Score</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Rewards</a>
-        </li>
-        <li class="nav-item">
+   <!-- Sidebar -->
+   <div class="sidebar mt-3">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Score</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Rewards</a>
+      </li>
+      <li class="nav-item">
           <a class="nav-link" href="#">Community</a>
         </li>
-        <hr />
-        <li class="nav-item">
-          <a class="nav-link" href="#">Add New Folder</a>
-        </li>
-      </ul>
+      <hr />
+      <li class="nav-item">
+        {% block add_new_link_1 %}
+        <a class="nav-link" href="#">Add New Folder</a>
+        {% endblock %}
+      </li>
+    </ul>
+      
       <div class="image-links">
         <a href="https://github.com/6510615047/CN331Project">
           <img src="https://images.seeklogo.com/logo-png/30/1/github-logo-png_seeklogo-304612.png" alt="Github" />
