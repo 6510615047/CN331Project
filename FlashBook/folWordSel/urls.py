@@ -21,4 +21,5 @@ urlpatterns = [
     path('score/', views.score, name='score'),
     path('reward/', views.reward, name='reward'),
     path('check_in/', views.check_in, name='check_in'),
+    path('redeem_reward/<int:reward_id>/', views.redeem_reward, name='redeem_reward'),
 ]

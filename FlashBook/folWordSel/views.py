@@ -5,8 +5,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
-from django.http import HttpResponse
 import base64
+import json
 # Create your views here.
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
@@ -248,4 +248,52 @@ def check_in(request):
     return redirect('folder')
 
 def reward(request):
-    return render(request,'reward.html')
+    user = User.objects.get(user_id=request.session.get('user_id'))
+    return render(request,'reward.html',{'user':user})
+
+def redeem_reward(request,reward_id):
+    user = User.objects.get(user_id=request.session.get('user_id'))
+
+    title_available = ['Letter Seeker','Word Explorer','Rookie Linguist','Sentence Spinner','Riddle Solver','Master of Meaning','Word Wizard','Word God','Linguistic Overlord']
+    title_costs = [10, 20, 50, 80, 100, 150, 200, 300, 500]
+
+    card_color_available = ['#FF5733','#5BC0EB','#28A745','#FFC107','#D1A1D3','#F06292','linear-gradient(45deg, #F06292, #9C27B0)','linear-gradient(45deg, #5BC0EB, #28A745)','linear-gradient(45deg, #FFC107, #FF7043)']
+    card_color_costs = [100,100,100,100,100,100,300,300,300]
+
+    success_message = 'Redeem Success!'
+
+    title_ava = user.get_title_ava()  # แปลง JSON string เป็น list
+    card_color_ava = user.get_card_color_ava()  # แปลง JSON string เป็น list
+
+    if(reward_id == 0):
+        user.credits += 10
+        user.day_streak_left -= 3
+
+    elif(reward_id == 999):
+        user.hint_ava += 1
+        user.credits -= 50
+
+    elif reward_id >= 1 and reward_id <= 9:
+        title = title_available[reward_id - 1]
+        cost = title_costs[reward_id - 1]
+
+        if title not in title_ava:
+            title_ava.append(title)  # เพิ่ม title ที่ได้จาก reward_id
+
+        user.credits -= cost
+
+    elif reward_id >= 10 and reward_id <= 18:
+        card_color = card_color_available[reward_id - 10]
+        cost = card_color_costs[reward_id - 10]
+
+        if card_color not in card_color_ava:
+            card_color_ava.append(card_color)
+        
+        user.credits -= cost
+        
+    else:
+        error_message = 'Invalid reward_id!'
+        return render(request,'reward.html',{'user':user,'noti':error_message}) 
+    
+    user.save()
+    return render(request,'reward.html',{'user':user,'noti':success_message}) 
