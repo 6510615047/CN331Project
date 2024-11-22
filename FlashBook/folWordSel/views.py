@@ -4,6 +4,7 @@ from homepage.models import *
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from io import BytesIO
 import base64
 import json
@@ -206,21 +207,27 @@ def score(request):
         folder_game_1_play_times = [score.play_time for score in folder_game_1_scores]
         folder_game_1_scores_values = [score.score for score in folder_game_1_scores]
         axs[i][0].plot(folder_game_1_play_times, folder_game_1_scores_values, marker='o', linestyle='-', color='b')
-        axs[i][0].set(xlabel='Play Time', ylabel='Score', title=f'Game 1: Folder {folder.folder_name}')
-        axs[i][0].grid(True)
+        axs[i][0].set(xlabel='Play Time', ylabel='Score', title=f'Game Flashcard: Folder {folder.folder_name}')
+        axs[i][0].xaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน x
+        axs[i][0].yaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน y
+        axs[i][0].grid(False)
 
         # สร้างกราฟสำหรับเกม 2
         folder_game_2_play_times = [score.play_time for score in folder_game_2_scores]
         folder_game_2_scores_values = [score.score for score in folder_game_2_scores]
         axs[i][1].plot(folder_game_2_play_times, folder_game_2_scores_values, marker='o', linestyle='-', color='g')
-        axs[i][1].set(xlabel='Play Time', ylabel='Score', title=f'Game 2: Folder {folder.folder_name}')
-        axs[i][1].grid(True)
+        axs[i][1].set(xlabel='Play Time', ylabel='Score', title=f'Game Wordguess: Folder {folder.folder_name}')
+        axs[i][1].xaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน x
+        axs[i][1].yaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน y
+        axs[i][1].grid(False)
 
         # สร้างกราฟสำหรับเกม 3
         # folder_game_3_play_times = [score.play_time for score in folder_game_3_scores]
         # folder_game_3_scores_values = [score.score for score in folder_game_3_scores]
         # axs[i][2].plot(folder_game_3_play_times, folder_game_3_scores_values, marker='o', linestyle='-', color='r')
-        # axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Game 3: Folder {folder.folder_name}')
+        # axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Game Flashcard multiple choice: Folder {folder.folder_name}')
+        # axs[i][2].xaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน x
+        # axs[i][2].yaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน y
         # axs[i][2].grid(True)
 
     # ปรับแต่งการจัด layout เพื่อให้กราฟไม่ทับซ้อน
@@ -290,7 +297,7 @@ def redeem_reward(request,reward_id):
             card_color_ava.append(card_color)
         
         user.credits -= cost
-        
+
     else:
         error_message = 'Invalid reward_id!'
         return render(request,'reward.html',{'user':user,'noti':error_message}) 
