@@ -17,12 +17,19 @@
 </style>
 {% endblock %}
 
+{% block search_url %}{% url 'score' %}{% endblock %}
+
 {% block add_new_link_1 %}
 {% endblock %}
 
 {% block content %}
 <div class="container pb-3 mt-0 pt-0 ms-0">
-    <h2 class="text-start">Score for User: {{ user.fname }}</h2>
+    <h2 class="text-start">Score for {{ user.fname }}</h2>
+    {% if noti %}
+        <div class="alert alert-warning">
+            <p>{{ noti }}</p>
+        </div>
+    {% endif %} 
     <br>
     {% if graph %}
     <div>

@@ -168,16 +168,24 @@ def mode_set_view(request,folder_id):
 
 def score(request):
     user = User.objects.get(user_id=request.session.get('user_id'))
+    noti = None
+    query = request.GET.get('query', None)
 
     game_1_scores = Highscore.objects.filter(user=user, game_id=1)
     game_2_scores = Highscore.objects.filter(user=user, game_id=2)
     # game_3_scores = Highscore.objects.filter(user=user, game_id=3)
 
-    # จัดกลุ่มตาม folder สำหรับแต่ละเกม
-    folders = Folder.objects.filter(user=user)
+    if query:
+        folders = Folder.objects.filter(user=user, folder_name__icontains=query)  # กรองตาม query
 
-    # ปรับขนาดกราฟให้พอดี
-    fig, axs = plt.subplots(len(folders), 3, figsize=(15, len(folders) * 5))  # 3 กราฟในแต่ละแถว (สำหรับ 3 เกม)
+        if not folders:
+            folders = Folder.objects.filter(user=user)
+            noti = "No scores found matching " + query + ". Try another search term."
+        
+    else:
+        folders = Folder.objects.filter(user=user)  # ถ้าไม่มีการกรอง ให้ดึงข้อมูลทุก folder
+
+    fig, axs = plt.subplots(len(folders), 3, figsize=(15, len(folders) * 5))
 
     # ถ้ามีแค่ 1 folder ก็จะเป็นแค่ 1 แถว
     if len(folders) == 1:
@@ -193,21 +201,21 @@ def score(request):
         folder_game_1_play_times = [score.play_time for score in folder_game_1_scores]
         folder_game_1_scores_values = [score.score for score in folder_game_1_scores]
         axs[i][0].plot(folder_game_1_play_times, folder_game_1_scores_values, marker='o', linestyle='-', color='b')
-        axs[i][0].set(xlabel='Play Time', ylabel='Score', title=f'Flashcard: Folder {folder.folder_name}')
+        axs[i][0].set(xlabel='Play Time', ylabel='Score', title=f'Game 1: Folder {folder.folder_name}')
         axs[i][0].grid(True)
 
         # สร้างกราฟสำหรับเกม 2
         folder_game_2_play_times = [score.play_time for score in folder_game_2_scores]
         folder_game_2_scores_values = [score.score for score in folder_game_2_scores]
         axs[i][1].plot(folder_game_2_play_times, folder_game_2_scores_values, marker='o', linestyle='-', color='g')
-        axs[i][1].set(xlabel='Play Time', ylabel='Score', title=f'Wordguess: Folder {folder.folder_name}')
+        axs[i][1].set(xlabel='Play Time', ylabel='Score', title=f'Game 2: Folder {folder.folder_name}')
         axs[i][1].grid(True)
 
         # สร้างกราฟสำหรับเกม 3
         # folder_game_3_play_times = [score.play_time for score in folder_game_3_scores]
         # folder_game_3_scores_values = [score.score for score in folder_game_3_scores]
         # axs[i][2].plot(folder_game_3_play_times, folder_game_3_scores_values, marker='o', linestyle='-', color='r')
-        # axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Flashcard multiple choices: Folder {folder.folder_name}')
+        # axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Game 3: Folder {folder.folder_name}')
         # axs[i][2].grid(True)
 
     # ปรับแต่งการจัด layout เพื่อให้กราฟไม่ทับซ้อน
@@ -224,5 +232,7 @@ def score(request):
     # ส่งข้อมูลกราฟไปยัง template
     return render(request, 'score.html', {
         'user': user,
-        'graph': graph_data
+        'graph': graph_data,
+        'folders': folders,
+        'noti' : noti  # ส่งข้อมูล folder ไปยัง template
     })
