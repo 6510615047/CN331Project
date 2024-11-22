@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
+from django.utils import timezone
 # Create your models here.
 
 class User(models.Model):
@@ -10,15 +11,27 @@ class User(models.Model):
     password = models.CharField(max_length=128)
     email = models.EmailField(unique=True)
     day_streak = models.IntegerField(default=0)
+    last_check_in = models.DateField(null=True, blank=True)
 
     # method for hash password
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
 
-    # Create a User and set an encrypted password
-    # user = User(user="john_doe", fname="John", lname="Doe", email="john@example.com")
-    # user.set_password("securepass")  # Encrypts and sets the password
-    # user.save()
+    def check_in(self):
+        today = timezone.now().date()
+
+        if not self.last_check_in:
+            self.day_streak = 1
+        else:
+            # ถ้าเช็คอินในวันที่ต่อจากเมื่อวาน
+            if self.last_check_in + timezone.timedelta(days=1) == today:
+                self.day_streak += 1
+
+            elif self.last_check_in != today:
+                self.day_streak = 1
+
+        self.last_check_in = today
+        self.save()
 
     def __str__(self):
         return self.user
@@ -91,7 +104,7 @@ class Highscore(models.Model):
         
         if all_scores.count() >= 15:
             all_scores.first().delete()
-            
+
         super().save(*args, **kwargs)
 
     def __str__(self):
