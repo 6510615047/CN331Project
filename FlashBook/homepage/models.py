@@ -11,9 +11,17 @@ class User(models.Model):
     password = models.CharField(max_length=128)
     email = models.EmailField(unique=True)
     day_streak = models.IntegerField(default=0)
+    day_streak_left = models.IntegerField(default=0)
     last_check_in = models.DateField(null=True, blank=True)
     credits = models.PositiveIntegerField(default=0)
+
     title = models.CharField(max_length=100, null=True, blank=True)
+    title_ava = models.JSONField(default=list, blank=True)
+
+    card_color = models.TextField(default='#ffffff') 
+    card_color_ava = models.JSONField(default=list, blank=True)
+    
+    hint_ava = models.IntegerField(default=0)
 
     # method for hash password
     def set_password(self, raw_password):
@@ -24,16 +32,31 @@ class User(models.Model):
 
         if not self.last_check_in:
             self.day_streak = 1
+            self.day_streak_left = 1
         else:
             # ถ้าเช็คอินในวันที่ต่อจากเมื่อวาน
             if self.last_check_in + timezone.timedelta(days=1) == today:
                 self.day_streak += 1
+                self.day_streak_left += 1
 
             elif self.last_check_in != today:
                 self.day_streak = 1
+                self.day_streak_left = 1
 
         self.last_check_in = today
         self.save()
+
+    def get_title_ava(self):
+        return self.title_ava  # รับค่า list ที่เก็บใน JSONField
+
+    def set_title_ava(self, titles):
+        self.title_ava = titles  # บันทึกค่าลงใน JSONField
+
+    def get_card_color_ava(self):
+        return self.card_color_ava  # รับค่า list ที่เก็บใน JSONField
+
+    def set_card_color_ava(self, colors):
+        self.card_color_ava = colors 
 
     def __str__(self):
         return self.user
