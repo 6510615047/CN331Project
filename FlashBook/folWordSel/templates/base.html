@@ -178,6 +178,12 @@
           </div>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
+              <form method="POST" action="{% url 'check_in' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Check-in</button>
+              </form>
+            </li>
+            <li class="nav-item">
               <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
                 <span class="profile">Profile</span>

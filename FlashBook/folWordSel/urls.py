@@ -19,4 +19,5 @@ urlpatterns = [
     path('<int:folder_id>/select_game/modeSet/', views.mode_set_view, name='mode_set'),
     path('<int:folder_id>/select_game/modeSet/wordguess', wviews.word_guess_view, name='wordguess'),
     path('score/', views.score, name='score'),
+    path('check_in/', views.check_in, name='check_in'),
 ]
