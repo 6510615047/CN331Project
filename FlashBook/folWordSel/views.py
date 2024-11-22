@@ -246,3 +246,6 @@ def check_in(request):
     user = User.objects.get(user_id=request.session.get('user_id'))
     user.check_in()
     return redirect('folder')
+
+def rewards(request):
+    return render(request,'rewards.html')
