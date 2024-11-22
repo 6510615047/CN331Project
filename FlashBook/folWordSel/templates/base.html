@@ -177,7 +177,11 @@
         position: absolute;
         top: 100%; /* วาง tooltip ไว้ด้านล่างของลิงก์ */
         right: 0; /* ชิดขอบขวา */
-        background-color: #fff;
+        {% if card_color_is_hash %}
+        background-color: {{user.card_color}};
+        {% else %}
+        background: {{user.card_color}};
+        {% endif %}
         padding: 10px;
         border: 1px solid #ccc;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
