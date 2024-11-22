@@ -1,6 +1,12 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from homepage.models import *
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from io import BytesIO
+from django.http import HttpResponse
+import base64
 # Create your views here.
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
@@ -161,6 +167,62 @@ def mode_set_view(request,folder_id):
     return render(request, 'wordGuessMode.html',{'folder_id':folder_id})
 
 def score(request):
-    # สมมติว่าเราต้องการดึงคะแนนจากฐานข้อมูล
-    # คุณสามารถดึงข้อมูลที่จำเป็นจากฐานข้อมูลหรือจัดการข้อมูลที่ต้องการแสดง
-    return render(request, 'score.html')
+    user = User.objects.get(user_id=request.session.get('user_id'))
+
+    game_1_scores = Highscore.objects.filter(user=user, game_id=1)
+    game_2_scores = Highscore.objects.filter(user=user, game_id=2)
+    # game_3_scores = Highscore.objects.filter(user=user, game_id=3)
+
+    # จัดกลุ่มตาม folder สำหรับแต่ละเกม
+    folders = Folder.objects.filter(user=user)
+
+    # ปรับขนาดกราฟให้พอดี
+    fig, axs = plt.subplots(len(folders), 3, figsize=(15, len(folders) * 5))  # 3 กราฟในแต่ละแถว (สำหรับ 3 เกม)
+
+    # ถ้ามีแค่ 1 folder ก็จะเป็นแค่ 1 แถว
+    if len(folders) == 1:
+        axs = [axs]
+
+    for i, folder in enumerate(folders):
+        # กรองข้อมูลของแต่ละ folder สำหรับเกมแต่ละเกม
+        folder_game_1_scores = game_1_scores.filter(folder=folder)[:20]  # กรองตาม folder และจำกัดจำนวน
+        folder_game_2_scores = game_2_scores.filter(folder=folder)[:20]
+        # folder_game_3_scores = game_3_scores.filter(folder=folder)[:20]
+
+        # สร้างกราฟสำหรับเกม 1
+        folder_game_1_play_times = [score.play_time for score in folder_game_1_scores]
+        folder_game_1_scores_values = [score.score for score in folder_game_1_scores]
+        axs[i][0].plot(folder_game_1_play_times, folder_game_1_scores_values, marker='o', linestyle='-', color='b')
+        axs[i][0].set(xlabel='Play Time', ylabel='Score', title=f'Flashcard: Folder {folder.folder_name}')
+        axs[i][0].grid(True)
+
+        # สร้างกราฟสำหรับเกม 2
+        folder_game_2_play_times = [score.play_time for score in folder_game_2_scores]
+        folder_game_2_scores_values = [score.score for score in folder_game_2_scores]
+        axs[i][1].plot(folder_game_2_play_times, folder_game_2_scores_values, marker='o', linestyle='-', color='g')
+        axs[i][1].set(xlabel='Play Time', ylabel='Score', title=f'Wordguess: Folder {folder.folder_name}')
+        axs[i][1].grid(True)
+
+        # สร้างกราฟสำหรับเกม 3
+        # folder_game_3_play_times = [score.play_time for score in folder_game_3_scores]
+        # folder_game_3_scores_values = [score.score for score in folder_game_3_scores]
+        # axs[i][2].plot(folder_game_3_play_times, folder_game_3_scores_values, marker='o', linestyle='-', color='r')
+        # axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Flashcard multiple choices: Folder {folder.folder_name}')
+        # axs[i][2].grid(True)
+
+    # ปรับแต่งการจัด layout เพื่อให้กราฟไม่ทับซ้อน
+    plt.tight_layout(pad=2.0)  # เพิ่มช่องว่างระหว่างกราฟ
+
+    # บันทึกกราฟลงใน buffer
+    buf = BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    # แปลงกราฟเป็น base64
+    graph_data = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+    # ส่งข้อมูลกราฟไปยัง template
+    return render(request, 'score.html', {
+        'user': user,
+        'graph': graph_data
+    })
