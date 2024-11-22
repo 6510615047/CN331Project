@@ -247,5 +247,5 @@ def check_in(request):
     user.check_in()
     return redirect('folder')
 
-def rewards(request):
-    return render(request,'rewards.html')
+def reward(request):
+    return render(request,'reward.html')
