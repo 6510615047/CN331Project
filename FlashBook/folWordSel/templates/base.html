@@ -74,6 +74,26 @@
         color: #754de0;
       }
 
+      .nav-search:disabled {
+        font-size: 16px;
+        color: #333;  /* สีข้อความอ่อนลง */
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 8px 20px;
+        border-radius: 20px;
+        background-color: #ffe082; /* สีพื้นหลังเหลืองอ่อน */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: none;  /* ไม่มีเงาเมื่อปุ่ม disable */
+        border: none;
+        height: 36px;
+        cursor: default; /* cursor กลับเป็นแบบปกติ */
+    }
+    
+    .nav-search:disabled:hover {
+        background-color: #ffe082; /* สีพื้นหลังยังคงเหมือนเดิมเมื่อ hover */
+        color: #333; /* สีข้อความยังคงจาง */
+    }
+
       /* Sidebar styling */
       .sidebar {
         width: 250px;
@@ -179,10 +199,14 @@
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
               <form method="POST" action="{% url 'check_in' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Check-in</button>
+                  {% csrf_token %}
+                  {% if is_checked_in_today %}
+                      <button type="submit" class="nav-search" disabled>Already Checked-in</button>
+                  {% else %}
+                      <button type="submit" class="nav-search">Check-in</button>
+                  {% endif %}
               </form>
-            </li>
+          </li>
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>

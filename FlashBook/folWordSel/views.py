@@ -11,8 +11,11 @@ import base64
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
     user = User.objects.get(user_id=request.session.get('user_id'))
+    today = timezone.now().date()
+    is_checked_in_today = user.last_check_in == today
     folders = Folder.objects.filter(user=user)
-    return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti})
+
+    return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti,'is_checked_in_today': is_checked_in_today})
 
 def word_view(request, folder_id, noti='This folder is empty. Start by adding words!'):
     user = User.objects.get(user_id=request.session.get('user_id'))
