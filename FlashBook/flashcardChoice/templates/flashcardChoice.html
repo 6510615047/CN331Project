@@ -101,61 +101,70 @@
             transform: translate(-50%, -50%);
         }
 
-        /* Multiple Choices */
+        /* Container for the choices */
         .choices_container {
-            position: absolute;
-            bottom: 40px;
+            position: fixed;  /* Use fixed positioning for it to stay at the bottom */
+            left: 50%;  /* Center horizontally */
+            transform: translateX(-50%);  /* Offset to perfectly center */
+            bottom: 20px;  /* Space from the bottom */
+            width: 90%;  /* Width of the choices container (90% for more space) */
             display: flex;
             justify-content: center;
-            gap: 20px;
-            width: 100%;
-            flex-wrap: wrap;
+            align-items: center;  /* Center the choices vertically */
         }
 
+        /* Container for all choices */
+        .choices {
+            display: flex;
+            justify-content: space-between;  /* Space out the choices */
+            width: 100%;  /* Take up the full width of the container */
+            max-width: 1200px;  /* Increase the max-width of the choices container */
+        }
+
+        /* Style for each choice button */
         .choice_button {
-            background-color: #f4f4f4;
-            padding: 30px 90px;
-            font-size: 20px;
-            font-weight: bold;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 15px;  /* Adjust margin to give more space between buttons */
+            padding: 15px;  /* Add padding to create space around the text */
+            border: 2px solid #ccc;  /* Default border color */
+            border-radius: 12px;  /* Rounded corners */
+            background-color: white;  /* Default background color (white) */
             cursor: pointer;
-            transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
-            text-align: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;  /* Smooth transition for hover */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* Light shadow for depth */
+            width: 400px;  /* Wider width for each box */
+            height: 120px;  /* Taller height for each box */
+            text-align: center;  /* Center the text within each box */
         }
 
-        .choice_button:hover {
-            transform: scale(1.05);
-            background-color: #ddd;
-            border-color: #5e5ec9;
-        }
-
-        /* Hide the actual radio buttons but keep them functional */
+        /* Style for the radio button */
         .choice_button input[type="radio"] {
-            display: none;
+            margin-right: 8px;
+            display: none;  /* Hide the default radio button */
         }
 
-        .choice_button input[type="radio"]:checked+span {
-            background-color: #5e5ec9;
-            color: #fff;
-            transform: scale(1.1);
-            border-color: #333;
+        /* Style for the choice label text */
+        .choice_button span {
+            font-size: 18px;  /* Increase font size for better visibility */
+            font-weight: normal;  /* Remove bolding effect */
         }
 
-        /* Submit Button */
-        .submit_button {
-            margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #fff;
-            background-color: #5A2FB0;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        /* Hover effect on the choice */
+        .choice_button:hover {
+            background-color: #f0f0f0;  /* Light background on hover */
+            border-color: #007bff;  /* Change border color on hover */
         }
+
+        /* Focused state for accessibility */
+        .choice_button:focus-within {
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.8);  /* Light blue border when focused */
+        }
+
+
+
+
 
         /* Pop-up Styling */
         .popup {
@@ -245,16 +254,17 @@
         <div class="choices_container">
             <form method="POST" action="{% url 'check_answer' folder_id=folder.folder_id play_time=play_time %}">
                 {% csrf_token %}
-                {% for answer in answers %}
-                <label class="choice_button">
-                    <input type="radio" name="selected_answer" value="{{ answer }}" required onchange="this.form.submit()">
-                    <span>{{ answer }}</span>
-                </label>
-                {% endfor %}
+                <div class="choices">
+                    {% for answer in answers %}
+                        <label class="choice_button">
+                            <input type="radio" name="selected_answer" value="{{ answer }}" required onchange="this.form.submit()">
+                            <span>{{ answer }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
                 <input type="hidden" name="correct_answer" value="{{ correct_answer }}">
             </form>
         </div>
-    </div>
 
     {% if pop_up_message_correct is not none %}
     <div class="popup-overlay"></div>

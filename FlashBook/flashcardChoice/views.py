@@ -47,8 +47,7 @@ def flashcard_choice(request,folder_id):
             # Clear session variables when the game finishes
             del request.session['currentWordId']
             del request.session['is_first_visit']
-            # del request.session['pop_up_message_correct']
-            return redirect('finishChoice', folder_id=folder.folder_id) 
+            return redirect('finish_choice', folder_id=folder.folder_id) 
 
         current_word = nextWord
         request.session['currentWordId'] = currentWord + 1
@@ -66,7 +65,7 @@ def flashcard_choice(request,folder_id):
 
     referrer = request.META.get('HTTP_REFERER', None)
 
-    if referrer and "flashcard" in referrer:
+    if referrer and "flashcard_choice" in referrer:
         highscore = Highscore.objects.get(
             user=user,
             folder=folder,

@@ -113,4 +113,3 @@ class FlashcardViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'finish.html')  # Check if finish template is used
     
-
