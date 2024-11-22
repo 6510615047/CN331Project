@@ -86,6 +86,12 @@ class Highscore(models.Model):
         if not self.play_time:
             last_play = Highscore.objects.filter(user=self.user, folder=self.folder, game_id=self.game_id).order_by('play_time').last()
             self.play_time = last_play.play_time + 1 if last_play else 1
+
+        all_scores = Highscore.objects.filter(user=self.user, folder=self.folder, game_id=self.game_id).order_by('play_time')
+        
+        if all_scores.count() >= 15:
+            all_scores.first().delete()
+            
         super().save(*args, **kwargs)
 
     def __str__(self):
