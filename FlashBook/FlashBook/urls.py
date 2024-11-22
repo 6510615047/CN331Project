@@ -23,4 +23,5 @@ urlpatterns = [
     path('folder/',include('folWordSel.urls')),
     path('flashcard/',include('flashcard.urls')),
     path('wordguess/', include('wordguess.urls')),
+    path('flashcardChoice/',include('flashcardChoice.urls'))
 ]

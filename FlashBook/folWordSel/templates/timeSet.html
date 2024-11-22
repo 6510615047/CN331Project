@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash card</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         /* Full-screen container */
         body,
@@ -14,12 +15,13 @@
             margin: 0;
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #5e5ec9, #e8f0fe);
-            display: flex; /* Enable Flexbox */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
+            display: flex;
+            /* Enable Flexbox */
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
         }
-
-        
 
         /* Header style */
         .header {
@@ -157,7 +159,7 @@
             <div class="score-display" id="scoreDisplay">0</div>
         </div>
 
-        <!-- Set time box -->
+        <!-- Set time and game selection box -->
         <div class="box">
             <h2>Set time</h2>
             <select class="time-select" id="timeSelect">
@@ -166,7 +168,12 @@
                 <option value="30">30 seconds</option>
                 <option value="60">60 seconds</option>
             </select>
-            <button class="confirm-btn" onclick="window.location.href='/folder/{{ folder_id }}/select_game/timeSet/flashcard'">Confirm</button>
+            <h2>Select Game</h2>
+            <select class="time-select" id="gameSelect">
+                <option value="flashcard">Flashcard</option>
+                <option value="flashcardChoice">FlashcardChoice</option>
+            </select>
+            <button class="confirm-btn" onclick="confirmSelection()">Confirm</button>
         </div>
 
         <!-- Timer box -->
@@ -181,6 +188,13 @@
     <button class="back-btn" onclick="goBack()">Back</button>
 
     <script>
+        // Function to confirm selection and navigate to the appropriate page
+        function confirmSelection() {
+            const game = document.getElementById('gameSelect').value; // Get selected game
+            const folderId = "{{ folder_id }}"; // Use dynamic folder_id
+            window.location.href = `/folder/${folderId}/select_game/timeSet/${game}`;
+        }
+
         // Function for going back to the previous page
         function goBack() {
             window.history.back();

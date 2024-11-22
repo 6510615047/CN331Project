@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashcardChoice</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #5e5ec9, #e8f0fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Flashcard Container */
+        .flashcard_container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        /* Topic Display */
+        .topic_display {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: #5A2FB0;
+            color: #fff;
+            font-size: 3em;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Score and Timer Display */
+        .score_display,
+        .timer_display {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score_display {
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            color: #000000;
+        }
+
+        .timer_display {
+            top: 100px;
+            left: 20px;
+            font-size: 1.1em;
+            color: #000000;
+        }
+
+        /* Flashcard Word */
+        .flashcard_word {
+            background-color: #ffffff;
+            font-size: 4em;
+            font-weight: bold;
+            color: #333;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            max-width: 90%;
+            margin: 0;
+            /* Reset margins */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Multiple Choices */
+        .choices_container {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .choice_button {
+            background-color: #f4f4f4;
+            padding: 30px 90px;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .choice_button:hover {
+            transform: scale(1.05);
+            background-color: #ddd;
+            border-color: #5e5ec9;
+        }
+
+        /* Hide the actual radio buttons but keep them functional */
+        .choice_button input[type="radio"] {
+            display: none;
+        }
+
+        .choice_button input[type="radio"]:checked+span {
+            background-color: #5e5ec9;
+            color: #fff;
+            transform: scale(1.1);
+            border-color: #333;
+        }
+
+        /* Submit Button */
+        .submit_button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #5A2FB0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit_button:hover {
+            background-color: #452a90;
+        }
+
+        /* Next Button */
+        .next_button {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #5A2FB0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .next_button:hover {
+            background-color: #452a90;
+        }
+
+        /* Pop-up Styling */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 40px 60px; /* Increased padding */
+            width: 400px; /* Increased width */
+            text-align: center;
+            border-radius: 15px; /* More rounded corners */
+            background-color: #f0f8ff;
+            border: 3px solid #008000;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+            font-size: 1.5em; /* Increased font size */
+            z-index: 1000;
+            animation: fadeIn 0.5s ease-out; /* Added animation */
+        }
+
+        .popup.incorrect {
+            border-color: #ff0000;
+            background-color: #ffe6e6;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+        }
+
+        .popup button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: #5A2FB0;
+            color: white;
+            font-size: 1.2em; /* Increased font size */
+            font-weight: bold;
+            border: none;
+            border-radius: 12px; /* Rounded button */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .popup button:hover {
+            background-color: #452a90;
+            transform: scale(1.1); /* Slightly enlarge button on hover */
+        }
+
+        /* Animation for fading in the pop-up */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Flashcard Container -->
+    <div class="flashcard_container">
+
+        <!-- Topic Display -->
+        <div class="topic_display">Flash Card Choice</div>
+
+        <!-- Score Display -->
+        <div class="score_display">Score : {{ highscore.score }}</div>
+
+        <!-- Timer Display -->
+        <div class="timer_display">Time Left: &#8734; seconds</div>
+
+        <!-- Flashcard Word -->
+        <div class="flashcard_word">{{ word }}</div>
+
+        <!-- Choices Container -->
+        <div class="choices_container">
+            <form method="POST" action="{% url 'check_answer' folder_id=folder.folder_id play_time=play_time %}">
+                {% csrf_token %}
+                {% for answer in answers %}
+                <label class="choice_button">
+                    <input type="radio" name="selected_answer" value="{{ answer }}" required onchange="this.form.submit()">
+                    <span>{{ answer }}</span>
+                </label>
+                {% endfor %}
+                <input type="hidden" name="correct_answer" value="{{ correct_answer }}">
+            </form>
+        </div>
+    </div>
+
+    {% if pop_up_message_correct is not none %}
+    <div class="popup-overlay"></div>
+    <div class="popup {% if pop_up_message_correct %}correct{% else %}incorrect{% endif %}">
+        <p>
+            {% if pop_up_message_correct %}
+                Correct Answer! Well done!
+            {% else %}
+                Incorrect Answer! 
+            {% endif %}
+        </p>
+        <button onclick="this.parentElement.style.display='none'; document.querySelector('.popup-overlay').style.display='none';">OK</button>
+    </div>
+    {% endif %}
+
+</body>
+
+</html>

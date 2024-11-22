@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'homepage',
     'folWordSel',
     'flashcard',
-    'wordguess'
+    'wordguess',
+    'flashcardChoice'
 ]
 
 MIDDLEWARE = [
