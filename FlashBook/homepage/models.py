@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
-from django.utils import timezone
+from datetime import date, timedelta
 # Create your models here.
 
 class User(models.Model):
@@ -28,14 +28,14 @@ class User(models.Model):
         self.password = make_password(raw_password)
 
     def check_in(self):
-        today = timezone.now().date()
-
+        today = date.today()
+        print('check',today)
         if not self.last_check_in:
             self.day_streak = 1
             self.day_streak_left = 1
         else:
             # ถ้าเช็คอินในวันที่ต่อจากเมื่อวาน
-            if self.last_check_in + timezone.timedelta(days=1) == today:
+            if self.last_check_in + timedelta(days=1) == today:
                 self.day_streak += 1
                 self.day_streak_left += 1
 
