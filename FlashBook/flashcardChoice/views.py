@@ -141,7 +141,7 @@ def finishChoice(request, folder_id):
         'pop_up_message_correct': pop_up_message_correct,
     }
 
-    del request.session['pop_up_message_correct']
+    request.session.pop('pop_up_message_correct', None)
     return render(request, 'finishChoice.html', context)
 
 
