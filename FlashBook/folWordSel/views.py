@@ -160,3 +160,7 @@ def time_set_view(request,folder_id):
 def mode_set_view(request,folder_id):
     return render(request, 'wordGuessMode.html',{'folder_id':folder_id})
 
+def score(request):
+    # สมมติว่าเราต้องการดึงคะแนนจากฐานข้อมูล
+    # คุณสามารถดึงข้อมูลที่จำเป็นจากฐานข้อมูลหรือจัดการข้อมูลที่ต้องการแสดง
+    return render(request, 'score.html')
