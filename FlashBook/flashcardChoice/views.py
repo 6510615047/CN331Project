@@ -47,7 +47,7 @@ def flashcard_choice(request,folder_id):
             # Clear session variables when the game finishes
             del request.session['currentWordId']
             del request.session['is_first_visit']
-            del request.session['pop_up_message_correct']
+            # del request.session['pop_up_message_correct']
             return redirect('finishChoice', folder_id=folder.folder_id) 
 
         current_word = nextWord
@@ -136,9 +136,13 @@ def finishChoice(request, folder_id):
 
     highscore = Highscore.objects.filter(user=user, folder=folder, game_id=3).order_by('-play_time').first()
 
+    pop_up_message_correct = request.session.get('pop_up_message_correct', None)
     context = {
-        'highscore': highscore
+        'highscore': highscore,
+        'pop_up_message_correct': pop_up_message_correct,
     }
+
+    del request.session['pop_up_message_correct']
     return render(request, 'finishChoice.html', context)
 
 
