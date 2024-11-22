@@ -12,6 +12,8 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     day_streak = models.IntegerField(default=0)
     last_check_in = models.DateField(null=True, blank=True)
+    credits = models.PositiveIntegerField(default=0)
+    title = models.CharField(max_length=100, null=True, blank=True)
 
     # method for hash password
     def set_password(self, raw_password):
