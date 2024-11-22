@@ -186,7 +186,9 @@ def score(request):
             noti = "No scores found matching " + query + ". Try another search term."
         
     else:
-        folders = Folder.objects.filter(user=user)  # ถ้าไม่มีการกรอง ให้ดึงข้อมูลทุก folder
+        folders = Folder.objects.filter(user=user)
+        if not folders:
+            return render(request, 'score.html',{'user': user})
 
     fig, axs = plt.subplots(len(folders), 3, figsize=(15, len(folders) * 5))
 
