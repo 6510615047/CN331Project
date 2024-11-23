@@ -74,6 +74,26 @@
         color: #754de0;
       }
 
+      .nav-search:disabled {
+        font-size: 16px;
+        color: #333;  /* สีข้อความอ่อนลง */
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 8px 20px;
+        border-radius: 20px;
+        background-color: #ffe082; /* สีพื้นหลังเหลืองอ่อน */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: none;  /* ไม่มีเงาเมื่อปุ่ม disable */
+        border: none;
+        height: 36px;
+        cursor: default; /* cursor กลับเป็นแบบปกติ */
+    }
+    
+    .nav-search:disabled:hover {
+        background-color: #ffe082; /* สีพื้นหลังยังคงเหมือนเดิมเมื่อ hover */
+        color: #333; /* สีข้อความยังคงจาง */
+    }
+
       /* Sidebar styling */
       .sidebar {
         width: 250px;
@@ -152,6 +172,34 @@
         font-size: 1rem;
         font-weight: bold;
       }
+
+      .profile-tooltip {
+        position: absolute;
+        top: 100%; /* วาง tooltip ไว้ด้านล่างของลิงก์ */
+        right: 0; /* ชิดขอบขวา */
+        {% if card_color_is_hash %}
+        background-color: {{user.card_color}};
+        {% else %}
+        background: {{user.card_color}};
+        {% endif %}
+        padding: 10px;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        z-index: 1000;
+        white-space: nowrap; /* ป้องกันข้อความตัด */
+        opacity: 0; /* ซ่อน */
+        visibility: hidden; /* ซ่อน */
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+    
+        /* แสดง tooltip เมื่อ hover ที่ profile หรือ tooltip */
+        .profile-container:hover .profile-tooltip,
+        .profile-tooltip:hover {
+            opacity: 1;
+            visibility: visible;
+        }
+
     </style>
 
     {% block custom_styles %} {% endblock %}
@@ -178,10 +226,27 @@
           </div>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
+              <form method="POST" action="{% url 'check_in' %}">
+                  {% csrf_token %}
+                  {% if is_checked_in_today %}
+                      <button type="submit" class="nav-search" disabled>Already Checked-in</button>
+                  {% else %}
+                      <button type="submit" class="nav-search">Check-in</button>
+                  {% endif %}
+              </form>
+          </li>
+            <li class="nav-item profile-container">
               <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
                 <span class="profile">Profile</span>
               </a>
+              <div class="profile-tooltip">
+                <p><strong>Username:</strong> {{user.user}}</p>
+                <p><strong>Title:</strong> {{user.title}}</p>
+                <p><strong>Email:</strong> {{user.email}}</p>
+                <p><strong>Day Streak:</strong> {{user.day_streak}}</p>
+                <p><strong>Credits:</strong>{{user.credits}}</p>
+            </div>
             </li>
           </ul>
         </div>
@@ -192,13 +257,13 @@
    <div class="sidebar mt-3">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link" href="#">Score</a>
+        <a class="nav-link" href="{% url 'score' %}">Score</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Rewards</a>
+        <a class="nav-link" href="{% url 'reward' %}">Reward Center</a>
       </li>
       <li class="nav-item">
-          <a class="nav-link" href="#">Community</a>
+          <a class="nav-link" href="{% url 'community' %}">Community</a>
         </li>
         <hr />
         <li class="nav-item">
