@@ -21,6 +21,7 @@ def flashcard_choice(request,folder_id):
     
     current_word = Word.objects.filter(user=user, folder=folder, word_id=currentWordId).first()
 
+    
     # Check if answers have already been stored in the session
     if request.session.get('is_first_visit', True):
         # User's first visit
@@ -65,7 +66,7 @@ def flashcard_choice(request,folder_id):
 
     referrer = request.META.get('HTTP_REFERER', None)
 
-    if referrer and "flashcard_choice" in referrer:
+    if referrer and "flashcardChoice" in referrer:
         highscore = Highscore.objects.get(
             user=user,
             folder=folder,
