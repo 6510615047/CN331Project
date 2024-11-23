@@ -331,3 +331,7 @@ def redeem_reward(request,reward_id):
     
     user.save()
     return render(request,'reward.html',{'user':user,'noti':message}) 
+
+def community(request):
+    user = User.objects.get(user_id=request.session.get('user_id'))
+    return render(request,'community.html',{'user':user})

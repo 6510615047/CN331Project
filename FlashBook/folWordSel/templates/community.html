@@ -1,0 +1,76 @@
+{% extends "base.html" %} 
+
+{% block tile %}
+<title>Community</title>
+{% endblock %}
+
+{% block custom_styles %}
+<style>
+    body {
+        font-family: "Helvetica", "Arial", sans-serif;
+        color: #333;
+    }
+
+    .container {
+        padding: 3rem;
+    }
+
+    /* กำหนดเลย์เอาต์ของ container หลักให้เป็นแบบ flex เพื่อจัดวาง 2 container ข้างๆ กัน */
+    .page-layout {
+        display: flex;
+        justify-content: space-between; /* จัดตำแหน่งให้ทั้งสอง container อยู่ห่างกัน */
+        gap: 20px; /* ระยะห่างระหว่าง container */
+    }
+
+    /* การตกแต่งสำหรับ container ด้านขวา (leaderboard) */
+    .leaderboard-container {
+        width: 33%; /* กำหนดให้ container ด้านขวามีความกว้าง 33% */
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้กับกรอบ */
+        border: 1px solid #ddd; /* เส้นขอบอ่อนๆ */
+    }
+
+    /* การตกแต่งสำหรับ container หลัก */
+    .main-content {
+        width: 66%; /* กำหนดให้ container ด้านซ้ายมีความกว้าง 66% */
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้กับกรอบ */
+        border: 1px solid #ddd; /* เส้นขอบอ่อนๆ */
+    }
+
+    /* ปรับสไตล์ของหัวข้อในแต่ละ container */
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+</style>
+{% endblock %}
+
+{% block search_url %}{% endblock %}
+
+{% block add_new_link_1 %}
+{% endblock %}
+
+{% block content %}
+<div class="container pb-3 mt-0 pt-0 ms-0 pe-0">
+    <div class="page-layout">
+        <!-- Main Content Container -->
+        <div class="main-content">
+            <h1>Main Content</h1>
+            <p>This is the main content section.</p>
+        </div>
+
+        <!-- Leaderboard Container -->
+        <div class="leaderboard-container">
+            <h1>Leaderboard</h1>
+            <p>This is the leaderboard section.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
