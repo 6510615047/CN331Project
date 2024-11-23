@@ -30,7 +30,6 @@ class User(models.Model):
 
     def check_in(self):
         today = date.today()
-        print('check',today)
         if not self.last_check_in:
             self.day_streak = 1
             self.day_streak_left = 1

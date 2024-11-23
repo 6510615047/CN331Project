@@ -195,7 +195,7 @@ class WordTests(TestCase):
         response = self.client.post(reverse('edit_word', args=[self.folder.folder_id, self.word1.word_id]), {
             'action': 'delete'
         })
-        self.assertFalse(Word.objects.filter(word_id=self.word1.word_id).exists())
+        self.assertFalse(Word.objects.filter(user=self.user,folder=self.folder,word=self.word1.word).exists())
 
     def test_search_word_success(self):
         """Test searching for a word."""

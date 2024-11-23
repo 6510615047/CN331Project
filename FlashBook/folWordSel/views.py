@@ -114,7 +114,7 @@ def add_word(request,folder_id):
     return word_view(request,folder_id)
 
 def edit_word(request,folder_id,word_id):
-
+    
     if request.method == 'POST':
         action = request.POST.get('action')
         user = User.objects.get(user_id=request.session.get('user_id'))  
@@ -135,7 +135,7 @@ def edit_word(request,folder_id,word_id):
                 
             editWord.save()
         elif action == 'delete':
-            
+
             deleteWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
 
             deleteWord.delete()
