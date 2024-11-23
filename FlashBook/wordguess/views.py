@@ -34,7 +34,7 @@ def word_guess_view(request, folder_id):
         user=user,
         folder=folder
         )
-        
+
     meaning = word.meaning
 
     hearts_left = request.session.get('hearts_left', 6)  # Default hearts_left is 6
@@ -103,6 +103,7 @@ def word_guess_view(request, folder_id):
         'meaning': meaning,
         'folder': folder,
         'difficulty' : difficulty,
+        'hearts_range' : hearts_range
     }
 
     return render(request, 'wordguess/wordGuess.html', context) #render site with parameter from context
