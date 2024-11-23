@@ -119,7 +119,7 @@ class FlashcardViewsTest(TestCase):
         url = reverse('flashcard_choice', args=[self.folder.folder_id])
         response = self.client.get(
             url,
-            HTTP_REFERER='/flashcard_choice/'
+            HTTP_REFERER='/flashcardChoice/'
         )
 
         # Assert that the view logic executed correctly
