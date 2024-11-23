@@ -126,17 +126,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 15px;  /* Adjust margin to give more space between buttons */
-            padding: 15px;  /* Add padding to create space around the text */
-            border: 2px solid #ccc;  /* Default border color */
-            border-radius: 12px;  /* Rounded corners */
-            background-color: white;  /* Default background color (white) */
+            margin: 0 15px; /* Adjust margin to give more space between buttons */
+            padding: 15px; /* Add padding to create space around the text */
+            border: 2px solid #ccc; /* Default border color */
+            border-radius: 12px; /* Rounded corners */
+            background-color: white; /* Default background color (white) */
             cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;  /* Smooth transition for hover */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* Light shadow for depth */
-            width: 400px;  /* Wider width for each box */
-            height: 120px;  /* Taller height for each box */
-            text-align: center;  /* Center the text within each box */
+            transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition for hover */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+            width: 400px; /* Fixed width for each box */
+            min-height: 120px; /* Minimum height for each box */
+            height: auto; /* Allow height to expand if content exceeds */
+            text-align: center; /* Center the text within each box */
+            word-wrap: break-word; /* Ensure long words wrap properly */
         }
 
         /* Style for the radio button */

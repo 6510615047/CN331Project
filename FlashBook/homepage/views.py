@@ -121,7 +121,7 @@ def profile_view(request):
         update_session_auth_hash(request, auth_user)
 
         messages.success(request, 'Profile updated successfully!')
-        return redirect('profile')
+        return redirect('folder')
 
     context = {
         'user': custom_user,
