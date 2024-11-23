@@ -121,6 +121,7 @@ def edit_word(request,folder_id,word_id):
             deleteWord = Word.objects.get(user=user,folder=folder,word_id=word_id)
 
             deleteWord.delete()
+            Word.reorder_word_ids(deleteWord.user, deleteWord.folder)
 
     words = Word.objects.filter(user=user,folder=folder)
 

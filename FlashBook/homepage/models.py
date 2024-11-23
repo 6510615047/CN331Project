@@ -98,6 +98,15 @@ class Word(models.Model):
             last_word = Word.objects.filter(user=self.user, folder=self.folder).order_by('word_id').last()
             self.word_id = last_word.word_id + 1 if last_word else 1
         super().save(*args, **kwargs)
+    
+    @staticmethod
+    def reorder_word_ids(user, folder):
+        # ลำดับ word_id ใหม่ทุกครั้งหลังจากการลบข้อมูล
+        words = Word.objects.filter(user=user, folder=folder).order_by('word_id')
+        for index, word in enumerate(words, start=1):  # เริ่มนับจาก 1
+            if word.word_id != index:
+                word.word_id = index
+                word.save()
 
     def __str__(self):
         return f"Word {self.word_id} in Folder {self.folder.folder_id} for User {self.user.user}"
