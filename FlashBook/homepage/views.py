@@ -5,7 +5,6 @@ from .forms import RegisterForm, LoginForm
 from homepage.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
-
 # Create your views here.
 
 def homepage(request):
@@ -103,8 +102,8 @@ def profile_view(request):
         auth_user.first_name = new_fname
         auth_user.last_name = new_lname
         auth_user.email = new_email
-        if new_password:
-            auth_user.set_password(new_password)  # เปลี่ยนรหัสผ่านและเข้ารหัส
+        #if new_password:
+        #    auth_user.set_password(new_password)  # เปลี่ยนรหัสผ่านและเข้ารหัส
         auth_user.save()
 
         # อัปเดต session authentication hash เพื่อให้ผู้ใช้ยังคงเข้าสู่ระบบอยู่หลังจากเปลี่ยนข้อมูล
