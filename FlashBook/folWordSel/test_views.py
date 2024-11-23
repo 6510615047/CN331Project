@@ -362,3 +362,101 @@ class ScoreViewTest(TestCase):
         graph_data = response.context['graph']
         # Base64-encoded PNG files often start with this header
         self.assertTrue(graph_data.startswith('iVBORw0')) 
+
+class CheckIn(TestCase):
+    def setUp(self):
+        # Create a test user
+        self.user = User.objects.create(
+            user_id=1,
+            user='testuser',
+            fname='Test',
+            lname='User',
+            email='testuser@example.com',
+            password='testpassword'
+        )
+
+        self.user_built_in = UserBuiltIn.objects.create_user(
+            username='testuser',
+            password='testpassword',
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com'
+        )
+
+        self.client = Client()
+        
+        login_url = reverse('login')
+
+        # Get the CSRF token first by making a GET request
+        response = self.client.get(login_url)
+        csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
+
+        # Now submit the POST request with the CSRF token
+        response = self.client.post(
+            login_url,
+            {   
+                'csrfmiddlewaretoken': csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
+    
+    def test_first_time_check_in(self):
+        initial_day_streak = self.user.day_streak
+        response = self.client.get(reverse('check_in'))
+        self.user.refresh_from_db()
+        
+        # redirect
+        self.assertRedirects(response, reverse('folder'))
+        self.assertEqual(response.status_code, 302)
+
+        # day streak add 1
+        self.assertEqual(self.user.day_streak,initial_day_streak + 1)
+
+        # last_check_in was updated
+        self.assertEqual(self.user.last_check_in, date.today())
+
+    def test_consecutive_check_in(self):
+        yesterday = date.today() - timedelta(days=1)
+        self.user.last_check_in = yesterday
+        self.user.day_streak = 5
+        self.user.save()
+
+        response = self.client.get(reverse('check_in'))
+        self.user.refresh_from_db()
+
+        self.assertRedirects(response, reverse('folder'))
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(self.user.day_streak, 6)
+        self.assertEqual(self.user.last_check_in, date.today())
+
+    def test_missed_check_in(self):
+        two_days_ago = date.today() - timedelta(days=2)
+        self.user.last_check_in = two_days_ago
+        self.user.day_streak = 5
+        self.user.day_streak_left = 5
+        self.user.save()
+
+        response = self.client.get(reverse('check_in'))
+        self.user.refresh_from_db()
+
+        self.assertRedirects(response, reverse('folder'))
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(self.user.day_streak, 1)  # reset day streak
+        self.assertEqual(self.user.last_check_in, date.today())
+
+    def test_check_in_same_day(self):
+        today = date.today()
+        self.user.last_check_in = today
+        self.user.day_streak = 5
+        self.user.day_streak_left = 5
+        self.user.save()
+
+        response = self.client.get(reverse('check_in'))
+        self.user.refresh_from_db()
+
+        self.assertEqual(self.user.day_streak, 5)  # nothing changed
+        self.assertEqual(self.user.last_check_in, date.today())
+
