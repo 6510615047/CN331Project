@@ -68,7 +68,36 @@
         <!-- Leaderboard Container -->
         <div class="leaderboard-container">
             <h1>Leaderboard</h1>
-            <p>This is the leaderboard section.</p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>Day Streak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in top_users %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if user != '-' %}
+                                {{ user.user }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user != '-' %}
+                                {{ user.day_streak }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

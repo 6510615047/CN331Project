@@ -334,4 +334,6 @@ def redeem_reward(request,reward_id):
 
 def community(request):
     user = User.objects.get(user_id=request.session.get('user_id'))
-    return render(request,'community.html',{'user':user})
+    top_users = User.objects.order_by('-day_streak')[:10]
+    top_users = list(top_users) + ['-'] * (10 - len(top_users))  # เติม '-' หากไม่ครบ 10
+    return render(request, 'community.html', {'user': user, 'top_users': top_users})
