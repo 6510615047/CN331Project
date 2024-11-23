@@ -5,6 +5,7 @@ from .forms import RegisterForm, LoginForm
 from django.contrib.messages import get_messages
 from .models import User as User_model
 from .models import Folder,Word,Highscore
+from homepage.models import User as CustomUser
 
 class RegisterLoginTests(TestCase):
     # เตรียมข้อมูลสำหรับทดสอบ
@@ -154,5 +155,3 @@ class RegisterLoginTests(TestCase):
         
         # Check if the string representation matches
         self.assertEqual(str(highscore), expected_str)
-
-    

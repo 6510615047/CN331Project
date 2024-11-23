@@ -81,7 +81,8 @@ def profile_view(request):
         new_fname = request.POST.get('fname')
         new_lname = request.POST.get('lname')
         new_email = request.POST.get('email')
-        new_password = request.POST.get('password')
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
 
         # ตรวจสอบว่าชื่อผู้ใช้ใหม่ซ้ำหรือไม่
         if auth_user.username != new_username and User.objects.filter(user=new_username).exists():
@@ -102,8 +103,14 @@ def profile_view(request):
         auth_user.first_name = new_fname
         auth_user.last_name = new_lname
         auth_user.email = new_email
-        #if new_password:
-        #    auth_user.set_password(new_password)  # เปลี่ยนรหัสผ่านและเข้ารหัส
+
+        # หากผู้ใช้กรอก new_password ให้ทำการตรวจสอบรหัสผ่านปัจจุบันก่อนเปลี่ยน
+        if new_password:
+            if not auth_user.check_password(current_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('profile')
+            auth_user.set_password(new_password)  # เปลี่ยนรหัสผ่านและเข้ารหัส
+
         auth_user.save()
 
         # อัปเดต session authentication hash เพื่อให้ผู้ใช้ยังคงเข้าสู่ระบบอยู่หลังจากเปลี่ยนข้อมูล

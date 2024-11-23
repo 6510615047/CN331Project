@@ -36,9 +36,20 @@
                         <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="text" class="form-control" id="password" name="password" value="{{ user.password }}" required>
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password">
                     </div>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                    </div>                    
+                    <!--div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" value="{{ user.password }}" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility()">Show</button>
+                        </div>
+                    </div-->
                     <div class="mb-3">
                         <label for="profile_picture" class="form-label">Profile Picture</label>
                         <input type="file" class="form-control" id="profile_picture" name="profile_picture">
@@ -49,6 +60,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = event.target;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.textContent = 'Hide';
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.textContent = 'Show';
+        }
+    }
+</script>
 
 <style>
     .profile-img {
