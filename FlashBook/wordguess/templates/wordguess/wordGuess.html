@@ -17,7 +17,7 @@
             <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="reset" value="true">
-                <button class="reset" "submit">Reset Game</button>
+                <button class="reset" "submit">Next Word</button>
             </form>
 
             
@@ -33,10 +33,10 @@
             <h3>Guess the word:</h3>
             <p class="word-display">{{ display_word }}</p>
 
-            <h3>💀 Incorrect Guess:</h3>
-            <p class="incorrect-guesses">{{ incorrect_guesses }}</p>
+            <h3>Already Guess:</h3>
+            <p class="guesses">{{ guesses }}</p>
 
-            <h3>🧡 Hearts Left:</h3>
+            <h3>💀 Hearts Left:</h3>
             <p>
                 {% for i in hearts_range %}
                     🧡

@@ -60,10 +60,13 @@ body {
 }
 
 /* Incorrect Guesses */
-.container .incorrect-guesses {
-    font-size: 1em;
-    color: #e53935;
+.container .guesses {
+    font-size: 20px;
+    font-weight: bolder;
+    color: #ffa500;
+    padding-top: 10px;
     margin-bottom: 20px;
+    
 }
 
 /* Hearts Section */
