@@ -1,95 +1,119 @@
-from django.shortcuts import render, redirect
-from homepage.models import User, Highscore, Folder
-from django.db.models import Min,Max
-import random
-WORDS = [
-    {"word": "python", "meaning": "ภาษาโปรแกรมมิ่งยอดนิยม"},
-    {"word": "django", "meaning": "เฟรมเวิร์คสำหรับสร้างเว็บในภาษา Python"}
+from django.shortcuts import render
+from homepage.models import User, Highscore, Folder, Word
+from random import choice
+
+def word_guess_view(request, folder_id):
+    user = User.objects.get(user=request.user)
+    folder = Folder.objects.get(user=user, folder_id=folder_id)
+    words = Word.objects.filter(user=user, folder=folder)
+
+    guesses = request.session.get('guesses', [])
     
-]
+    if 'word_id' not in request.session: #choose word for new session
+        word = choice(words)
+        request.session['word_id'] = word.id
+        guesses = [] # makes guess characlist empty for new sesion
+        request.session['guesses'] = guesses # update session guess detail
+    else:
+        word = Word.objects.get(id=request.session['word_id'])
 
-def word_guess_view(request,folder_id):
-    username = request.user
-    user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user,folder_id=folder_id)
-    max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=1).aggregate(Max('play_time'))['play_time__max']
+    meaning = word.meaning
 
-    if request.method == "POST" and 'reset' in request.POST:
-        request.session.flush()  
-        return redirect('word_guess')
-    
-    if 'word_data' not in request.session:
-        selected_word = random.choice(WORDS)
-        request.session['word_data'] = selected_word
-        request.session['guesses'] = []  
-        request.session['incorrect_guesses'] = []  
+    score = request.session.get('score', 6)  # Default score is 6
 
-    word_data = request.session['word_data']
-    word = word_data["word"]  
-    meaning = word_data["meaning"]  
-    guesses = request.session['guesses']
-    incorrect_guesses = request.session['incorrect_guesses']
-
-    if request.method == "POST":
-        guess = request.POST.get('guess', '').lower()
-        if guess and guess not in guesses:
-            guesses.append(guess)
-            if guess not in word:
-                incorrect_guesses.append(guess)
+    # Process guess
+    if request.method == "POST" and 'guess' in request.POST:
+        guesses, score = process_guess(request, word, guesses, score) #Process guess everytime that add input
         request.session['guesses'] = guesses
-        request.session['incorrect_guesses'] = incorrect_guesses
+        request.session['score'] = score
     
-    display_word = " ".join([char if char in guesses else "_" for char in word])
+    display_word = get_display_word(word, guesses) # Call display_word method
 
-    game_id = 2  
-    folder, _ = Folder.objects.get_or_create(user=request.user, folder_name="WordGuess")
-
-    
-    game_over = False
+    # Check if the game is over
+    game_end = False
     message = ""
-    max_incorrect_guesses = 6  
-    hearts_left = max_incorrect_guesses - len(incorrect_guesses)
-
-    if "_" not in display_word:
-        game_over = True
-        message = "Congratulations! You guessed the word!"
-    elif hearts_left == 0:  
-        game_over = True
-        message = f"You lost! The word was '{word}'."
-
     
-    if game_over:
-        folder, _ = Folder.objects.get_or_create(user=request.user, folder_name="WordGuess")
+    if "_" not in display_word:  # If no blanks, the word is fully guessed
+        game_end = True
+        message = "Congratulations! You guessed the word!"
+    elif score == 0:  # If the score is 0, the game is over
+        game_end = True
+        message = f"You lost! The word was '{word.word}'."
 
-        Highscore.objects.update_or_create(
-            user=request.user,
-            folder=folder,  
-            game_id=game_id,
-            defaults={'score': hearts_left, 'play_time': 1}  
-        )
+    if game_end:
+        # Update or create highscore at the end of the game
+        update_highscore(user, folder, score)
+        #reser session
+        request.session.pop('word_id', None)
+        request.session.pop('guesses', None)
+        request.session.pop('score', None)
 
-    hearts_range = range(hearts_left)
+    hearts_range = range(score)
 
+    # Prepare the context for the template
     context = {
+        'highscore': Highscore.objects.filter(user=user, folder=folder, game_id=2).order_by('-play_time').first(),
         'display_word': display_word,
-        'incorrect_guesses': incorrect_guesses,
-        'hearts_range': hearts_range,
-        'game_over': game_over,
+        'game_end': game_end,
         'message': message,
-        'word_meaning': meaning,
+        'guesses': guesses,
+        'score': score,
+        'user': user,
+        'word': word,
+        'meaning': meaning,
+        'folder': folder,
+        'hearts_range': hearts_range,
     }
 
-    return render(request, 'wordguess/wordGuess.html', context)
-
-def game_scores_view(request,game_id,folder_id):
+    print(meaning)
+    print(word)
     
-    username = request.user
-    user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user,folder_id=folder_id)
-    scores = Highscore.objects.filter(user=request.user, game_id=game_id)
+    return render(request, 'wordguess/wordGuess.html', context) #render site with parameter from context
 
-    return render(request, 'wordguess/wordGuess.html', {
-        'scores': scores, 
-        'game_id': game_id,
-    })
+def process_guess(request, word, guesses, score):
+    guess = request.POST.get('guess', '').lower()  # Get the guess and convert it to lowercase
+    if guess and len(guess) == 1 and guess.isalpha():  # Check if there's an guess input and length = 1
+        if guess not in guesses:  # Only process the guess if it's a new character
+            guesses.append(guess)
+            request.session['guesses'] = guesses  # Save the guesses list back to the session
+
+            # Check if the guess is incorrect, decrease score
+            if guess not in word.word.lower():
+                score -= 1
+    print(guess)
+    return guesses, score
+
+def update_highscore(user, folder, score):
+    highscore = Highscore.objects.filter(
+        user=user,
+        folder=folder,
+        game_id=2  # Assuming game ID for word guess is 2
+    ).order_by('-play_time').first()  # Get the most recent highscore
+
+    if highscore:
+        highscore.score = score
+        highscore.save()  # Update the highscore
+    else:
+        # Create new highscore if it doesn't exist
+        Highscore.objects.create(
+            user=user,
+            folder=folder,
+            game_id=2,
+            score=score,
+            play_time=1  # First play time
+        )
+
+def get_display_word(word, guesses):
+    return " ".join([char if char in guesses else "_" for char in word.word])  # Display _ _ _ _ _ ...
+
+
+
+
+
+
+
+
+
+
+
 

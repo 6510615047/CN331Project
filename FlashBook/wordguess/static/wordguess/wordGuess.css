@@ -1,104 +1,156 @@
-/* Body Styling */
-body {
-    font-family: 'Creepster', cursive, Arial, sans-serif; /* Use a creepy font */
-    background-color: #000;  /* Black background */
-    color: #ffa500; /* Pumpkin orange text */
+* {
     margin: 0;
-    padding: 20px;
-    background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png"); /* Subtle texture */
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Container */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #5e5ec9, #e8f0fe);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Game Container */
 .container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #1a1a1a; /* Dark gray background */
-    border: 3px solid #ffa500; /* Pumpkin orange border */
-    border-radius: 15px;
-    box-shadow: 0 0 20px 5px rgba(255, 165, 0, 0.5); /* Glowing effect */
     text-align: center;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
 }
 
-/* Header */
-h1 {
-    font-size: 2.5rem;
-    color: #ffa500; /* Pumpkin orange */
+/* Title */
+.container h1 {
+    font-size: 2.5em;
+    color: #5A2FB0;
     margin-bottom: 20px;
 }
 
-/* Word Display */
-.word-display {
-    font-size: 1.8rem;
-    letter-spacing: 0.5em;
+/* Message (Game End) */
+.container h2 {
+    font-size: 1.8em;
+    color: #FF6F61;
     margin: 20px 0;
-    color: #fff;
+}
+
+/* Meaning Section */
+.container .word-meaning {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffa500;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Word Display */
+.container .word-display {
+    font-size: 2em;
+    font-weight: bold;
+    letter-spacing: 5px;
+    margin: 20px 0;
 }
 
 /* Incorrect Guesses */
-.incorrect-guesses {
-    font-size: 1.2rem;
-    color: #ff6347; /* Blood red */
+.container .incorrect-guesses {
+    font-size: 1em;
+    color: #e53935;
+    margin-bottom: 20px;
+}
+
+/* Hearts Section */
+.container p {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+/* Form and Input */
+form {
+    margin-bottom: 20px;
+}
+
+form label {
+    font-size: 1.2em;
+    color: #555;
+    display: block;
+    margin-bottom: 8px;
+}
+
+form input {
+    font-size: 1.2em;
+    padding: 10px;
+    width: 100px;
+    margin: 0 auto 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: 0.3s;
+}
+
+form input:focus {
+    border-color: #5A2FB0;
+    box-shadow: 0 0 5px rgba(90, 47, 176, 0.5);
+}
+
+/* Buttons */
+button {
+    font-size: 1.1em;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s ease;
+}
+
+/* Guess Button */
+button[type="submit"] {
+    background-color: #3498DB;
+    color: #fff;
+}
+
+button[type="submit"]:hover {
+    background-color: #1976D2;
+    transform: scale(1.05);
+}
+
+/* Reset Button */
+.reset {
+    background-color: #4CAF50;
+    color: #fff;
     margin: 10px 0;
 }
 
-/* Form Styling */
-form {
-    margin-top: 20px;
-    text-align: center;
+button.reset:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
 }
 
-label {
-    font-size: 1rem;
-    color: #ffa500;
-    margin-right: 10px;
+/* Return to Home Button */
+.return button {
+    background-color: #FF6F61;
+    color: #fff;
 }
 
-input {
-    font-size: 1rem;
-    padding: 5px;
-    width: 50px;
-    text-align: center;
-    margin-right: 10px;
-    background-color: #1a1a1a; /* Dark gray */
-    color: #ffa500; /* Pumpkin orange */
-    border: 2px solid #ffa500;
-    border-radius: 5px;
-}
-
-button {
-    font-size: 1rem;
-    padding: 5px 15px;
-    background-color: #ffa500;
-    color: #000;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.8);
-}
-
-button:hover {
-    background-color: #ff4500; /* Darker orange */
-}
-
-/* Hearts and Icons */
-p {
-    font-size: 1.5rem;
-    color: #ffa500;
-}
-
-/* Footer */
-footer {
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: #aaaaaa;
-    text-align: center;
+.return button:hover {
+    background-color: #e53935;
+    transform: scale(1.05);
 }
 
 .word-meaning {
     font-size: 1.2rem;
-    color: #ffa500; /* Pumpkin orange */
+    color: #ffa500;
     margin: 15px 0;
     text-align: center;
     font-style: italic;
+    border: none;
 }
