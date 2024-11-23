@@ -257,8 +257,12 @@
               </form>
             </li>
             <li class="nav-item profile-container">
-              <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
-                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
+              <a class="nav-link d-flex align-items-center" href="{% url 'profile' %}" style="font-size: 0.9rem">
+                {% if user.profile_picture %}
+                  <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
+                {% else %}
+                  <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
+                {% endif %}
                 <span class="profile">Profile</span>
               </a>
               <div class="profile-tooltip">
