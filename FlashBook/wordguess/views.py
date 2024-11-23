@@ -8,7 +8,7 @@ def word_guess_view(request, folder_id):
     user = User.objects.get(user=username)
     folder = Folder.objects.get(user=user, folder_id=folder_id)
     words = Word.objects.filter(user=user, folder=folder)
-    difficulty = request.GET.get('difficulty', 'normal') #default=normal
+    difficulty = request.GET.get('difficulty')
     
     guesses = request.session.get('guesses', [])
     
@@ -36,7 +36,8 @@ def word_guess_view(request, folder_id):
         )
 
     meaning = word.meaning
-
+    print(difficulty)
+    
     hearts_left = request.session.get('hearts_left', 6)  # Default hearts_left is 6
 
     # Process guess
@@ -86,7 +87,7 @@ def word_guess_view(request, folder_id):
         #reset session
         request.session.pop('word_id', None)
         request.session.pop('guesses', None)
-        request.session.pop('score', None)
+        request.session.pop('hearts_left', None)
 
     hearts_range = range(hearts_left)
 
