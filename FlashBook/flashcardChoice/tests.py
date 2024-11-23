@@ -32,6 +32,7 @@ class FlashcardViewsTest(TestCase):
         self.highscore = Highscore.objects.create(user=self.user, folder=self.folder, game_id=3, play_time=1, score=0)
 
     def test_flashcard_choice_view(self):
+        # Test that the 'flashcard_choice' view renders correctly with necessary context
         url = reverse('flashcard_choice', kwargs={'folder_id': self.folder.folder_id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -44,6 +45,7 @@ class FlashcardViewsTest(TestCase):
         self.assertIn('pop_up_message_correct', response.context)
 
     def test_check_answer_correct(self):
+        # Test submitting a correct answer increases the score and redirects back to flashcard_choice
         url = reverse('check_answer', kwargs={'folder_id': self.folder.folder_id, 'play_time': self.highscore.play_time})
         response = self.client.post(url, {'selected_answer': 'a fruit', 'correct_answer': 'a fruit'})
         self.assertRedirects(response, reverse('flashcard_choice', kwargs={'folder_id': self.folder.folder_id}))
@@ -51,6 +53,7 @@ class FlashcardViewsTest(TestCase):
         self.assertEqual(self.highscore.score, 1)
 
     def test_check_answer_incorrect(self):
+        # Test submitting an incorrect answer keeps the score unchanged and redirects back to flashcard_choice
         url = reverse('check_answer', kwargs={'folder_id': self.folder.folder_id, 'play_time': self.highscore.play_time})
         response = self.client.post(url, {'selected_answer': 'another fruit', 'correct_answer': 'a fruit'})
         self.assertRedirects(response, reverse('flashcard_choice', kwargs={'folder_id': self.folder.folder_id}))
@@ -112,7 +115,7 @@ class FlashcardViewsTest(TestCase):
 
 
     def test_flashcard_referrer_logic(self):
-        # Simulate a request with an HTTP_REFERER header containing "flashcard"
+        # Simulate a request with an HTTP_REFERER header containing "flashcard_choice"
         url = reverse('flashcard_choice', args=[self.folder.folder_id])
         response = self.client.get(
             url,
