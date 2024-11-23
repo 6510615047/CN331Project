@@ -23,6 +23,8 @@
             /* Center vertically */
         }
 
+        
+
         /* Header style */
         .header {
             background-color: #5A2FB0;
@@ -162,18 +164,20 @@
         <!-- Set time and game selection box -->
         <div class="box">
             <h2>Set time</h2>
-            <select class="time-select" id="timeSelect">
-                <option value="10">10 seconds</option>
-                <option value="20">20 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">60 seconds</option>
-            </select>
-            <h2>Select Game</h2>
-            <select class="time-select" id="gameSelect">
-                <option value="flashcard">Flashcard</option>
-                <option value="flashcardChoice">FlashcardChoice</option>
-            </select>
-            <button class="confirm-btn" onclick="confirmSelection()">Confirm</button>
+            <form method='GET' action="{%url 'flashcard' folder_id=folder_id%}">
+                <select class="time-select" id="timeSelect" name="time">
+                    <option value="10">10 seconds</option>
+                    <option value="20">20 seconds</option>
+                    <option value="30">30 seconds</option>
+                    <option value="60">60 seconds</option>
+                </select>
+                <h2>Select Game</h2>
+                <select class="time-select" id="gameSelect">
+                    <option value="flashcard">Flashcard</option>
+                    <option value="flashcardChoice">FlashcardChoice</option>
+                </select>
+                <button class="confirm-btn" type="submit" onclick="confirmSelection()>Confirm</button>
+            </form>
         </div>
 
         <!-- Timer box -->

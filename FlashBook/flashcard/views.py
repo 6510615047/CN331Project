@@ -9,6 +9,12 @@ def flashcard(request,folder_id):
     user = User.objects.get(user=username)
     folder = Folder.objects.get(user=user,folder_id=folder_id)
 
+    time_value = request.GET.get('time', request.session.get('time_value'))
+
+    request.session['time_value'] = time_value
+    if request.session.get('came_from_answer'):
+        time_value = None
+    
     min_word_id = Word.objects.filter(user=user, folder=folder).aggregate(Min('word_id'))['word_id__min']
 
     max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=1).aggregate(Max('play_time'))['play_time__max']
@@ -51,17 +57,18 @@ def flashcard(request,folder_id):
         'word': word.word if word and not showMeaning else word.meaning if word else None,
         'showMeaning': showMeaning,
         'folder':folder,
-        'playtime':playtime
+        'playtime':playtime,
+        'time_value':time_value,
     }
     # request.session['answered'] = False
 
     return render(request, 'flashcard.html', context)
 
 
-def correct_answer(request,folder_id,playtime):
+def correct_answer(request, folder_id, playtime):
     username = request.user
     user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user,folder_id=folder_id)
+    folder = Folder.objects.get(user=user, folder_id=folder_id)
 
     # Retrieve or create Highscore for the user and folder
     highscore = Highscore.objects.get(
@@ -70,7 +77,7 @@ def correct_answer(request,folder_id,playtime):
         game_id=1,
         play_time=playtime
     )
-    
+
     if not request.session.get('answered', False):
         # Increment score if user has not already answered
         highscore.score += 1
@@ -82,32 +89,47 @@ def correct_answer(request,folder_id,playtime):
     # Set the session to show the meaning after either "correct" or "wrong"
     request.session['showMeaning'] = True
     # Redirect to flashcard page
-    return redirect('flashcard',folder_id=folder.folder_id)
+    request.session['came_from_answer'] = True
 
-def wrong_answer(request,folder_id):
+    return redirect('flashcard', folder_id=folder.folder_id)
+
+
+def wrong_answer(request, folder_id):
     username = request.user
     user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user,folder_id=folder_id)
+    folder = Folder.objects.get(user=user, folder_id=folder_id)
+    
+    # Set time to 0 when the user clicks "Wrong"
+    # request.session['time_value'] = None
+
     # Set the session to show the meaning after either "correct" or "wrong"
     request.session['showMeaning'] = True
 
-    # Redirect to flashcard page
-    return redirect('flashcard',folder_id=folder.folder_id)
+    request.session['came_from_answer'] = True
 
-def next_word(request,folder_id,playtime):
+    # Redirect to flashcard page
+    return redirect('flashcard', folder_id=folder.folder_id)
+
+
+def next_word(request, folder_id, playtime):
     username = request.user
     user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user,folder_id=folder_id)
+    folder = Folder.objects.get(user=user, folder_id=folder_id)
     currentWord = request.session.get('currentWordId')
-    
+
+    # time_value = request.GET.get('time', 10)  # Retrieve the initial time value
+
+    # Set time_value back to the initial value when "Next" is pressed
+    # request.session['time_value'] = time_value
+
     nextWord = Word.objects.filter(user=user, folder=folder, word_id=currentWord + 1).first()
-    
+
     request.session['currentWordId'] = request.session.get('currentWordId') + 1
 
     if not nextWord:
         request.session['showMeaning'] = False
         del request.session['currentWordId']
-        return redirect('finish',folder_id=folder.folder_id)
+        return redirect('finish', folder_id=folder.folder_id)
     
     # Set the current word in the session for the next call
     request.session['currentWordId'] = nextWord.word_id if nextWord else currentWord
@@ -115,11 +137,17 @@ def next_word(request,folder_id,playtime):
     # Reset session to show the word, not the meaning, after moving to the next word
     request.session['answered'] = False
     request.session['showMeaning'] = False
+
+    request.session['came_from_answer'] = False
     
-    return redirect('flashcard',folder_id=folder.folder_id)
+    return redirect('flashcard', folder_id=folder.folder_id)
+
 
 def finish(request,folder_id):
     return render(request,'finish.html')
+
+
+
 
 
 

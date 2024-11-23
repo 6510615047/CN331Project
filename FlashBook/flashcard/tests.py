@@ -112,4 +112,5 @@ class FlashcardViewsTest(TestCase):
         response = self.client.get(reverse('finish', args=[self.folder.folder_id]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'finish.html')  # Check if finish template is used
-    
+
+
