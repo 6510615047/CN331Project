@@ -8,6 +8,7 @@ from matplotlib.ticker import MaxNLocator
 from io import BytesIO
 import base64
 import json
+import random
 # Create your views here.
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
@@ -266,7 +267,24 @@ def redeem_reward(request,reward_id):
     card_color_available = ['#FF5733','#5BC0EB','#28A745','#FFC107','#D1A1D3','#F06292','linear-gradient(45deg, #F06292, #9C27B0)','linear-gradient(45deg, #5BC0EB, #28A745)','linear-gradient(45deg, #FFC107, #FF7043)']
     card_color_costs = [100,100,100,100,100,100,300,300,300]
 
-    success_message = 'Redeem Success!'
+    colors = [
+        "#D3D3D3", "#F0F0F0", "#8B8B8B", "#B0B0B0", "#A9A9A9", 
+        "#FF8C00", "#FF6347", "#FFD700", "#87CEFA", "#98FB98",
+        "#FF69B4", "#00BFFF", "#32CD32", "#FF4500", "#9932CC",
+        "#FF1493", "#8A2BE2", "#7FFF00", "#FF6347", "#00CED1"
+    ]
+    
+    gradients = [
+        "linear-gradient(45deg, #D3D3D3, #F0F0F0)", "linear-gradient(45deg, #FF8C00, #FF6347)",
+        "linear-gradient(45deg, #FFD700, #98FB98)", "linear-gradient(45deg, #87CEFA, #FFD700)",
+        "linear-gradient(45deg, #FF69B4, #FF4500)", "linear-gradient(45deg, #00BFFF, #32CD32)",
+        "linear-gradient(45deg, #9932CC, #FF69B4)", "linear-gradient(45deg, #FF4500, #00BFFF)"
+    ]
+    
+    lucky_chest = colors + gradients
+    weights = [3] * len(colors) + [1] * len(gradients)
+
+    message = 'Redeem Success!'
 
     title_ava = user.get_title_ava()  # แปลง JSON string เป็น list
     card_color_ava = user.get_card_color_ava()  # แปลง JSON string เป็น list
@@ -297,9 +315,19 @@ def redeem_reward(request,reward_id):
         
         user.credits -= cost
 
+    elif(reward_id == 50):
+        card_color = random.choices(lucky_chest, weights=weights, k=1)[0]
+        if card_color not in card_color_ava:
+            message = f'You have got {card_color}. Congratulations! A new card color has been added.'
+            card_color_ava.append(card_color)
+        else:
+            message = f'You have got {card_color}. You already have this color.'
+        
+        user.credits -= 150
+
     else:
         error_message = 'Invalid reward_id!'
         return render(request,'reward.html',{'user':user,'noti':error_message}) 
     
     user.save()
-    return render(request,'reward.html',{'user':user,'noti':success_message}) 
+    return render(request,'reward.html',{'user':user,'noti':message}) 

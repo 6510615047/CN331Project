@@ -358,6 +358,15 @@
                     <p class="already-owned">You already own this card color!</p>
                 {% endif %}
             </div>
+
+            <div class="reward-item">
+                <h3>Lucky Color Card Chest</h3>
+                <p>Cost: <strong>150 Credits</strong></p>
+                <form method="POST" action="{% url 'redeem_reward' reward_id=50 %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-redeem" {% if user.credits < 150 %}disabled{% endif %}>Redeem</button>
+                </form>
+            </div>
         </div>
       </div>
 
