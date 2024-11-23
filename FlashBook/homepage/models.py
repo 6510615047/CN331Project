@@ -9,6 +9,7 @@ class User(models.Model):
     lname = models.CharField(max_length=50)
     password = models.CharField(max_length=128)
     email = models.EmailField(unique=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     day_streak = models.IntegerField(default=0)
 
     # method for hash password

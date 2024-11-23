@@ -74,6 +74,27 @@
         color: #754de0;
       }
 
+      /* Logout button styling */
+      .logout-btn {
+        font-size: 16px;
+        color: white;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 8px 20px;
+        border-radius: 20px;
+        background-color: #754de0; /* สีม่วง */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        border: none;
+        height: 36px;
+        text-decoration: none;  
+      }
+
+      .logout-btn:hover {
+        background-color: #5e39b5; /* สีม่วงเข้มขึ้นเมื่อ hover */
+        color: white;
+      }
+
       /* Sidebar styling */
       .sidebar {
         width: 250px;
@@ -178,10 +199,21 @@
           </div>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
+              <!--a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
                 <span class="profile">Profile</span>
-              </a>
+              </a-->
+              <a class="nav-link d-flex align-items-center" href="{% url 'profile' %}" style="font-size: 0.9rem">
+                {% if user.profile_picture %}
+                  <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
+                {% else %}
+                  <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
+                {% endif %}
+                <span class="profile">Profile</span>
+              </a>                       
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'logout' %}" class="logout-btn ms-2">Logout</a>
             </li>
           </ul>
         </div>
