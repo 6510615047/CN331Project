@@ -99,7 +99,7 @@ def next_word(request,folder_id,playtime):
     user = User.objects.get(user=username)
     folder = Folder.objects.get(user=user,folder_id=folder_id)
     currentWord = request.session.get('currentWordId')
-
+    
     nextWord = Word.objects.filter(user=user, folder=folder, word_id=currentWord + 1).first()
     
     request.session['currentWordId'] = request.session.get('currentWordId') + 1

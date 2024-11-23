@@ -126,7 +126,7 @@ class Highscore(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['user', 'folder', 'game_id', 'play_time'], name='unique_user_folder_game_play'),
-            models.CheckConstraint(check=models.Q(game_id__in=[1, 2]), name='valid_game_id')
+            models.CheckConstraint(check=models.Q(game_id__in=[1, 2, 3]), name='valid_game_id')
         ]
 
     def save(self, *args, **kwargs):
