@@ -1,22 +1,38 @@
 from django.shortcuts import render
 from homepage.models import User, Highscore, Folder, Word
-from random import choice
+from random import choice,sample
 
 def word_guess_view(request, folder_id):
-    user = User.objects.get(user=request.user)
+    username = request.user
+    user = User.objects.get(user=username)
     folder = Folder.objects.get(user=user, folder_id=folder_id)
     words = Word.objects.filter(user=user, folder=folder)
+    difficulty = request.GET.get('difficulty', 'normal') #default=normal
 
     guesses = request.session.get('guesses', [])
     
     if 'word_id' not in request.session: #choose word for new session
         word = choice(words)
-        request.session['word_id'] = word.id
+        request.session['word_id'] = word.word_id
         guesses = [] # makes guess characlist empty for new sesion
+
+        if difficulty == "easy":
+            prefill_count = max(1, len(word.word) // 2)  # Prefill ~50%
+            guesses = sample(list(set(word.word.lower())), prefill_count)
+        elif difficulty == "normal":
+            prefill_count = max(1, len(word.word) // 4)  # Prefill ~25%
+            guesses = sample(list(set(word.word.lower())), prefill_count)
+        elif difficulty == "hard":
+            guesses = []  # No prefilled characters
+            request.session['score'] = 4  # Reduce initial score for hard mode
+
         request.session['guesses'] = guesses # update session guess detail
     else:
-        word = Word.objects.get(id=request.session['word_id'])
-
+        word = Word.objects.get(
+        word_id=request.session['word_id'],
+        user=user,
+        folder=folder
+        )
     meaning = word.meaning
 
     score = request.session.get('score', 6)  # Default score is 6
@@ -43,7 +59,7 @@ def word_guess_view(request, folder_id):
     if game_end:
         # Update or create highscore at the end of the game
         update_highscore(user, folder, score)
-        #reser session
+        #reset session
         request.session.pop('word_id', None)
         request.session.pop('guesses', None)
         request.session.pop('score', None)
@@ -64,23 +80,28 @@ def word_guess_view(request, folder_id):
         'folder': folder,
         'hearts_range': hearts_range,
     }
-
-    print(meaning)
+    print(user)
+    print(folder)
     print(word)
     
+
     return render(request, 'wordguess/wordGuess.html', context) #render site with parameter from context
 
 def process_guess(request, word, guesses, score):
-    guess = request.POST.get('guess', '').lower()  # Get the guess and convert it to lowercase
-    if guess and len(guess) == 1 and guess.isalpha():  # Check if there's an guess input and length = 1
+    guess = request.POST.get('guess','').lower()  # Get the guess and convert it to lowercase
+    word_lower = word.word.lower()
+
+    if guess and len(guess) == 1 and guess.isalnum():  # Check if there's an guess input (alphanumeric)length = 1
         if guess not in guesses:  # Only process the guess if it's a new character
             guesses.append(guess)
             request.session['guesses'] = guesses  # Save the guesses list back to the session
 
             # Check if the guess is incorrect, decrease score
-            if guess not in word.word.lower():
+            if guess not in word_lower:
                 score -= 1
-    print(guess)
+
+    print(guesses)
+    print(word_lower)
     return guesses, score
 
 def update_highscore(user, folder, score):
@@ -104,7 +125,8 @@ def update_highscore(user, folder, score):
         )
 
 def get_display_word(word, guesses):
-    return " ".join([char if char in guesses else "_" for char in word.word])  # Display _ _ _ _ _ ...
+    word_lower = word.word.lower()
+    return " ".join([char if char in guesses else "_" for char in word_lower])  # Display _ _ _ _ _ ...
 
 
 

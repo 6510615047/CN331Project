@@ -120,16 +120,14 @@
 
         <!-- กล่อง Set Time -->
         <div class="modal">
-            <h2>Mode select</h2>
+            <h2>Mode Select</h2>
             <select class="mode-select" id="modeSelect">
-                <option value="10">easy</option>
-                <option value="20">normal</option>
-                <option value="30">hard</option>
+                <option value="easy">Easy</option>
+                <option value="normal">Normal</option>
+                <option value="hard">Hard</option>
             </select>
-            <button class="confirm-btn" onclick="window.location.href='/folder/{{ folder_id }}/select_game/modeSet/wordguess'">Confirm</button>
-            
+            <button class="confirm-btn" onclick="confirmMode()">Confirm</button>
         </div>
-
     </div>
 
     <!-- ปุ่ม Back -->
@@ -140,6 +138,15 @@
         function goBack() {
             window.history.back(); // ฟังก์ชันนี้จะพาผู้ใช้กลับไปหน้าก่อนหน้า
         }
+
+        function confirmMode() {
+                // Get the selected mode value
+                const modeSelect = document.getElementById('modeSelect');
+                const selectedMode = modeSelect.value;
+        
+                // Redirect with the selected mode as a query parameter
+                window.location.href = `/folder/{{ folder_id }}/select_game/modeSet/wordguess?difficulty=${selectedMode}`;
+            }
     </script>
 
 </body>
