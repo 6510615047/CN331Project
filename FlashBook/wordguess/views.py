@@ -20,9 +20,11 @@ def word_guess_view(request, folder_id):
         if difficulty == "easy":
             prefill_count = max(1, len(word.word) // 2)  # Prefill ~50%
             guesses = sample(list(set(word.word.lower())), prefill_count)
+            request.session['hearts_left'] = 6
         elif difficulty == "normal":
             prefill_count = max(1, len(word.word) // 4)  # Prefill ~25%
             guesses = sample(list(set(word.word.lower())), prefill_count)
+            request.session['hearts_left'] = 6
         elif difficulty == "hard":
             guesses = []  # No prefilled characters
             request.session['hearts_left'] = 4  # Reduce initial hearts_left for hard mode
@@ -36,9 +38,8 @@ def word_guess_view(request, folder_id):
         )
 
     meaning = word.meaning
-    print(difficulty)
     
-    hearts_left = request.session.get('hearts_left', 6)  # Default hearts_left is 6
+    hearts_left = request.session.get('hearts_left', 6)
 
     # Process guess
     if request.method == "POST" and 'guess' in request.POST:
