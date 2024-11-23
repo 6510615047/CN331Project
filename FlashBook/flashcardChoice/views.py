@@ -64,8 +64,7 @@ def flashcard_choice(request,folder_id):
         random.shuffle(answers)
 
     referrer = request.META.get('HTTP_REFERER', None)
-
-    if referrer and "flashcard_choice" in referrer:
+    if referrer and "flashcardChoice" in referrer:
         highscore = Highscore.objects.get(
             user=user,
             folder=folder,
