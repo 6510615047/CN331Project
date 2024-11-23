@@ -267,7 +267,7 @@
               </a>
               <div class="profile-tooltip">
                 <p><strong>Username:</strong> {{user.user}}</p>
-                <p><strong>Title:</strong> {{user.title}}</p>
+                <p><strong>Title:</strong> {% if user.title %}{{user.title}}{% else %}None{% endif %}</p>
                 <p><strong>Email:</strong> {{user.email}}</p>
                 <p><strong>Day Streak:</strong> {{user.day_streak}}</p>
                 <p><strong>Credits:</strong>{{user.credits}}</p>
