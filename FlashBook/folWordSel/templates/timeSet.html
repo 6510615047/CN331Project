@@ -164,7 +164,7 @@
         <!-- Set time and game selection box -->
         <div class="box">
             <h2>Set time</h2>
-            <form method='GET' action="{%url 'flashcard' folder_id=folder_id%}">
+            <form method='GET' id="gameForm">
                 <select class="time-select" id="timeSelect" name="time">
                     <option value="10">10 seconds</option>
                     <option value="20">20 seconds</option>
@@ -172,11 +172,11 @@
                     <option value="60">60 seconds</option>
                 </select>
                 <h2>Select Game</h2>
-                <select class="time-select" id="gameSelect">
+                <select class="time-select" id="gameSelect" name="game">
                     <option value="flashcard">Flashcard</option>
                     <option value="flashcardChoice">FlashcardChoice</option>
                 </select>
-                <button class="confirm-btn" type="submit" onclick="confirmSelection()>Confirm</button>
+                <button class="confirm-btn" type="submit">Confirm</button>
             </form>
         </div>
 
@@ -192,12 +192,17 @@
     <button class="back-btn" onclick="goBack()">Back</button>
 
     <script>
-        // Function to confirm selection and navigate to the appropriate page
-        function confirmSelection() {
-            const game = document.getElementById('gameSelect').value; // Get selected game
-            const folderId = "{{ folder_id }}"; // Use dynamic folder_id
-            window.location.href = `/folder/${folderId}/select_game/timeSet/${game}`;
-        }
+        document.getElementById('gameForm').addEventListener('submit', function(event) {
+            const gameSelect = document.getElementById('gameSelect').value;
+            const folderId = {{ folder_id }}; // Django context variable
+            const form = event.target;
+        
+            if (gameSelect === 'flashcard') {
+                form.action = "{% url 'flashcard' folder_id=folder_id %}";
+            } else if (gameSelect === 'flashcardChoice') {
+                form.action = "{% url 'flashcard_choice' folder_id=folder_id %}";
+            }
+        });
 
         // Function for going back to the previous page
         function goBack() {
