@@ -247,11 +247,29 @@
           </div>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
             <li class="nav-item">
+              <form method="POST" action="{% url 'check_in' %}">
+                  {% csrf_token %}
+                  {% if is_checked_in_today %}
+                      <button type="submit" class="nav-search" disabled>Already Checked-in</button>
+                  {% else %}
+                      <button type="submit" class="nav-search">Check-in</button>
+                  {% endif %}
+              </form>
+            </li>
+            <li class="nav-item profile-container">
               <a class="nav-link d-flex align-items-center" href="#" style="font-size: 0.9rem">
                 <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px"/>
                 <span class="profile">Profile</span>
               </a>
+              <div class="profile-tooltip">
+                <p><strong>Username:</strong> {{user.user}}</p>
+                <p><strong>Title:</strong> {{user.title}}</p>
+                <p><strong>Email:</strong> {{user.email}}</p>
+                <p><strong>Day Streak:</strong> {{user.day_streak}}</p>
+                <p><strong>Credits:</strong>{{user.credits}}</p>
+            </div>
             </li>
+
             <li class="nav-item">
               <a href="{% url 'logout' %}" class="logout-btn ms-2">Logout</a>
             </li>
