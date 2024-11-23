@@ -11,41 +11,46 @@
         color: #333;
     }
 
-    .container {
-        padding: 3rem;
-    }
-
-    /* กำหนดเลย์เอาต์ของ container หลักให้เป็นแบบ flex เพื่อจัดวาง 2 container ข้างๆ กัน */
-    .page-layout {
+    .container-custom {
         display: flex;
-        justify-content: space-between; /* จัดตำแหน่งให้ทั้งสอง container อยู่ห่างกัน */
-        gap: 20px; /* ระยะห่างระหว่าง container */
+        flex-direction: column;
+        gap: 1rem; /* ระยะห่างระหว่างส่วนต่างๆ */
     }
 
-    /* การตกแต่งสำหรับ container ด้านขวา (leaderboard) */
+    .container{
+        padding: 3rem;
+        margin-right: 0;
+        width: 80%;
+        max-width: none;
+    }
+    
+    .page-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr; /* Main Content (2 ส่วน) และ Leaderboard (1 ส่วน) */
+        gap: 1rem; /* ระยะห่างระหว่างกล่อง */
+    }
+    
+    .main-content,
     .leaderboard-container {
-        width: 33%; /* กำหนดให้ container ด้านขวามีความกว้าง 33% */
-        padding: 20px;
         background-color: #fff;
+        border: 1px solid #ddd;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้กับกรอบ */
-        border: 1px solid #ddd; /* เส้นขอบอ่อนๆ */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
     }
-
-    /* การตกแต่งสำหรับ container หลัก */
-    .main-content {
-        width: 66%; /* กำหนดให้ container ด้านซ้ายมีความกว้าง 66% */
-        padding: 20px;
+    
+    .announcement {
+        grid-column: 1 / -1; /* ใช้พื้นที่ทั้งหมดของ grid */
         background-color: #fff;
+        border: 1px solid #ddd;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้กับกรอบ */
-        border: 1px solid #ddd; /* เส้นขอบอ่อนๆ */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
     }
-
-    /* ปรับสไตล์ของหัวข้อในแต่ละ container */
+    
     h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
     }
 
 </style>
@@ -57,7 +62,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container pb-3 mt-0 pt-0 ms-0 pe-0">
+<div class="container-custom pb-3 mt-0 pt-0 ms-0 pe-0">
     <div class="page-layout">
         <!-- Main Content Container -->
         <div class="main-content">
@@ -68,11 +73,13 @@
         <!-- Leaderboard Container -->
         <div class="leaderboard-container">
             <h1>Leaderboard</h1>
+            <h6>Top 10 Day Streak</h6>
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Rank</th>
                         <th>Username</th>
+                        <th>Title</th>
                         <th>Day Streak</th>
                     </tr>
                 </thead>
@@ -83,6 +90,13 @@
                         <td>
                             {% if user != '-' %}
                                 {{ user.user }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user != '-' %}
+                                {{ user.title }}
                             {% else %}
                                 -
                             {% endif %}
@@ -100,6 +114,13 @@
             </table>
         </div>
     </div>
+
+    <!-- Announcement Section -->
+    <div class="announcement">
+        <h1>Announcement</h1>
+        <p>Stay tuned for upcoming updates and news in this section!</p>
+    </div>
 </div>
+
 {% endblock %}
 
