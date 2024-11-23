@@ -194,7 +194,7 @@ def score(request):
 
     game_1_scores = Highscore.objects.filter(user=user, game_id=1)
     game_2_scores = Highscore.objects.filter(user=user, game_id=2)
-    # game_3_scores = Highscore.objects.filter(user=user, game_id=3)
+    game_3_scores = Highscore.objects.filter(user=user, game_id=3)
 
     if query:
         folders = Folder.objects.filter(user=user, folder_name__icontains=query)  # กรองตาม query
@@ -218,7 +218,7 @@ def score(request):
         # กรองข้อมูลของแต่ละ folder สำหรับเกมแต่ละเกม
         folder_game_1_scores = game_1_scores.filter(folder=folder)[:20]  # กรองตาม folder และจำกัดจำนวน
         folder_game_2_scores = game_2_scores.filter(folder=folder)[:20]
-        # folder_game_3_scores = game_3_scores.filter(folder=folder)[:20]
+        folder_game_3_scores = game_3_scores.filter(folder=folder)[:20]
 
         # สร้างกราฟสำหรับเกม 1
         folder_game_1_play_times = [score.play_time for score in folder_game_1_scores]
@@ -239,13 +239,13 @@ def score(request):
         axs[i][1].grid(False)
 
         # สร้างกราฟสำหรับเกม 3
-        # folder_game_3_play_times = [score.play_time for score in folder_game_3_scores]
-        # folder_game_3_scores_values = [score.score for score in folder_game_3_scores]
-        # axs[i][2].plot(folder_game_3_play_times, folder_game_3_scores_values, marker='o', linestyle='-', color='r')
-        # axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Game Flashcard multiple choice: Folder {folder.folder_name}')
-        # axs[i][2].xaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน x
-        # axs[i][2].yaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน y
-        # axs[i][2].grid(True)
+        folder_game_3_play_times = [score.play_time for score in folder_game_3_scores]
+        folder_game_3_scores_values = [score.score for score in folder_game_3_scores]
+        axs[i][2].plot(folder_game_3_play_times, folder_game_3_scores_values, marker='o', linestyle='-', color='r')
+        axs[i][2].set(xlabel='Play Time', ylabel='Score', title=f'Game Flashcard multiple choice: Folder {folder.folder_name}')
+        axs[i][2].xaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน x
+        axs[i][2].yaxis.set_major_locator(MaxNLocator(integer=True))  # แสดงค่าจำนวนเต็มบนแกน y
+        axs[i][2].grid(False)
 
     # ปรับแต่งการจัด layout เพื่อให้กราฟไม่ทับซ้อน
     plt.tight_layout(pad=2.0)  # เพิ่มช่องว่างระหว่างกราฟ
