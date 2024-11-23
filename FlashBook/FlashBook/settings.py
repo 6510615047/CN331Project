@@ -125,6 +125,13 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = '/home/Flashbook/FlashBook/static/'
 
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # Path สำหรับการรวบรวม static files เมื่อใช้ `collectstatic`
 #STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -143,3 +150,14 @@ SESSION_SAVE_EVERY_REQUEST = False
 
 AUTH_USER_MODEL = 'auth.User'
 
+# Email Backend Configuration
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.gmail.com'  # ใส่ SMTP Server
+#EMAIL_PORT = 587 # for TLS 465 for SSL
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'flashbook.cn331@gmail.com'  # อีเมลที่ใช้ส่ง
+#EMAIL_HOST_PASSWORD = 'cn331@flashbook'  # รหัสผ่านอีเมล
+#DEFAULT_FROM_EMAIL = 'FlashBook@gmail.com'  # อีเมลที่แสดงว่าผู้ส่ง
+
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = '/tmp/app-emails'  # Change this path to your desired location

@@ -12,16 +12,33 @@ import random
 # Create your views here.
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
-    user = User.objects.get(user_id=request.session.get('user_id'))
+    #user = User.objects.get(user_id=request.session.get('user_id'))
+    #folders = Folder.objects.filter(user=user)
+    #return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti})
+    #def folder_view(request, noti="..."):
+    auth_user = request.user  # Django's User model
+    user = User.objects.get(user_id=request.session.get('user_id'))  # Your custom user
     folders = Folder.objects.filter(user=user)
-
-    return render(request,'folder.html',{'user':user,'folders':folders,'noti':noti})
+    return render(request, 'folder.html', {
+        'user': user,
+        'auth_user': auth_user,
+        'folders': folders,
+        'noti': noti
+    })
 
 def word_view(request, folder_id, noti='This folder is empty. Start by adding words!'):
+    auth_user = request.user
     user = User.objects.get(user_id=request.session.get('user_id'))
     folder = Folder.objects.get(user=user,folder_id=folder_id)
     words = Word.objects.filter(user=user,folder=folder)
-    return render(request,'word.html',{'words' : words,'folder':folder,'noti':noti})
+    #return render(request,'word.html',{'words' : words,'folder':folder,'noti':noti})
+    return render(request, 'word.html', {
+        'auth_user': auth_user,
+        'user': user,
+        'folder': folder,
+        'words': words,
+        'noti': noti
+    })
 
 def add_folder(request):
 

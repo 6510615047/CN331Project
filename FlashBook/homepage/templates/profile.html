@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4 mb-5 bg-white rounded" style="margin-left: 10px; margin-right: 10px;">
+        <div class="row">
+            <!-- Left Section: Profile Picture Display -->
+            <div class="col-md-3 d-flex flex-column align-items-center mb-3">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-img mb-3"/>
+                {% else %}
+                    <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Default Profile Picture" class="profile-img mb-3"/>
+                {% endif %}
+                <h3 class="text-center">{{user.user}}</h3>
+            </div>
+
+            <!-- Right Section: Profile Form -->
+            <div class="col-md-9">
+                <h2 class="text-purple">Profile Information</h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="user" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="user" name="user" value="{{ user.user }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fname" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="fname" name="fname" value="{{ user.fname }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lname" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lname" name="lname" value="{{ user.lname }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                    </div>                    
+                    <!--div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" value="{{ user.password }}" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility()">Show</button>
+                        </div>
+                    </div-->
+                    <div class="mb-3">
+                        <label for="profile_picture" class="form-label">Profile Picture</label>
+                        <input type="file" class="form-control" id="profile_picture" name="profile_picture">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = event.target;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.textContent = 'Hide';
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.textContent = 'Show';
+        }
+    }
+</script>
+
+<style>
+    .profile-img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .card {
+        max-width: 850px;
+        margin: auto;
+        margin-left: 0; /* ลดระยะห่างทางซ้ายมือให้ใกล้กับ sidebar */
+    }
+
+    h2.text-purple {
+        color: #754de0;
+    }
+
+    h3 {
+        color: #333;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
