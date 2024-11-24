@@ -15,6 +15,8 @@ def flashcard(request,folder_id):
     if request.session.get('came_from_answer'):
         time_value = None
     
+    print(time_value)
+    
     min_word_id = Word.objects.filter(user=user, folder=folder).aggregate(Min('word_id'))['word_id__min']
 
     max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=1).aggregate(Max('play_time'))['play_time__max']
@@ -90,6 +92,7 @@ def correct_answer(request, folder_id, playtime):
     request.session['showMeaning'] = True
     # Redirect to flashcard page
     request.session['came_from_answer'] = True
+    request.session['time_value'] = None
 
     return redirect('flashcard', folder_id=folder.folder_id)
 
@@ -106,6 +109,7 @@ def wrong_answer(request, folder_id):
     request.session['showMeaning'] = True
 
     request.session['came_from_answer'] = True
+    request.session['time_value'] = None
 
     # Redirect to flashcard page
     return redirect('flashcard', folder_id=folder.folder_id)
