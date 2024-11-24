@@ -232,8 +232,8 @@ class WordTests(TestCase):
     def test_back_button(self):
         """Test the functionality of the Back button"""
         response = self.client.get(reverse('mode_set', args=[self.folder.folder_id]))
-        self.assertContains(response, '<button class="back-btn"')  # Check if the Back button is present in modeSet.html
-        self.assertContains(response, 'onclick="goBack()"')  # Check if the Back button's onclick uses the goBack() function
+        self.assertContains(response, '<button class="back-button"')  # Check if the Back button is present in modeSet.html
+        self.assertContains(response, 'onclick="window.history.back()"')  # Check if the Back button's onclick uses the goBack() function
 
     def test_select_game_buttons(self):
         """Test the functionality of the buttons on the selectGame page"""
