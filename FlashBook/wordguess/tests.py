@@ -50,6 +50,17 @@ class WordGuessViewTests(TestCase):
         # Create a highscore for the user and folder
         self.highscore = Highscore.objects.create(user=self.user, folder=self.folder, game_id=2, score=0, play_time=1)
 
+    def test_wordguess_referrer_logic(self):
+        # Simulate a request with an HTTP_REFERER header containing "flashcard"
+        url = reverse('wordguess', args=[self.folder.folder_id])
+        response = self.client.get(
+            url,
+            HTTP_REFERER='/wordguess/'
+        )
+
+        # Assert that the view logic executed correctly
+        self.assertEqual(response.status_code, 200)
+
     def test_initial_easy_mode(self):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'easy'})
         self.assertEqual(response.status_code, 200)
