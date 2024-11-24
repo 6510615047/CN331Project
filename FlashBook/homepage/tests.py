@@ -10,6 +10,8 @@ from django.test import SimpleTestCase
 from homepage.views import homepage, about, register, login_views, logout_views, profile_view
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User as AuthUser
+from django.core.files.uploadedfile import SimpleUploadedFile
+import os
 
 class RegisterLoginTests(TestCase):
     # เตรียมข้อมูลสำหรับทดสอบ
@@ -104,6 +106,30 @@ class RegisterLoginTests(TestCase):
     def test_login_view_post_valid(self):
         response = self.client.post(self.login_url, data=self.user_credentials)
         self.assertEqual(response.status_code, 302)
+
+    # method สำหรับ login ที่เหลืออยู่ 3 บรรทัดยังไม่เสร็จ
+    # def test_login_view_post_valid_with_session_invalid(self):
+    #     # Get the CSRF token first by making a GET request
+    #     response = self.client.get(self.login_url)
+    #     self.csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
+
+    #     # custom_user login
+    #     self.client.login(username='testuser', password='testpassword')
+    #     response = self.client.post(
+    #         self.login_url,
+    #         {   
+    #             'csrfmiddlewaretoken': self.csrf_token,
+    #             'username': 'testuser',
+    #             'password': 'testpassword'
+    #         }
+    #     )
+
+    #     session = self.client.session
+    #     session['user_id'] = 99999  # ค่า user_id ที่ไม่มีในฐานข้อมูล
+    #     session.save()
+
+    #     response = self.client.post(self.login_url, data=self.user_credentials)
+    #     self.assertEqual(response.status_code, 302)
 
     # ทดสอบหน้า login ด้วยการส่งข้อมูล POST ที่ไม่ถูกต้อง (sad path)
     def test_login_view_post_invalid(self):
@@ -205,13 +231,58 @@ class TestUrls(SimpleTestCase):
 class TestProfileView(TestCase):
     def setUp(self):
         self.client = Client()
-        self.auth_user = AuthUser.objects.create_user(username='testuser', password='testpassword')
-        self.custom_user = User_model.objects.create(user_id=self.auth_user.id, user='testuser', fname='Test', lname='User', email='testuser@example.com')
+        self.auth_user = AuthUser.objects.create_user(
+            username='testuser', 
+            password='testpassword'
+        )
+
+        self.custom_user = User_model.objects.create(
+            user_id=self.auth_user.id, 
+            user='testuser', 
+            fname='Test', 
+            lname='User', 
+            email='testuser@example.com',
+            password='testpassword'
+        )
+
         self.profile_url = reverse('profile')
+
+        self.login_url = reverse('login')
+
+        # Get the CSRF token first by making a GET request
+        response = self.client.get(self.login_url)
+        self.csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
+
+        # custom_user login
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.post(
+            self.login_url,
+            {   
+                'csrfmiddlewaretoken': self.csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
+
+    # method tearDown จะถูกเรียกใช้หลังจากทำแต่ละ test case
+    # ใช้เพื่อลบไฟล์ test profile picture ที่ใช้ทดสอบการ upload 
+    def tearDown(self):
+        # ลบไฟล์ profile_picture ถ้ามี
+        if self.custom_user.profile_picture:
+            file_path = self.custom_user.profile_picture.path
+            if os.path.isfile(file_path):
+                os.remove(file_path)
 
     # ทดสอบการอัปเดตข้อมูลสำเร็จ
     def test_profile_view_success(self):
-        self.client.login(username='testuser', password='testpassword')
+
+        # test profile picture file
+        profile_picture = SimpleUploadedFile(
+            name='test_image.jpg',
+            content=b'\x47\x49\x46\x38\x39\x61',  # GIF Header
+            content_type='image/jpeg'
+        )
+
         data = {
             'user': 'newusername',
             'fname': 'NewFirstName',
@@ -220,8 +291,10 @@ class TestProfileView(TestCase):
             'card_color': '#123456',
             'email': 'newemail@example.com',
             'current_password': 'testpassword',
-            'new_password': 'newpassword'
+            'new_password': 'newpassword',
+            'profile_picture': profile_picture # upload profile picture
         }
+
 
         response = self.client.post(self.profile_url, data)
 
@@ -237,23 +310,45 @@ class TestProfileView(TestCase):
         self.assertEqual(self.custom_user.title, 'NewTitle')
         self.assertEqual(self.custom_user.card_color, '#123456')
         self.assertEqual(self.custom_user.email, 'newemail@example.com')
+        self.assertTrue(self.custom_user.profile_picture.name.endswith('test_image.jpg'))
         self.assertEqual(self.auth_user.username, 'newusername')
         self.assertTrue(self.auth_user.check_password('newpassword'))
 
-    # ทดสอบกรณีผู้ใช้ไม่พบในระบบ
-    def test_profile_view_user_not_found(self):
-        self.client.login(username='nonexistent', password='testpassword')
+    # ทดสอบกรณีพบผู้ใช้ในหน้า profile
+    def test_profile_view_user_found(self):
         response = self.client.get(self.profile_url)
 
-        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 200) # render status code
+        self.assertTemplateUsed(response,'profile.html')  # render profile.html
+        self.assertIn('user',response.context) # user ถูกส่งมาในหน้า profile.html
+
+
+    # ทดสอบกรณีผู้ใช้ไม่พบในระบบ
+    def test_profile_view_user_not_found(self):
+
+        session = self.client.session
+        session['user_id'] = 99999  # ค่า user_id ที่ไม่มีในฐานข้อมูล
+        session.save()
+
+        response = self.client.get(self.profile_url)
+
         self.assertEqual(response.status_code, 302)  # Redirect to login if user not found
 
     # ทดสอบกรณีชื่อผู้ใช้ใหม่ซ้ำกับผู้ใช้อื่น
     def test_profile_view_username_exists(self):
-        another_user = AuthUser.objects.create_user(username='existinguser', password='password123')
-        User_model.objects.create(user_id=another_user.id, user='existinguser', fname='Another', lname='User', email='existinguser@example.com')
+        another_user = AuthUser.objects.create_user(
+            username='existinguser', 
+            password='password123'
+        )
 
-        self.client.login(username='testuser', password='testpassword')
+        User_model.objects.create(
+            user_id=another_user.id, 
+            user='existinguser', 
+            fname='Another', 
+            lname='User', 
+            email='existinguser@example.com'
+        )
+
         data = {
             'user': 'existinguser',
             'fname': 'NewFirstName',
@@ -272,7 +367,7 @@ class TestProfileView(TestCase):
 
     # ทดสอบกรณีรหัสผ่านปัจจุบันไม่ถูกต้อง
     def test_profile_view_incorrect_current_password(self):
-        self.client.login(username='testuser', password='testpassword')
+
         data = {
             'user': 'newusername',
             'fname': 'NewFirstName',
@@ -291,7 +386,7 @@ class TestProfileView(TestCase):
 
     # ทดสอบการอัปเดตข้อมูลโดยไม่มีการเปลี่ยนรหัสผ่าน
     def test_profile_view_no_password_change(self):
-        self.client.login(username='testuser', password='testpassword')
+
         data = {
             'user': 'newusername',
             'fname': 'NewFirstName',
