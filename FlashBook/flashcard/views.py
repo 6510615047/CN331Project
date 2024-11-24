@@ -15,8 +15,6 @@ def flashcard(request,folder_id):
     if request.session.get('came_from_answer'):
         time_value = None
     
-    print(time_value)
-    
     min_word_id = Word.objects.filter(user=user, folder=folder).aggregate(Min('word_id'))['word_id__min']
 
     max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=1).aggregate(Max('play_time'))['play_time__max']
