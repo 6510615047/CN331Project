@@ -16,14 +16,20 @@
 
 - [Flashbook](https://flashbook.pythonanywhere.com)
 
-### Github repo, Trello and Document links
+### Github repo and Trello
 
 - [Github repo](https://github.com/6510615047/CN331Project.github.io)
 
 - [Trello (Pivotal Tracker)](https://trello.com/b/5YABm7nL/flashbook-board)
 
-- [Document](https://docs.google.com/document/d/1er6FhLIjA15bvJsXNkVrvJ4ipueN2B2I_awsXeoXCII/edit?usp=sharing)
+### Document links
+
+- [Document Iteration 0](https://docs.google.com/document/d/1er6FhLIjA15bvJsXNkVrvJ4ipueN2B2I_awsXeoXCII/edit?usp=sharing)
+- [Document Iteration 1](https://docs.google.com/document/d/19PM8AGwEKVdxVgDbQr7HqhgcDmyat5MpL1QzQcdjjAA/edit?usp=sharing)
+- [Document Iteration 2](https://docs.google.com/document/d/1ipslSY0j61SF2FvsabJY3m3gZJpgVZsUj-rHSfNxfW0/edit?usp=sharing)
 
 ### Presentation sildes links
 
 - [Presentation sildes Iteration 0](https://www.canva.com/design/DAGVz-E2cbk/3upQeD2VQlR1wVT2SjJEfw/view?utm_content=DAGVz-E2cbk&utm_campaign=designshare&utm_medium=link&utm_source=editor)
+- [Presentation sildes Iteration 1](https://www.canva.com/design/DAGWuF_q5Xg/4s5H5USkbdqyWSxs9N7wUA/view?utm_content=DAGWuF_q5Xg&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hc3b6971484)
+- [Presentation sildes Iteration 2](https://www.canva.com/design/DAGXSBiiDt8/Ht8_LYxHcXAnLO5uk5jIGQ/view?utm_content=DAGXSBiiDt8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h40ed4308bd)
