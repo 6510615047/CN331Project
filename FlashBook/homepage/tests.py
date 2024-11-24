@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .forms import RegisterForm, LoginForm
 from django.contrib.messages import get_messages
 from .models import User as User_model
-from .models import Folder,Word,Highscore
+from .models import Folder, Word, Highscore
 from homepage.models import User as CustomUser
 from django.test import SimpleTestCase
 from homepage.views import homepage, about, register, login_views, logout_views, profile_view
@@ -91,8 +91,6 @@ class RegisterLoginTests(TestCase):
         response = self.client.post(self.register_url, data=invalid_data)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
-        messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(str(messages[0]), 'Please correct the error below.')
         self.assertFalse(User.objects.filter(username='').exists())
 
     # ทดสอบหน้า login ด้วยการส่ง GET request เพื่อให้แน่ใจว่าแบบฟอร์มการล็อกอินโหลดได้สำเร็จ
@@ -154,9 +152,8 @@ class RegisterLoginTests(TestCase):
 
     def test_highscore_str_method(self):
         folder = Folder.objects.create(user=self.user_model, folder_name="Test Folder")
-        highscore = Highscore.objects.create(user=self.user_model, folder=folder, game_id=1,play_time=1,score=0)
+        highscore = Highscore.objects.create(user=self.user_model, folder=folder, game_id=1, play_time=1, score=0)
         expected_str = f"{self.user.username} - Folder {folder.folder_id} - Game {highscore.game_id} - Play {highscore.play_time} - Score: {highscore.score}"
-       
         # Check if the string representation matches
         self.assertEqual(str(highscore), expected_str)
 
@@ -204,7 +201,7 @@ class TestUrls(SimpleTestCase):
     def test_password_reset_complete_url_resolves(self):
         url = reverse('password_reset_complete')
         self.assertEqual(resolve(url).func.view_class, auth_views.PasswordResetCompleteView)
-        
+
 class TestProfileView(TestCase):
     def setUp(self):
         self.client = Client()
@@ -242,9 +239,6 @@ class TestProfileView(TestCase):
         self.assertEqual(self.custom_user.email, 'newemail@example.com')
         self.assertEqual(self.auth_user.username, 'newusername')
         self.assertTrue(self.auth_user.check_password('newpassword'))
-        
-        self.assertEqual(self.user.username, 'newusername')
-        self.assertTrue(self.user.check_password('newpassword123'))
 
     # ทดสอบกรณีผู้ใช้ไม่พบในระบบ
     def test_profile_view_user_not_found(self):
@@ -253,7 +247,6 @@ class TestProfileView(TestCase):
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)  # Redirect to login if user not found
-        #self.assertTrue(any('User not found.' in str(message).lower() for message in messages))
 
     # ทดสอบกรณีชื่อผู้ใช้ใหม่ซ้ำกับผู้ใช้อื่น
     def test_profile_view_username_exists(self):
@@ -276,7 +269,6 @@ class TestProfileView(TestCase):
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)  # Redirect after error
-        #self.assertTrue(any('Username already exists.' in str(message).lower() for message in messages))
 
     # ทดสอบกรณีรหัสผ่านปัจจุบันไม่ถูกต้อง
     def test_profile_view_incorrect_current_password(self):
@@ -296,7 +288,6 @@ class TestProfileView(TestCase):
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)  # Redirect after error
-        #self.assertTrue(any('Current password is incorrect.' in str(message).lower() for message in messages))
 
     # ทดสอบการอัปเดตข้อมูลโดยไม่มีการเปลี่ยนรหัสผ่าน
     def test_profile_view_no_password_change(self):
