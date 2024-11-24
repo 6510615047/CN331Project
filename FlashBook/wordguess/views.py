@@ -19,15 +19,20 @@ def word_guess_view(request, folder_id):
 
         if difficulty == "easy":
             prefill_count = max(1, len(word.word) // 2)  # Prefill ~50%
-            guesses = sample(list(set(word.word.lower())), prefill_count)
+            unique_chars = set(word.word.lower())  # Get unique characters
+            prefill_count = min(prefill_count, len(unique_chars))  # Ensure we don't sample more than available
+            guesses = sample(list(unique_chars), prefill_count)
             request.session['hearts_left'] = 6
         elif difficulty == "normal":
             prefill_count = max(1, len(word.word) // 4)  # Prefill ~25%
-            guesses = sample(list(set(word.word.lower())), prefill_count)
+            unique_chars = set(word.word.lower())
+            prefill_count = min(prefill_count, len(unique_chars))
+            guesses = sample(list(unique_chars), prefill_count)
             request.session['hearts_left'] = 6
         elif difficulty == "hard":
             guesses = []  # No prefilled characters
             request.session['hearts_left'] = 4  # Reduce initial hearts_left for hard mode
+
 
         request.session['guesses'] = guesses # update session guess detail
     else:
@@ -40,6 +45,7 @@ def word_guess_view(request, folder_id):
     meaning = word.meaning
     
     hearts_left = request.session.get('hearts_left', 6)
+    hearts_range = range(hearts_left)
 
     # Process guess
     if request.method == "POST" and 'guess' in request.POST:
@@ -48,6 +54,7 @@ def word_guess_view(request, folder_id):
         request.session['hearts_left'] = hearts_left
     
     display_word = get_display_word(word, guesses) # Call display_word method
+    request.session['display_word'] = display_word
 
     # Check if the game is over
     game_end = False
@@ -82,15 +89,20 @@ def word_guess_view(request, folder_id):
     playtime = highscore.play_time
 
     if game_end:
+        request.session['game_end'] = True
         # Update or create highscore at the end of the game
         if hearts_left != 0:
             update_highscore(user, folder, playtime)
+            highscore.refresh_from_db()
         #reset session
         request.session.pop('word_id', None)
         request.session.pop('guesses', None)
         request.session.pop('hearts_left', None)
 
-    hearts_range = range(hearts_left)
+    else:
+        request.session['game_end'] = False
+
+    
 
     # Prepare the context for the template
     context = {

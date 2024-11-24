@@ -3,6 +3,7 @@ from homepage.models import User, Folder, Word, Highscore
 from django.contrib.auth.models import User as UserBuiltIn
 from django.urls import reverse
 
+
 class WordGuessViewTests(TestCase):
     def setUp(self):
         # Create a test user
@@ -53,9 +54,18 @@ class WordGuessViewTests(TestCase):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'easy'})
         self.assertEqual(response.status_code, 200)
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         guesses = session['guesses']
         self.assertGreaterEqual(len(guesses), len(word.word) // 2)
+        self.assertEqual(session['hearts_left'], 6)
+
+    def test_initial_normal_mode(self):
+        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'normal'})
+        self.assertEqual(response.status_code, 200)
+        session = self.client.session
+        word = response.context.get('word')
+        guesses = session['guesses']
+        self.assertGreaterEqual(len(guesses), len(word.word) // 4)
         self.assertEqual(session['hearts_left'], 6)
 
     def test_initial_hard_mode(self):
@@ -68,54 +78,67 @@ class WordGuessViewTests(TestCase):
     def test_correct_guess(self):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         correct_letter = word.word[0].lower()
 
         response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': correct_letter})
         session = self.client.session
+        self.assertEqual(response.status_code, 200)
         self.assertIn(correct_letter, session['guesses'])
         self.assertEqual(session['hearts_left'], 6)
 
     def test_incorrect_guess(self):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         incorrect_letter = 'z'
         while incorrect_letter in word.word.lower():
             incorrect_letter = chr(ord(incorrect_letter) + 1)
 
         response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': incorrect_letter})
         session = self.client.session
+        self.assertEqual(response.status_code, 200)
         self.assertIn(incorrect_letter, session['guesses'])
         self.assertEqual(session['hearts_left'], 5)
 
     def test_game_end_success(self):
-        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
+        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'normal'})
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+    
+        forced_guesses = ['t','e','s','t','w','o','r','d','1','2','3']
+        
+        for guess in forced_guesses:
+            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guess})
+            session = self.client.session
+            if session.get('game_end') == True:
 
-        for char in set(word.word.lower()):
-            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': char})
+                break
+        
         
         session = self.client.session
+        highscore = response.context.get('highscore')
+        self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.get('word_id'))
-        self.assertContains(response, "Congratulations! You guessed the word!")
+        self.assertIn("Congratulations! You guessed the word!", response.context.get('message'))
+        self.assertEqual(highscore.score, 1)
 
     def test_game_end_failure(self):
-        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
+        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'normal'})
         session = self.client.session
-
-        for _ in range(6):
-            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': 'z'})
         
-        session = self.client.session
-        self.assertIsNone(session.get('word_id'))
-        self.assertContains(response, "You lost!")
+        forced_guesses = ['a','b','c','f','g','h']
 
-    def test_highscore_update(self):
-        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
-        self.client.session['hearts_left'] = 5
-        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
-        highscore = Highscore.objects.get(user=self.user, folder=self.folder, game_id=2)
-        self.assertEqual(highscore.score, 1)
+        for guess in forced_guesses:
+            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guess})
+            session = self.client.session
+            if session.get('game_end') == True:
+                break
+        
+        self.highscore.refresh_from_db()
+        session = self.client.session
+        highscore = response.context.get('highscore')
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(session.get('word_id'))
+        self.assertIn("You lost!", response.context.get('message'))
+        self.assertEqual(highscore.score, 0)
 
