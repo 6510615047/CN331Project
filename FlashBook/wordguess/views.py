@@ -60,6 +60,11 @@ def word_guess_view(request, folder_id):
         game_end = True
         message = f"You lost! The word was '{word.word}'."
 
+    if game_end:
+        request.session['game_end'] = True
+    else:
+        request.session['game_end'] = False
+
     max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=2).aggregate(Max('play_time'))['play_time__max']
 
     referrer = request.META.get('HTTP_REFERER', None)
