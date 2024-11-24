@@ -5,7 +5,7 @@ from homepage.models import User, Folder, Word, Highscore
 from django.test import Client
 import random
 
-class FlashcardViewsTest(TestCase):
+class FlashcardChoiceViewsTest(TestCase):
 
     def setUp(self):
         # Set up a user, folder, words, and highscore for the tests
@@ -114,7 +114,7 @@ class FlashcardViewsTest(TestCase):
         self.assertEqual(self.client.session['currentWordId'], self.word_2.word_id)  # Ensure it progresses to the next word
 
 
-    def test_flashcard_referrer_logic(self):
+    def test_flashcard_choice_referrer_logic(self):
         # Simulate a request with an HTTP_REFERER header containing "flashcard_choice"
         url = reverse('flashcard_choice', args=[self.folder.folder_id])
         response = self.client.get(

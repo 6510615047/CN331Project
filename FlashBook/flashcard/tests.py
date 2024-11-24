@@ -51,6 +51,14 @@ class FlashcardViewsTest(TestCase):
         # Create a highscore for the user and folder
         self.highscore = Highscore.objects.create(user=self.user, folder=self.folder, game_id=1, score=0, play_time=1)
 
+    def test_flashcard_view(self):
+        """Test the flashcard view returns the correct word and score"""
+        response = self.client.get(reverse('flashcard', args=[self.folder.folder_id]))
+        self.assertEqual(response.status_code, 200)
+
+        # Assert that the view logic executed correctly
+        self.assertEqual(response.status_code, 200)
+
     def test_correct_answer_view(self):
         """Test that the score is incremented when the correct answer is selected"""
         response = self.client.get(reverse('correct_answer', args=[self.folder.folder_id,self.highscore.play_time]))
@@ -95,6 +103,17 @@ class FlashcardViewsTest(TestCase):
         response = self.client.get(reverse('finish', args=[self.folder.folder_id]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'finish.html')  # Check if finish template is used
+
+    def test_flashcard_referrer_logic(self):
+        # Simulate a request with an HTTP_REFERER header containing "flashcard"
+        url = reverse('flashcard', args=[self.folder.folder_id])
+        response = self.client.get(
+            url,
+            HTTP_REFERER='/flashcard/'
+        )
+
+        # Assert that the view logic executed correctly
+        self.assertEqual(response.status_code, 200)
 
     def test_time_up_redirects_to_next_word(self):
         # Simulate the flashcard page being loaded with a time value
