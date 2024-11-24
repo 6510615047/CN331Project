@@ -54,7 +54,7 @@ class WordGuessViewTests(TestCase):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'easy'})
         self.assertEqual(response.status_code, 200)
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         guesses = session['guesses']
         self.assertGreaterEqual(len(guesses), len(word.word) // 2)
         self.assertEqual(session['hearts_left'], 6)
@@ -63,7 +63,7 @@ class WordGuessViewTests(TestCase):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'normal'})
         self.assertEqual(response.status_code, 200)
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         guesses = session['guesses']
         self.assertGreaterEqual(len(guesses), len(word.word) // 4)
         self.assertEqual(session['hearts_left'], 6)
@@ -78,7 +78,7 @@ class WordGuessViewTests(TestCase):
     def test_correct_guess(self):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         correct_letter = word.word[0].lower()
 
         response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': correct_letter})
@@ -90,7 +90,7 @@ class WordGuessViewTests(TestCase):
     def test_incorrect_guess(self):
         response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
         session = self.client.session
-        word = Word.objects.get(word_id=session['word_id'])
+        word = response.context.get('word')
         incorrect_letter = 'z'
         while incorrect_letter in word.word.lower():
             incorrect_letter = chr(ord(incorrect_letter) + 1)
@@ -111,11 +111,12 @@ class WordGuessViewTests(TestCase):
             response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guess})
             session = self.client.session
             if session.get('game_end') == True:
-                break
 
+                break
+        
+        
         session = self.client.session
         highscore = response.context.get('highscore')
-        print(response.context.get('hearts_left'))
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.get('word_id'))
         self.assertIn("Congratulations! You guessed the word!", response.context.get('message'))
@@ -132,7 +133,8 @@ class WordGuessViewTests(TestCase):
             session = self.client.session
             if session.get('game_end') == True:
                 break
-            
+        
+        self.highscore.refresh_from_db()
         session = self.client.session
         highscore = response.context.get('highscore')
         self.assertEqual(response.status_code, 200)
