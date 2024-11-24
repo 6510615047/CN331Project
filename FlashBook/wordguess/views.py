@@ -40,6 +40,7 @@ def word_guess_view(request, folder_id):
     meaning = word.meaning
     
     hearts_left = request.session.get('hearts_left', 6)
+    hearts_range = range(hearts_left)
 
     # Process guess
     if request.method == "POST" and 'guess' in request.POST:
@@ -48,6 +49,7 @@ def word_guess_view(request, folder_id):
         request.session['hearts_left'] = hearts_left
     
     display_word = get_display_word(word, guesses) # Call display_word method
+    request.session['display_word'] = display_word
 
     # Check if the game is over
     game_end = False
@@ -59,11 +61,6 @@ def word_guess_view(request, folder_id):
     elif hearts_left == 0:  # If the hearts_left is 0, the game is over
         game_end = True
         message = f"You lost! The word was '{word.word}'."
-
-    if game_end:
-        request.session['game_end'] = True
-    else:
-        request.session['game_end'] = False
 
     max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=2).aggregate(Max('play_time'))['play_time__max']
 
@@ -87,6 +84,7 @@ def word_guess_view(request, folder_id):
     playtime = highscore.play_time
 
     if game_end:
+        request.session['game_end'] = True
         # Update or create highscore at the end of the game
         if hearts_left != 0:
             update_highscore(user, folder, playtime)
@@ -95,7 +93,10 @@ def word_guess_view(request, folder_id):
         request.session.pop('guesses', None)
         request.session.pop('hearts_left', None)
 
-    hearts_range = range(hearts_left)
+    else:
+        request.session['game_end'] = False
+
+    
 
     # Prepare the context for the template
     context = {

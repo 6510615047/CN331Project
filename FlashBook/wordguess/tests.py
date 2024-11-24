@@ -3,6 +3,7 @@ from homepage.models import User, Folder, Word, Highscore
 from django.contrib.auth.models import User as UserBuiltIn
 from django.urls import reverse
 
+
 class WordGuessViewTests(TestCase):
     def setUp(self):
         # Create a test user
@@ -101,73 +102,41 @@ class WordGuessViewTests(TestCase):
         self.assertEqual(session['hearts_left'], 5)
 
     def test_game_end_success(self):
-        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
+        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'normal'})
         session = self.client.session
-        hearts_left = session.get('hearts_left', 6)
-        word = Word.objects.get(word_id=session['word_id'])
-        highscore = Highscore.objects.filter(user=self.user, folder=self.folder, game_id=2).first()
-        guesses = session.get('guesses',[])
-        display_word = response.context.get('display_word')
-
-        while hearts_left > 0 and "_" in display_word:  # "_ in word.word" checks if there are blanks
-            # Pick a valid letter (adjust the logic as needed)
-            for char in "abcdefghijklmnopqrstuvwxyz0123456789":
-                if char not in guesses:
-                    guesses.append(char)  # Add guess
-                    break
-            
-            # Update session with new guess
-            session['guesses'] = guesses
-            session.save()  # Save session explicitly
-
-            # Post the guess and get response
-            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guesses[-1]})
-
-            # Re-fetch session variables
+    
+        forced_guesses = ['t','e','s','t','w','o','r','d','1','2','3']
+        
+        for guess in forced_guesses:
+            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guess})
             session = self.client.session
-            hearts_left = session.get('hearts_left', 6)
-            display_word = response.context.get('display_word')
+            if session.get('game_end') == True:
+                break
 
         session = self.client.session
-        game_end = session.get('game_end')
-        print(f"Game End Status: {game_end}")  # Debugging line
-        print(f"Remaining Hearts: {session.get('hearts_left')}") 
+        highscore = response.context.get('highscore')
+        print(response.context.get('hearts_left'))
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.get('word_id'))
-        self.assertContains(response, "Congratulations! You guessed the word!")
+        self.assertIn("Congratulations! You guessed the word!", response.context.get('message'))
         self.assertEqual(highscore.score, 1)
 
     def test_game_end_failure(self):
-        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]))
+        response = self.client.get(reverse('wordguess', args=[self.folder.folder_id]), {'difficulty': 'normal'})
         session = self.client.session
-        hearts_left = session.get('hearts_left', 6)
-        word = Word.objects.get(word_id=session['word_id'])
-        highscore = Highscore.objects.filter(user=self.user, folder=self.folder, game_id=2).first()
-        guesses = session.get('guesses',[])
-        display_word = response.context.get('display_word')
-
-        while hearts_left > 0 and "_" in display_word:  # "_ in word.word" checks if there are blanks
-            # Pick a valid letter (adjust the logic as needed)
-            for char in "abcdefghijklmnopqrstuvwxyz0123456789":
-                if char not in guesses:
-                    guesses.append(char)  # Add guess
-                    break
-            
-            # Update session with new guess
-            session['guesses'] = guesses
-            session.save()  # Save session explicitly
-
-            # Post the guess and get response
-            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guesses[-1]})
-
-            # Re-fetch session variables
-            session = self.client.session
-            hearts_left = session.get('hearts_left', 6)
-            display_word = response.context.get('display_word')
         
+        forced_guesses = ['a','b','c','f','g','h']
+
+        for guess in forced_guesses:
+            response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'guess': guess})
+            session = self.client.session
+            if session.get('game_end') == True:
+                break
+            
         session = self.client.session
+        highscore = response.context.get('highscore')
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(session.get('word_id'))
-        self.assertContains(response, "You lost!")
+        self.assertIn("You lost!", response.context.get('message'))
         self.assertEqual(highscore.score, 0)
 
