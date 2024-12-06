@@ -243,14 +243,14 @@
         <div class="score_display">Score : {{ highscore.score }}</div>
 
         <!-- Timer Display -->
-        <div class="timer_display">Time Left: &#8734; seconds</div>
+        <div id="timerDisplay" class="timer_display">Time Left: {{ time_value }} seconds</div>
 
         <!-- Flashcard Word -->
         <div class="flashcard_word">{{ word }}</div>
 
         <!-- Choices Container -->
         <div class="choices_container">
-            <form method="POST" action="{% url 'check_answer' folder_id=folder.folder_id play_time=play_time %}">
+            <form id="nextForm" method="POST" action="{% url 'check_answer' folder_id=folder.folder_id play_time=play_time %}">
                 {% csrf_token %}
                 <div class="choices">
                     {% for answer in answers %}
@@ -277,6 +277,41 @@
         <button onclick="this.parentElement.style.display='none'; document.querySelector('.popup-overlay').style.display='none';">OK</button>
     </div>
     {% endif %}
+
+    <script>
+        // This function will update the time every second
+        let time = {{ time_value }}; // Get the value of time from Django context
+        const timerDisplay = document.getElementById("timerDisplay");
+        const nextForm = document.getElementById("nextForm");
+
+        function updateTimer() {
+            if (time <= 0) {
+                clearInterval(timerInterval);  // Stop the timer when it reaches 0
+                
+                // Create and show time's up popup
+                const popupOverlay = document.createElement('div');
+                popupOverlay.className = 'popup-overlay';
+                
+                const popup = document.createElement('div');
+                popup.className = 'popup incorrect';
+                popup.innerHTML = `
+                    <p>Time's up!</p>
+                    <button onclick="this.parentElement.style.display='none'; document.querySelector('.popup-overlay').style.display='none'; document.getElementById('nextForm').submit();">OK</button>
+                `;
+                
+                document.body.appendChild(popupOverlay);
+                document.body.appendChild(popup);
+                
+                timerDisplay.innerHTML = "Time's up!";
+            } else {
+                time--;  // Decrease time by 1 second
+                timerDisplay.innerHTML = `Time Left: ${time} seconds`; // Update the displayed time
+            }
+        }
+
+        // Start the timer as soon as the page loads
+        const timerInterval = setInterval(updateTimer, 1000); // Update every second
+    </script>
 
 </body>
 
