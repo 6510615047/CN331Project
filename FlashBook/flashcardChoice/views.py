@@ -22,8 +22,6 @@ def flashcard_choice(request, folder_id):
     time_value = request.GET.get('time', request.session.get('time_value'))
 
     request.session['time_value'] = time_value
-    if request.session.get('came_from_answer'):
-        time_value = None
 
     currentWordId = request.session.get('currentWordId', default_word_id)
     request.session['currentWordId'] = currentWordId
