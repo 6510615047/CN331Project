@@ -9,6 +9,8 @@ from io import BytesIO
 import base64
 import json
 import random
+from urllib.parse import urlencode
+from django.urls import reverse
 # Create your views here.
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
@@ -353,9 +355,18 @@ def community(request):
     user = User.objects.get(user_id=request.session.get('user_id'))
     folders = Folder.objects.filter(user=user)
     top_users = User.objects.order_by('-day_streak')[:10]
-    top_users = list(top_users) + ['-'] * (10 - len(top_users))  # เติม '-' หากไม่ครบ 10
+    top_users = list(top_users) + ['-'] * (10 - len(top_users)) 
     open_games = PublicGame.objects.filter(status='OPEN')
-    return render(request, 'community.html', {'user': user, 'top_users': top_users, 'open_games': open_games, 'folders': folders})
+
+    for game in open_games:
+        game.is_joined = game.players.filter(user=user).exists()
+
+    return render(request, 'community.html', {
+        'user': user,
+        'top_users': top_users,
+        'open_games': open_games,
+        'folders': folders
+    })
 
 def add_public_game(request):
     if request.method == 'POST':
@@ -363,6 +374,7 @@ def add_public_game(request):
         description = request.POST.get('description')
         max_players = request.POST.get('max_players')
         folder_id = request.POST.get('folder')
+        game_type = request.POST.get('game_type')
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
         status = request.POST.get('status')
@@ -376,6 +388,7 @@ def add_public_game(request):
             description=description,
             max_players=max_players,
             folder=folder,
+            game_type=game_type,
             start_time=start_time,
             end_time=end_time,
             status=status,
@@ -389,3 +402,30 @@ def add_public_game(request):
         # If the method is GET, pass the folders of the logged-in user
         folders = Folder.objects.filter(user=request.user)
         return render(request, 'folder.html', {'folders': folders})
+    
+def join_game(request, game_id):
+    user = User.objects.get(user_id=request.session.get('user_id'))
+    game = PublicGame.objects.get(id=game_id)
+
+    if not game.players.filter(user=user).exists():
+        GamePlayer.objects.create(game=game, user=user)
+
+    # Get the game type and difficulty
+    game_type = game.game_type
+
+    # Redirect based on the game type
+    if game_type == 'FLASHCARD':
+        return redirect('flashcard', folder_id=game.folder.folder_id)
+    elif game_type == 'FLASHCARDCHOICE':
+        return redirect('flashcard_choice', folder_id=game.folder.folder_id)
+    elif game_type == 'WORDGUESS_EASY':
+        url = reverse('wordguess', kwargs={'folder_id': game.folder.folder_id})
+        return redirect(f'{url}?difficulty=easy')
+    elif game_type == 'WORDGUESS_NORMAL':
+        url = reverse('wordguess', kwargs={'folder_id': game.folder.folder_id})
+        return redirect(f'{url}?difficulty=normal')
+    elif game_type == 'WORDGUESS_HARD':
+        url = reverse('wordguess', kwargs={'folder_id': game.folder.folder_id})
+        return redirect(f'{url}?difficulty=hard')
+
+    return redirect('community') 
