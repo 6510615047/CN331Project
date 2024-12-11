@@ -351,6 +351,41 @@ def redeem_reward(request,reward_id):
 
 def community(request):
     user = User.objects.get(user_id=request.session.get('user_id'))
+    folders = Folder.objects.filter(user=user)
     top_users = User.objects.order_by('-day_streak')[:10]
     top_users = list(top_users) + ['-'] * (10 - len(top_users))  # เติม '-' หากไม่ครบ 10
-    return render(request, 'community.html', {'user': user, 'top_users': top_users})
+    open_games = PublicGame.objects.filter(status='OPEN')
+    return render(request, 'community.html', {'user': user, 'top_users': top_users, 'open_games': open_games, 'folders': folders})
+
+def add_public_game(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        max_players = request.POST.get('max_players')
+        folder_id = request.POST.get('folder')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        status = request.POST.get('status')
+
+        # Get the folder object from the id
+        folder = Folder.objects.get(id=folder_id)
+
+        # Create the new game
+        game = PublicGame(
+            name=name,
+            description=description,
+            max_players=max_players,
+            folder=folder,
+            start_time=start_time,
+            end_time=end_time,
+            status=status,
+        )
+        game.save()
+
+        # Redirect to a success page or the same page with a success message
+        return redirect('community')  # Replace with your desired redirect view
+
+    else:
+        # If the method is GET, pass the folders of the logged-in user
+        folders = Folder.objects.filter(user=request.user)
+        return render(request, 'folder.html', {'folders': folders})
