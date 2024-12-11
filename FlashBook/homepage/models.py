@@ -23,6 +23,8 @@ class User(models.Model):
     card_color_ava = models.JSONField(default=list, blank=True)
     
     hint_ava = models.IntegerField(default=0)
+    
+    is_admin = models.BooleanField(default=False)
 
     # method for hash password
     def set_password(self, raw_password):
@@ -170,6 +172,7 @@ class PublicGame(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     max_players = models.PositiveIntegerField()
+    folder = models.ForeignKey(Folder, on_delete=models.CASCADE)
     start_time = models.DateTimeField()  
     end_time = models.DateTimeField()
     status = models.CharField(
