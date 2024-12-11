@@ -169,6 +169,14 @@ class PublicGame(models.Model):
     ('FINISHED', 'Finished'),
     ]
 
+    GAME_TYPE_CHOICES = [
+        ('FLASHCARD', 'Flashcard'),
+        ('FLASHCARDCHOICE', 'Flashcard Choice'),
+        ('WORDGUESS_EASY', 'Wordguess Easy'),
+        ('WORDGUESS_NORMAL', 'Wordguess Normal'),
+        ('WORDGUESS_HARD', 'Wordguess Hard'),
+    ]
+    
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     max_players = models.PositiveIntegerField()
@@ -180,6 +188,12 @@ class PublicGame(models.Model):
         choices=GAME_STATUS_CHOICES,
         default='OPEN',
     ) 
+
+    game_type = models.CharField(
+        max_length=20,
+        choices=GAME_TYPE_CHOICES,
+        default='FLASHCARD'
+    )
 
     players = models.ManyToManyField(User, through='GamePlayer', related_name='games')
 
