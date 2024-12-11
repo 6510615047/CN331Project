@@ -159,3 +159,39 @@ class Highscore(models.Model):
 
 # # Third play for the original game_id (user1, folder1, game_id=1)
 # highscore4 = Highscore.objects.create(user=user1, folder=folder1, game_id=1, score=92)  # play_time will be 3
+
+class PublicGame(models.Model):
+
+    GAME_STATUS_CHOICES = [
+    ('OPEN', 'Open'),
+    ('FINISHED', 'Finished'),
+    ]
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    max_players = models.PositiveIntegerField()
+    start_time = models.DateTimeField()  
+    end_time = models.DateTimeField()
+    status = models.CharField(
+        max_length=10,
+        choices=GAME_STATUS_CHOICES,
+        default='OPEN',
+    ) 
+
+    players = models.ManyToManyField(User, through='GamePlayer', related_name='games')
+
+    def __str__(self):
+        return self.name
+
+
+class GamePlayer(models.Model):
+
+    game = models.ForeignKey(PublicGame, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('game', 'user')
+
+    def __str__(self):
+        return f'{self.user.user} - {self.game.name}'
