@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'homepage',
     'folWordSel',
     'flashcard',
-    'wordguess'
+    'wordguess',
+    'flashcardChoice'
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'folWordSel.context_processors.check_in_today',
             ],
         },
     },

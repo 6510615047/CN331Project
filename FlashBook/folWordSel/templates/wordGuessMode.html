@@ -74,7 +74,7 @@
 
         /* การเปลี่ยนแปลงของปุ่ม confirm เมื่อ hover */
         .confirm-btn:hover {
-            background-color: #0056b3;
+            background-color: #3b0085;
         }
 
         /* การเปลี่ยนแปลงของปุ่ม confirm เมื่อกด */
@@ -83,29 +83,33 @@
         }
 
         /* สไตล์ของปุ่ม Back */
-        .back-btn {
-            background-color: #ccc;
-            color: #333;
-            padding: 10px 20px;
-            font-size: 18px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            position: fixed;
-            bottom: 20px;
+        .back-container {
+            position: absolute;
+            bottom: 29px; /* ระยะห่างจากขอบล่าง */
             left: 50%;
             transform: translateX(-50%);
+            text-align: center;
         }
-
-        /* การเปลี่ยนแปลงของปุ่ม Back เมื่อ hover */
-        .back-btn:hover {
-            background-color: #bbb;
+    
+        /* Back button styling */
+        .back-button {
+            font-size: 18px;
+            color: white;
+            background-color: #5A2FB0;
+            padding: 13px 25px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
-
-        /* การเปลี่ยนแปลงของปุ่ม Back เมื่อกด */
-        .back-btn:active {
-            transform: translateX(-50%) scale(0.98);
+    
+        /* Hover effect for back button */
+        .back-button:hover {
+            background-color: #3b0085;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -120,26 +124,31 @@
 
         <!-- กล่อง Set Time -->
         <div class="modal">
-            <h2>Mode select</h2>
+            <h2>Mode Select</h2>
             <select class="mode-select" id="modeSelect">
-                <option value="10">easy</option>
-                <option value="20">normal</option>
-                <option value="30">hard</option>
+                <option value="easy">Easy</option>
+                <option value="normal">Normal</option>
+                <option value="hard">Hard</option>
             </select>
-            <button class="confirm-btn" onclick="window.location.href='#'">Confirm</button>
-            {% comment %} "window.location.href='/folder/{{ folder_id }}/select_game/modeSet/wordguess'" {% endcomment %}
+            <button class="confirm-btn" onclick="confirmMode()">Confirm</button>
         </div>
-
     </div>
 
     <!-- ปุ่ม Back -->
-    <button class="back-btn" onclick="goBack()">Back</button>
+    <div class="back-container">
+        <button class="back-button" onclick="window.history.back()">Back</button>
+    </div>
 
     <script>
-        // ฟังก์ชันสำหรับการกลับไปยังหน้าเดิม
-        function goBack() {
-            window.history.back(); // ฟังก์ชันนี้จะพาผู้ใช้กลับไปหน้าก่อนหน้า
-        }
+
+        function confirmMode() {
+                // Get the selected mode value
+                const modeSelect = document.getElementById('modeSelect');
+                const selectedMode = modeSelect.value;
+        
+                // Redirect with the selected mode as a query parameter
+                window.location.href = `/folder/{{ folder_id }}/select_game/modeSet/wordguess?difficulty=${selectedMode}`;
+            }
     </script>
 
 </body>

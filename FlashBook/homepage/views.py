@@ -80,6 +80,8 @@ def profile_view(request):
         new_username = request.POST.get('user')
         new_fname = request.POST.get('fname')
         new_lname = request.POST.get('lname')
+        new_title = request.POST.get('title')
+        new_card_color = request.POST.get('card_color')
         new_email = request.POST.get('email')
         current_password = request.POST.get('current_password')
         new_password = request.POST.get('new_password')
@@ -93,6 +95,8 @@ def profile_view(request):
         custom_user.user = new_username
         custom_user.fname = new_fname
         custom_user.lname = new_lname
+        custom_user.title = new_title
+        custom_user.card_color = new_card_color
         custom_user.email = new_email
         if 'profile_picture' in request.FILES:
             custom_user.profile_picture = request.FILES['profile_picture']
@@ -117,7 +121,7 @@ def profile_view(request):
         update_session_auth_hash(request, auth_user)
 
         messages.success(request, 'Profile updated successfully!')
-        return redirect('profile')
+        return redirect('folder')
 
     context = {
         'user': custom_user,

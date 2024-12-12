@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
+from datetime import date, timedelta
 # Create your models here.
 
 class User(models.Model):
@@ -11,15 +12,51 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     day_streak = models.IntegerField(default=0)
+    day_streak_left = models.IntegerField(default=0)
+    last_check_in = models.DateField(null=True, blank=True)
+    credits = models.PositiveIntegerField(default=0)
+
+    title = models.CharField(max_length=100, null=True, blank=True)
+    title_ava = models.JSONField(default=list, blank=True)
+
+    card_color = models.TextField(default='#ffffff') 
+    card_color_ava = models.JSONField(default=list, blank=True)
+    
+    hint_ava = models.IntegerField(default=0)
 
     # method for hash password
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
 
-    # Create a User and set an encrypted password
-    # user = User(user="john_doe", fname="John", lname="Doe", email="john@example.com")
-    # user.set_password("securepass")  # Encrypts and sets the password
-    # user.save()
+    def check_in(self):
+        today = date.today()
+        if not self.last_check_in:
+            self.day_streak = 1
+            self.day_streak_left = 1
+        else:
+            # ถ้าเช็คอินในวันที่ต่อจากเมื่อวาน
+            if self.last_check_in + timedelta(days=1) == today:
+                self.day_streak += 1
+                self.day_streak_left += 1
+
+            elif self.last_check_in != today:
+                self.day_streak = 1
+                self.day_streak_left = 1
+
+        self.last_check_in = today
+        self.save()
+
+    def get_title_ava(self):
+        return self.title_ava  # รับค่า list ที่เก็บใน JSONField
+
+    def set_title_ava(self, titles):
+        self.title_ava = titles  # บันทึกค่าลงใน JSONField
+
+    def get_card_color_ava(self):
+        return self.card_color_ava  # รับค่า list ที่เก็บใน JSONField
+
+    def set_card_color_ava(self, colors):
+        self.card_color_ava = colors 
 
     def __str__(self):
         return self.user
@@ -61,6 +98,15 @@ class Word(models.Model):
             last_word = Word.objects.filter(user=self.user, folder=self.folder).order_by('word_id').last()
             self.word_id = last_word.word_id + 1 if last_word else 1
         super().save(*args, **kwargs)
+    
+    @staticmethod
+    def reorder_word_ids(user, folder):
+        # ลำดับ word_id ใหม่ทุกครั้งหลังจากการลบข้อมูล
+        words = Word.objects.filter(user=user, folder=folder).order_by('word_id')
+        for index, word in enumerate(words, start=1):  # เริ่มนับจาก 1
+            if word.word_id != index:
+                word.word_id = index
+                word.save()
 
     def __str__(self):
         return f"Word {self.word_id} in Folder {self.folder.folder_id} for User {self.user.user}"
@@ -80,13 +126,19 @@ class Highscore(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['user', 'folder', 'game_id', 'play_time'], name='unique_user_folder_game_play'),
-            models.CheckConstraint(check=models.Q(game_id__in=[1, 2]), name='valid_game_id')
+            models.CheckConstraint(check=models.Q(game_id__in=[1, 2, 3]), name='valid_game_id')
         ]
 
     def save(self, *args, **kwargs):
         if not self.play_time:
             last_play = Highscore.objects.filter(user=self.user, folder=self.folder, game_id=self.game_id).order_by('play_time').last()
             self.play_time = last_play.play_time + 1 if last_play else 1
+
+        all_scores = Highscore.objects.filter(user=self.user, folder=self.folder, game_id=self.game_id).order_by('play_time')
+        
+        if all_scores.count() >= 15:
+            all_scores.first().delete()
+
         super().save(*args, **kwargs)
 
     def __str__(self):

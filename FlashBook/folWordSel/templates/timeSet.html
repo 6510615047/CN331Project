@@ -5,18 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash card</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         /* Full-screen container */
         body,
         html {
             height: 100%;
+            width: 100%;
             margin: 0;
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #5e5ec9, #e8f0fe);
-            display: flex; /* Enable Flexbox */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
+            display: flex;
+            /* Enable Flexbox */
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
         }
 
         
@@ -39,10 +44,11 @@
         /* Main container for Set Time, Timer, and Score */
         .container {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             gap: 40px;
             margin-top: 100px;
+            height: 80%;
         }
 
         /* Box styling */
@@ -94,8 +100,7 @@
         }
 
         .confirm-btn:hover {
-            background-color: #FFD700;
-            color: #000;
+            background-color: #3b0085;
         }
 
         .confirm-btn:active {
@@ -116,27 +121,33 @@
         }
 
         /* Back button styling */
-        .back-btn {
-            background-color: #333;
-            color: #FFD700;
-            padding: 10px 20px;
-            font-size: 18px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s;
-            position: fixed;
-            bottom: 20px;
+        .back-container {
+            position: absolute;
+            bottom: 29px; /* ระยะห่างจากขอบล่าง */
             left: 50%;
             transform: translateX(-50%);
+            text-align: center;
         }
-
-        .back-btn:hover {
-            background-color: #444;
+    
+        /* Back button styling */
+        .back-button {
+            font-size: 18px;
+            color: white;
+            background-color: #5A2FB0;
+            padding: 10px 25px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
-
-        .back-btn:active {
-            transform: translateX(-50%) scale(0.98);
+    
+        /* Hover effect for back button */
+        .back-button:hover {
+            background-color: #3b0085;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -150,41 +161,44 @@
 
     <!-- Main container for Set Time, Timer, and Score -->
     <div class="container">
-
-        <!-- Score box -->
-        <div class="box">
-            <div class="score-header">Score</div>
-            <div class="score-display" id="scoreDisplay">0</div>
-        </div>
-
-        <!-- Set time box -->
+        <!-- Set time and game selection box -->
         <div class="box">
             <h2>Set time</h2>
-            <select class="time-select" id="timeSelect">
-                <option value="10">10 seconds</option>
-                <option value="20">20 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">60 seconds</option>
-            </select>
-            <button class="confirm-btn" onclick="window.location.href='/folder/{{ folder_id }}/select_game/timeSet/flashcard'">Confirm</button>
+            <form method='GET' id="gameForm">
+                <select class="time-select" id="timeSelect" name="time">
+                    <option value="10">10 seconds</option>
+                    <option value="20">20 seconds</option>
+                    <option value="30">30 seconds</option>
+                    <option value="60">60 seconds</option>
+                </select>
+                <h2>Select Game</h2>
+                <select class="time-select" id="gameSelect" name="game">
+                    <option value="flashcard">Flashcard</option>
+                    <option value="flashcardChoice">FlashcardChoice</option>
+                </select>
+                <button class="confirm-btn" type="submit">Confirm</button>
+            </form>
         </div>
-
-        <!-- Timer box -->
-        <div class="box">
-            <div class="timer-header">Timer</div>
-            <div class="timer-display" id="timerDisplay">0</div>
-        </div>
-
     </div>
 
     <!-- Back button -->
-    <button class="back-btn" onclick="goBack()">Back</button>
+    <div class="back-container">
+        <button class="back-button" onclick="window.history.back()">Back</button>
+    </div>
 
     <script>
-        // Function for going back to the previous page
-        function goBack() {
-            window.history.back();
-        }
+        document.getElementById('gameForm').addEventListener('submit', function(event) {
+            const gameSelect = document.getElementById('gameSelect').value;
+            const folderId = {{ folder_id }}; // Django context variable
+            const form = event.target;
+        
+            if (gameSelect === 'flashcard') {
+                form.action = "{% url 'flashcard' folder_id=folder_id %}";
+            } else if (gameSelect === 'flashcardChoice') {
+                form.action = "{% url 'flashcard_choice' folder_id=folder_id %}";
+            }
+        });
+
     </script>
 
 </body>

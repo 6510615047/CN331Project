@@ -124,7 +124,7 @@
 
         /* Wrong Button */
         .action_button.wrong_button {
-            background-color: #FF6F61;;
+            background-color: #FF6F61;
             position: absolute;
             left: 20px;
             bottom: 20px;
@@ -171,13 +171,13 @@
     <div class="flashcard_container">
 
         <!-- Topic Display -->
-        <div class="topic_display">Flash Card </div>
+        <div class="topic_display">Flash Card</div>
 
         <!-- Score Display -->
-        <div class="score_display">Score : {{ highscore.score }}</div>
+        <div class="score_display">Score: {{ highscore.score }}</div>
 
         <!-- Timer Display -->
-        <div class="timer_display">Time Left : &#8734; seconds</div>
+        <div id="timerDisplay" class="timer_display">Time Left: {{ time_value }} seconds</div>
 
         <!-- Flashcard Word -->
         <div class="flashcard_word">{{ word }}</div>
@@ -189,17 +189,39 @@
         </form>
 
         <!-- Wrong Button -->
-        <form action="{% url 'wrong_answer' folder_id=folder.folder_id %}" method="post">
+        <form action="{% url 'wrong_answer' folder_id=folder.folder_id %}" method="post" id="wrongForm">
             {% csrf_token %}
-            <button type="submit" class="action_button wrong_button" name="wrong">Can't Remember</button>
+            <button type="submit" class="action_button wrong_button" name="wrong" value="wrong">Can't Remember</button>
         </form>
 
         <!-- Next Button -->
-        <form action="{% url 'next_word' folder_id=folder.folder_id playtime=playtime %}" method="post">
+        <form action="{% url 'next_word' folder_id=folder.folder_id playtime=playtime %}" method="post" id="nextForm">
             {% csrf_token %}
             <button type="submit" class="action_button next_button" name="next">Next</button>
         </form>
     </div>
+
+    <script>
+        // This function will update the time every second
+        let time = {{ time_value }}; // Get the value of time from Django context
+        const timerDisplay = document.getElementById("timerDisplay");
+
+        function updateTimer() {
+            if (time <= 0) {
+                clearInterval(timerInterval);  // Stop the timer when it reaches 0
+                timerDisplay.innerHTML = "Time's up!";
+
+                document.getElementById("nextForm").submit();
+
+            } else {
+                time--;  // Decrease time by 1 second
+                timerDisplay.innerHTML = `Time Left: ${time} seconds`; // Update the displayed time
+            }
+        }
+
+        // Start the timer as soon as the page loads
+        const timerInterval = setInterval(updateTimer, 1000); // Update every second
+    </script>
 
 </body>
 

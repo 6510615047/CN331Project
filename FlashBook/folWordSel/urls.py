@@ -2,6 +2,7 @@ from django.urls import path
 from folWordSel import views
 from flashcard import views as fviews
 from wordguess import views as wviews
+from flashcardChoice import views as fcviews
 
 urlpatterns = [
     path('',views.folder_view,name='folder'),
@@ -16,6 +17,12 @@ urlpatterns = [
     # path('selectGame/', views.select_game_view, name='select_game'),
     path('<int:folder_id>/select_game/timeSet', views.time_set_view, name='time_set'),
     path('<int:folder_id>/select_game/timeSet/flashcard', fviews.flashcard, name='flashcard'),
+    path('<int:folder_id>/select_game/timeSet/flashcardChoice', fcviews.flashcard_choice, name='flashcard_choice'),
     path('<int:folder_id>/select_game/modeSet/', views.mode_set_view, name='mode_set'),
     path('<int:folder_id>/select_game/modeSet/wordguess', wviews.word_guess_view, name='wordguess'),
+    path('score/', views.score, name='score'),
+    path('reward/', views.reward, name='reward'),
+    path('community/', views.community, name='community'),
+    path('check_in/', views.check_in, name='check_in'),
+    path('redeem_reward/<int:reward_id>/', views.redeem_reward, name='redeem_reward'),
 ]
