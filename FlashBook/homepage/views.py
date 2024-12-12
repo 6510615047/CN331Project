@@ -5,6 +5,7 @@ from .forms import RegisterForm, LoginForm
 from homepage.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+from django.db.utils import IntegrityError
 # Create your views here.
 
 def homepage(request):
@@ -18,16 +19,29 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            newUser = User.objects.create(
-                user=form.cleaned_data['username'],
-                fname=form.cleaned_data['fname'],
-                lname=form.cleaned_data['lname'],
-                email=form.cleaned_data['email'],
-            )
-            newUser.set_password(form.cleaned_data['password1'])
-            newUser.save()
-            messages.success(request, 'Account created successfully! Please log in.')
-            return redirect('login')
+            try:
+                # สร้าง User ใหม่
+                newUser = User.objects.create(
+                    user=form.cleaned_data['username'],
+                    fname=form.cleaned_data['fname'],
+                    lname=form.cleaned_data['lname'],
+                    email=form.cleaned_data['email'],
+                )
+                newUser.set_password(form.cleaned_data['password1'])
+                newUser.save()
+
+                messages.success(request, 'Account created successfully! Please log in.')
+                return redirect('login')
+            except IntegrityError as e:
+                # ตรวจสอบว่า error เกี่ยวกับ email ซ้ำหรือไม่
+                if 'unique constraint' in str(e).lower() and 'email' in str(e).lower():
+                    messages.error(request, 'This email is already registered. Please use another email.')
+                else:
+                    # หากเป็น IntegrityError อื่นๆ
+                    messages.error(request, 'There was an error creating your account. Please try again.')
+                
+                # รีเทิร์นไปที่หน้า register พร้อมฟอร์มเดิม
+                return render(request, 'register.html', {'form': form})
         else:
             messages.error(request, 'Please correct the error below.')
     else:
@@ -38,6 +52,9 @@ def register(request):
 def login_views(request):
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
         if form.is_valid():
             user = form.get_user()
             login(request, user)
@@ -47,17 +64,28 @@ def login_views(request):
                 return redirect('/admin/')
             else:
                 try:
-                    # ดึงข้อมูลจากโมเดล User ของคุณโดยใช้ username
                     custom_user = User.objects.get(user=user.username)
                     request.session['user_id'] = custom_user.user_id
                 except User.DoesNotExist:
                     messages.error(request, 'User not found in the database.')
                     return redirect('login')
                 return redirect('/folder')
+        else:
+            # form ไม่ valid: แยกกรณีว่า username นี้มีอยู่หรือไม่
+            try:
+                custom_user = User.objects.get(user=username)
+                # พบ user ในระบบ แปลว่าพิมพ์รหัสผ่านผิด
+                messages.error(request, 'Invalid Password')
+            except User.DoesNotExist:
+                # ไม่พบ user หมายความว่า username ไม่ถูก
+                messages.error(request, 'Invalid Username')
+
+            return render(request, 'login.html', {'form': form})
     else:
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
+
 
 def logout_views(request):
     logout(request)
