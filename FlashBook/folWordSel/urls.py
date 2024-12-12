@@ -25,4 +25,6 @@ urlpatterns = [
     path('community/', views.community, name='community'),
     path('check_in/', views.check_in, name='check_in'),
     path('redeem_reward/<int:reward_id>/', views.redeem_reward, name='redeem_reward'),
+    path('add_public_game/', views.add_public_game, name='add_public_game'),
+    path('join_game/<int:game_id>/', views.join_game, name='join_game'),
 ]

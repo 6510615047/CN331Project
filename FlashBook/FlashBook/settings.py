@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'folWordSel.middleware.CloseExpiredGamesMiddleware',
 ]
 
 ROOT_URLCONF = 'FlashBook.urls'
