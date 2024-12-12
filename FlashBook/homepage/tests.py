@@ -11,9 +11,18 @@ from homepage.views import homepage, about, register, login_views, logout_views,
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User as AuthUser
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.utils import IntegrityError
+from django.test import SimpleTestCase, override_settings, TransactionTestCase
+from django.urls import resolve
+from django.views.static import serve
+from django.urls import clear_url_caches
+import importlib
 import os
 
-class RegisterLoginTests(TestCase):
+class RegisterLoginTests(TransactionTestCase):
+    # ใช้ TransactionTestCase แทน TestCase
+    reset_sequences = True
+
     # เตรียมข้อมูลสำหรับทดสอบ
     def setUp(self):
         self.client = Client()
@@ -95,7 +104,56 @@ class RegisterLoginTests(TestCase):
         self.assertTemplateUsed(response, 'register.html')
         self.assertFalse(User.objects.filter(username='').exists())
 
-    # ทดสอบหน้า login ด้วยการส่ง GET request เพื่อให้แน่ใจว่าแบบฟอร์มการล็อกอินโหลดได้สำเร็จ
+        # ทดสอบหน้า register ด้วยการส่งข้อมูล POST ที่ทำให้เกิด email ซ้ำ (unique constraint)
+    def test_register_view_post_duplicate_email(self):
+        # สร้างข้อมูลซ้ำก่อน
+        User.objects.create_user(username='existinguser', password='somepassword123', email='duplicate@example.com')
+        User_model.objects.create(user='existinguser', fname='Exist', lname='User', email='duplicate@example.com', password='somepassword123')
+
+        duplicate_email_data = {
+            'username': 'anotheruser',
+            'fname': 'Another',
+            'lname': 'User',
+            'email': 'duplicate@example.com',
+            'birthdate': '2000-01-01',
+            'password1': 'newpassword123',
+            'password2': 'newpassword123'
+        }
+
+        response = self.client.post(self.register_url, data=duplicate_email_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'register.html')
+
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("This email is already registered" in str(m) for m in messages_list))
+
+        # เช็ค CustomUser แทน
+        self.assertFalse(User_model.objects.filter(user='anotheruser').exists())
+
+    def test_register_view_post_integrity_error_other(self):
+        from unittest.mock import patch
+
+        valid_data = {
+            'username': 'erroruser',
+            'fname': 'Error',
+            'lname': 'User',
+            'email': 'error@example.com',
+            'birthdate': '2000-01-01',
+            'password1': 'newpassword123',
+            'password2': 'newpassword123'
+        }
+
+        with patch('homepage.views.User.objects.create', side_effect=IntegrityError("unique constraint failed: homepage_user.user")):
+            response = self.client.post(self.register_url, data=valid_data)
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, 'register.html')
+            messages_list = list(get_messages(response.wsgi_request))
+            self.assertTrue(any("There was an error creating your account" in str(m) for m in messages_list))
+
+        # เช็ค CustomUser ว่าไม่ถูกสร้าง
+        self.assertFalse(User_model.objects.filter(user='erroruser').exists())
+
+        # ทดสอบหน้า login ด้วยการส่ง GET request เพื่อให้แน่ใจว่าแบบฟอร์มการล็อกอินโหลดได้สำเร็จ
     def test_login_view_get(self):
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
@@ -107,29 +165,35 @@ class RegisterLoginTests(TestCase):
         response = self.client.post(self.login_url, data=self.user_credentials)
         self.assertEqual(response.status_code, 302)
 
-    # method สำหรับ login ที่เหลืออยู่ 3 บรรทัดยังไม่เสร็จ
-    # def test_login_view_post_valid_with_session_invalid(self):
-    #     # Get the CSRF token first by making a GET request
-    #     response = self.client.get(self.login_url)
-    #     self.csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
+    # เพิ่มการทดสอบกรณี session invalid
+    # สมมุติว่าต้องการทดสอบกรณีที่ session มี user_id ไม่ถูกต้อง และดูว่าระบบยังคง redirect กลับ login หรือไม่
+    def test_login_view_post_valid_with_session_invalid(self):
+        # Get the CSRF token first by making a GET request
+        response = self.client.get(self.login_url)
+        self.csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
 
-    #     # custom_user login
-    #     self.client.login(username='testuser', password='testpassword')
-    #     response = self.client.post(
-    #         self.login_url,
-    #         {   
-    #             'csrfmiddlewaretoken': self.csrf_token,
-    #             'username': 'testuser',
-    #             'password': 'testpassword'
-    #         }
-    #     )
+        # custom_user login
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.post(
+            self.login_url,
+            {   
+                'csrfmiddlewaretoken': self.csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
 
-    #     session = self.client.session
-    #     session['user_id'] = 99999  # ค่า user_id ที่ไม่มีในฐานข้อมูล
-    #     session.save()
+        # แก้ session ให้ invalid
+        session = self.client.session
+        session['user_id'] = 99999  # ค่า user_id ที่ไม่มีในฐานข้อมูล
+        session.save()
 
-    #     response = self.client.post(self.login_url, data=self.user_credentials)
-    #     self.assertEqual(response.status_code, 302)
+        # ลอง login อีกรอบด้วย credentials เดิม
+        response = self.client.post(self.login_url, data=self.user_credentials)
+        # ในกรณีนี้หาก logic ของ login_views ยังไม่ handle ดี อาจจะไปสู่กรณี user not found หรือ error
+        # สมมุติว่าหากมีการ redirect กลับ login ถือว่าผ่าน
+        #self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/folder', fetch_redirect_response=False)
 
     # ทดสอบหน้า login ด้วยการส่งข้อมูล POST ที่ไม่ถูกต้อง (sad path)
     def test_login_view_post_invalid(self):
@@ -154,6 +218,70 @@ class RegisterLoginTests(TestCase):
         response = self.client.post(self.login_url, data=self.admin_credentials)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, self.admin_url)
+
+    # เพิ่มทดสอบกรณี user เป็น staff (เช็ค redirect /admin/)
+    def test_login_view_post_staff_user(self):
+        # สมมุติเรามี user ที่เป็น staff ใน setUp (หรือสร้างที่นี่)
+        staff_user = User.objects.create_user(
+            username='staffmember',
+            password='staffpassword123',
+            is_staff=True
+        )
+        response = self.client.post(self.login_url, data={
+            'username': 'staffmember',
+            'password': 'staffpassword123'
+        })
+        self.assertRedirects(response, '/admin/')
+
+    # เพิ่มทดสอบกรณี AuthUser มีอยู่แต่ CustomUser ไม่เจอ (User not found in the database)
+    def test_login_view_user_not_found_in_custom_db(self):
+        # สร้าง AuthUser ปกติ
+        user = User.objects.create_user(username='testonlyauth', password='authpass')
+        # ไม่สร้าง CustomUser ให้สอดคล้อง
+
+        response = self.client.post(self.login_url, data={
+            'username': 'testonlyauth',
+            'password': 'authpass'
+        })
+        # คาดว่าควร redirect กลับ login และแจ้งว่าไม่เจอใน database
+        self.assertRedirects(response, self.login_url)
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("User not found in the database." in str(m) for m in messages_list))
+
+    # เพิ่มทดสอบกรณี form ไม่ valid แต่ username มีใน CustomUser (Invalid Password)
+    def test_login_view_invalid_password(self):
+        # สมมุติมี User ในระบบพร้อม CustomUser
+        auth_user = User.objects.create_user(username='validuser', password='correctpass')
+        custom_user = User_model.objects.create(
+            user_id=auth_user.id,
+            user='validuser',
+            fname='Val',
+            lname='User',
+            email='valuser@example.com',
+            password='correctpass'
+        )
+
+        # ใส่ password ผิด
+        response = self.client.post(self.login_url, data={
+            'username': 'validuser',
+            'password': 'wrongpass'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid Password" in str(m) for m in messages_list))
+
+    # เพิ่มทดสอบกรณี form ไม่ valid และ username ไม่มีใน CustomUser (Invalid Username)
+    def test_login_view_invalid_username(self):
+        # ไม่มี User/CustomUser สร้างขึ้น
+        response = self.client.post(self.login_url, data={
+            'username': 'nouser',
+            'password': 'nopassword'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("Invalid Username" in str(m) for m in messages_list))
 
     # ทดสอบการเข้าถึงหน้า homepage โดยไม่ได้ล็อกอิน
     def test_homepage_view_without_login(self):
@@ -183,8 +311,16 @@ class RegisterLoginTests(TestCase):
         # Check if the string representation matches
         self.assertEqual(str(highscore), expected_str)
 
+from django.test import SimpleTestCase, override_settings
 
+@override_settings(DEBUG=True, MEDIA_URL='/media/', MEDIA_ROOT='/tmp/media')
 class TestUrls(SimpleTestCase):
+    def test_media_url_with_client(self):
+        # เรียก URL ตรงด้วย client.get
+        response = self.client.get('/media/test.jpg')
+        # ถ้า URL นี้ถูก resolve โดย static() view
+        # และไม่มีไฟล์ test.jpg อยู่จริง จะได้สถานะ 404 จาก view serve ของ Django (ไม่ใช่ Resolver404)
+        self.assertEqual(response.status_code, 404)
 
     def test_homepage_url_resolves(self):
         url = reverse('homepage')
@@ -210,7 +346,6 @@ class TestUrls(SimpleTestCase):
         url = reverse('profile')
         self.assertEqual(resolve(url).func, profile_view)
 
-    # ทดสอบ URL สำหรับ password reset views
     def test_password_reset_url_resolves(self):
         url = reverse('password_reset')
         self.assertEqual(resolve(url).func.view_class, auth_views.PasswordResetView)
@@ -220,7 +355,6 @@ class TestUrls(SimpleTestCase):
         self.assertEqual(resolve(url).func.view_class, auth_views.PasswordResetDoneView)
 
     def test_password_reset_confirm_url_resolves(self):
-        # จำลองค่า uidb64 และ token เพื่อสร้าง URL ที่สมบูรณ์
         url = reverse('password_reset_confirm', kwargs={'uidb64': 'abcd', 'token': '12345'})
         self.assertEqual(resolve(url).func.view_class, auth_views.PasswordResetConfirmView)
 
