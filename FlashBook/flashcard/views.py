@@ -90,7 +90,7 @@ def correct_answer(request, folder_id, playtime):
     request.session['showMeaning'] = True
     # Redirect to flashcard page
     request.session['came_from_answer'] = True
-    request.session['time_value'] = None
+    # request.session['time_value'] = None
 
     return redirect('flashcard', folder_id=folder.folder_id)
 
@@ -107,7 +107,7 @@ def wrong_answer(request, folder_id):
     request.session['showMeaning'] = True
 
     request.session['came_from_answer'] = True
-    request.session['time_value'] = None
+    # request.session['time_value'] = None
 
     # Redirect to flashcard page
     return redirect('flashcard', folder_id=folder.folder_id)
