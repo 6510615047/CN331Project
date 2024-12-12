@@ -129,6 +129,15 @@
         </div>
     </nav>
 
+    <!-- แสดง messages ที่นี่ -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
     <!-- Main Content -->
     <div class="container">
         {% block content %}
