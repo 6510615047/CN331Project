@@ -64,6 +64,10 @@ def flashcard_choice(request,folder_id):
         random.shuffle(answers)
 
     referrer = request.META.get('HTTP_REFERER', None)
+
+    if referrer and 'community' in referrer:
+        request.session['came_from_community'] = True
+
     if referrer and "flashcardChoice" in referrer:
         highscore = Highscore.objects.get(
             user=user,
@@ -115,6 +119,12 @@ def check_answer(request,folder_id,play_time):
             highscore.score += 1
             highscore.save()
             pop_up_message_correct = True
+
+            if request.session.get('came_from_community'):
+                if highscore.score % 3 == 0:
+                    user.credits += 10
+                    user.save()
+
         else:
             pop_up_message_correct = False
 
