@@ -49,6 +49,17 @@
                 <input type="text" id="guess" name="guess" maxlength="1" required>
                 <button type="submit">Guess</button>
             </form>
+
+            <form method="POST" style="margin-top: 15px;">
+                {% csrf_token %}
+                <input type="hidden" name="hint_request" value="true">
+                <button type="submit" class="hint-button">Get Hint</button>
+            </form>
+            {% if hint_message %}
+                <p class="hint-message">{{ hint_message }}</p>
+            {% endif %}
+            <p>Hints Left: {{ hint_ava }}</p>
+
         {% endif %}
     </div>
 </body>

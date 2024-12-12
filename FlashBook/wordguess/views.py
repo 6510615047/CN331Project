@@ -11,6 +11,7 @@ def word_guess_view(request, folder_id):
     difficulty = request.GET.get('difficulty')
     
     guesses = request.session.get('guesses', [])
+    hint_message = ""
     
     if 'word_id' not in request.session: #choose word for new session
         word = choice(words)
@@ -48,10 +49,20 @@ def word_guess_view(request, folder_id):
     hearts_range = range(hearts_left)
 
     # Process guess
-    if request.method == "POST" and 'guess' in request.POST:
-        guesses, hearts_left = process_guess(request, word, guesses, hearts_left) #Process guess everytime that add input
-        request.session['guesses'] = guesses
-        request.session['hearts_left'] = hearts_left
+    if request.method == "POST":
+
+        if 'guess' in request.POST:  # Handle guesses
+            guesses, hearts_left = process_guess(request, word, guesses, request.session.get('hearts_left', 6))
+            request.session['guesses'] = guesses
+            request.session['hearts_left'] = hearts_left
+
+        elif 'hint_request' in request.POST:  # Handle hint requests
+            hint, guesses = get_hint(user, word, guesses)
+            if hint:
+                hint_message = f"Hint: The letter '{hint}' has been revealed!"
+                request.session['guesses'] = guesses
+            else:
+                hint_message = "Not enough credits for a hint!"
     
     display_word = get_display_word(word, guesses) # Call display_word method
     request.session['display_word'] = display_word
@@ -110,9 +121,11 @@ def word_guess_view(request, folder_id):
         'display_word': display_word,
         'game_end': game_end,
         'message': message,
+        'hint_message': hint_message,
         'guesses': guesses,
         'hearts_left': hearts_left,
         'user': user,
+        'hint_ava': user.hint_ava,
         'word': word,
         'meaning': meaning,
         'folder': folder,
@@ -151,6 +164,18 @@ def get_display_word(word, guesses):
     word_lower = word.word.lower()
     return " ".join([char if char in guesses else "_" for char in word_lower])  # Display _ _ _ _ _ ...
 
+def get_hint(user, word, guesses):
+
+    if user.hint_ava > 0:
+        user.hint_ava -= 1
+        user.save()
+
+        remaining_chars = set(word.word.lower()) - set(guesses)
+        if remaining_chars:
+            hint = remaining_chars.pop()  # Get a random unrevealed character
+            guesses.append(hint)
+            return hint, guesses
+    return None, guesses
 
 
 
