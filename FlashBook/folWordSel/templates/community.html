@@ -1,5 +1,5 @@
 {% extends "base.html" %} 
-
+{% comment %} เหลือ leaderboard กับ รางวัล {% endcomment %}
 {% block tile %}
 <title>Community</title>
 {% endblock %}
@@ -142,6 +142,7 @@
         <!-- Main Content Container -->
         <div class="main-content">
             <h1>Public Game - <span style="font-size: 1rem; font-weight: normal;">Join now to play and earn credits and exciting rewards!</span></h1>
+            <p style="margin-bottom: 5px;">Answer correctly every 3 questions and earn 10 credits!</p>
             <div class="public-game">
                 <!-- Check if there are open games -->
                 {% if open_games %}
@@ -153,7 +154,6 @@
                                 <p><strong>Description:</strong> {{ game.description }}</p>
                                 <p><strong>GameType:</strong> {{ game.game_type }}</p>
                                 <p><strong>End Time:</strong> {{ game.end_time|date:"Y-m-d H:i" }}</p>
-
                                 <!-- Button to start the game -->
                                 {% if game.status == "OPEN" %}
                                     <form method="POST" action="{% url 'join_game' game.id %}">

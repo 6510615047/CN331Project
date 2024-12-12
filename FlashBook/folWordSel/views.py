@@ -364,8 +364,8 @@ def community(request):
     return render(request, 'community.html', {
         'user': user,
         'top_users': top_users,
-        'open_games': open_games,
-        'folders': folders
+        'folders': folders,
+        'open_games':open_games
     })
 
 def add_public_game(request):
