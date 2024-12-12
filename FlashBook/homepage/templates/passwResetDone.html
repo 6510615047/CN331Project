@@ -8,9 +8,9 @@
 <div class="container d-flex justify-content-center align-items-center mt-5">
     <div class="card shadow-lg p-4 text-center" style="width: 50%; border-radius: 10px;">
         <h2 class="mb-4 text-primary">Password Reset Sent</h2>
-        <p>We’ve emailed you instructions for setting your password,</p>
-        <p>You should receive them shortly.</p>
-        <button href="{% url 'login' %}" class="btn btn-primary mt-4 d-block text-center">Back to Login</button>
+        <p>We’ve emailed you for reset your password.</p>
+        <p>Click on the link attached to the email to reset your password.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary mt-4 d-block text-center">Back to Login</a>
     </div>
 </div>
 
@@ -38,13 +38,25 @@
     }
 
     .btn-primary {
+        display: inline-block;
+        text-align: center;
+        vertical-align: middle;
         background-color: #5A29E4;
+        color: white;
+        text-decoration: none;
+        border: none;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 20px; /* ขนาดของปุ่ม */
+        border-radius: 5px;
+        cursor: pointer;
+        /* background-color: #5A29E4;
         border: none;
         font-size: 16px;
         font-weight: bold;
         height: 45px;
         border-radius: 5px;
-        cursor: pointer;
+        cursor: pointer; */
     }
 
     .btn-primary:hover {
