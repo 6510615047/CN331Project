@@ -6,17 +6,12 @@ from django.contrib.messages import get_messages
 from .models import User as User_model
 from .models import Folder, Word, Highscore
 from homepage.models import User as CustomUser
-from django.test import SimpleTestCase
 from homepage.views import homepage, about, register, login_views, logout_views, profile_view
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User as AuthUser
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.utils import IntegrityError
-from django.test import SimpleTestCase, override_settings, TransactionTestCase
-from django.urls import resolve
-from django.views.static import serve
-from django.urls import clear_url_caches
-import importlib
+from django.test import TestCase, TransactionTestCase
 import os
 
 class RegisterLoginTests(TransactionTestCase):
@@ -311,17 +306,7 @@ class RegisterLoginTests(TransactionTestCase):
         # Check if the string representation matches
         self.assertEqual(str(highscore), expected_str)
 
-from django.test import SimpleTestCase, override_settings
-
-#@override_settings(DEBUG=True, MEDIA_URL='/media/', MEDIA_ROOT='/tmp/media')
-class TestUrls(SimpleTestCase):
-    ''' test_media_url_with_client(self):
-        # เรียก URL ตรงด้วย client.get
-        response = self.client.get('/media/test.jpg')
-        # ถ้า URL นี้ถูก resolve โดย static() view
-        # และไม่มีไฟล์ test.jpg อยู่จริง จะได้สถานะ 404 จาก view serve ของ Django (ไม่ใช่ Resolver404)
-        self.assertEqual(response.status_code, 404)'''
-
+class TestUrls(TestCase):  # ใช้ TestCase แทน SimpleTestCase
     def test_homepage_url_resolves(self):
         url = reverse('homepage')
         self.assertEqual(resolve(url).func, homepage)
@@ -361,6 +346,13 @@ class TestUrls(SimpleTestCase):
     def test_password_reset_complete_url_resolves(self):
         url = reverse('password_reset_complete')
         self.assertEqual(resolve(url).func.view_class, auth_views.PasswordResetCompleteView)
+
+    # เพิ่ม test สำหรับการเข้าถึงไฟล์ใน media/
+    '''def test_media_url_access(self):
+        test_file_path = 'profile_pictures/giphy_hvsk0e0.gif'  # ชื่อไฟล์ที่ต้องการทดสอบ
+        url = reverse('media_file', kwargs={'file_path': test_file_path})  # สร้าง URL ที่ต้องการทดสอบ
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)  # คาดหวังว่า status code จะเป็น 200 (OK)'''
 
 class TestProfileView(TestCase):
     def setUp(self):
@@ -552,3 +544,48 @@ class TestProfileView(TestCase):
         self.assertEqual(self.custom_user.email, 'newemail@example.com')
         self.assertEqual(self.auth_user.username, 'newusername')
         self.assertEqual(self.auth_user.email, 'newemail@example.com')
+
+    def test_profile_view_cancel(self):
+        data = {
+            'action': 'cancel',
+            'user': 'cancelusername',
+            'fname': 'CancelFirstName',
+            'lname': 'CancelLastName',
+            'email': 'canceluser@example.com',
+        }
+        response = self.client.post(self.profile_url + '?edit=true', data)
+    
+        # คาดหวังว่าไม่ควรมีการบันทึกข้อมูลใหม่ และจะต้องกลับไปที่ View Mode
+        self.assertEqual(response.status_code, 302)  # Redirect กลับไปยังหน้า profile
+        self.custom_user.refresh_from_db()  # รีเฟรชข้อมูลจากฐานข้อมูล
+        self.assertEqual(self.custom_user.user, 'testuser')  # ตรวจสอบว่าไม่ได้เปลี่ยนชื่อผู้ใช้
+    
+    def test_profile_view_no_action(self):
+        data = {
+            'user': 'newusername',
+            'fname': 'NewFirstName',
+            'lname': 'NewLastName',
+            'email': 'newemail@example.com',
+        }
+        response = self.client.post(self.profile_url + '?edit=true', data)
+    
+        # คาดหวังว่าไม่มีการทำงานใดๆ และแสดงผลลัพธ์ตามปกติ
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profile.html')
+        self.assertIn('user', response.context)  # ตรวจสอบว่า user ยังแสดงอยู่
+    
+    # ทดสอบการทิ้งข้อมูล (Discard)
+    def test_profile_view_discard_changes(self):
+        data = {
+            'action': 'discard',
+            'user': 'newusername',
+            'fname': 'NewFirstName',
+            'lname': 'NewLastName',
+            'email': 'newemail@example.com',
+        }
+
+        response = self.client.post(self.profile_url + '?edit=true', data)
+
+        self.assertEqual(response.status_code, 302)  # Redirect after discard
+        self.custom_user.refresh_from_db()
+        self.assertEqual(self.custom_user.user, 'testuser')  # Verify data is not saved
