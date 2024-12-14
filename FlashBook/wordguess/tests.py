@@ -162,7 +162,8 @@ class WordGuessViewTests(TestCase):
         self.assertIsNotNone(hint_message)
 
     def test_hint_not_available(self):
-        self.user.hint_ava -= 1
+        self.user.hint_ava = 0
+        self.user.save()
         response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'hint_request': 'true'})
         self.user.refresh_from_db()
         self.assertEqual(self.user.hint_ava, 0)
