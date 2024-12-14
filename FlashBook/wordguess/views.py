@@ -62,7 +62,7 @@ def word_guess_view(request, folder_id):
                 hint_message = f"Hint: The letter '{hint}' has been revealed!"
                 request.session['guesses'] = guesses
             else:
-                hint_message = "Not enough credits for a hint!"
+                hint_message = "Not enough hint!"
                 
             user.refresh_from_db()
     

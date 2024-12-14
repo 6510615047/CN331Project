@@ -167,4 +167,4 @@ class WordGuessViewTests(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.hint_ava, 0)
         hint_message = response.context.get('hint_message')
-        self.assertIsNotNone(hint_message)
+        self.assertEqual(hint_message,"Not enough hint!")
