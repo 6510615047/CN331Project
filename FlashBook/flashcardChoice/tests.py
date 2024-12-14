@@ -125,4 +125,25 @@ class FlashcardChoiceViewsTest(TestCase):
         # Assert that the view logic executed correctly
         self.assertEqual(response.status_code, 200)
 
-    
+    def test_time_value_passed_to_view(self):
+        # Test that time value can be passed and stored correctly
+        url = reverse('flashcard_choice', kwargs={'folder_id': self.folder.folder_id})
+        response = self.client.get(url, {'time': '60'})
+        
+        # Check that the time value is in the context and session
+        self.assertEqual(response.context['time_value'], '60')
+        self.assertEqual(self.client.session['time_value'], '60')
+        self.assertEqual(response.status_code, 200)
+
+    def test_time_value_persistence_across_requests(self):
+        # Test that time value persists across multiple requests
+        # First request with time value
+        url = reverse('flashcard_choice', kwargs={'folder_id': self.folder.folder_id})
+        self.client.get(url, {'time': '90'})
+        
+        # Second request without time value should use previous session value
+        response = self.client.get(url)
+        
+        # Check that the previous time value is used
+        self.assertEqual(response.context['time_value'], '90')
+        self.assertEqual(self.client.session['time_value'], '90')

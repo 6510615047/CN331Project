@@ -29,6 +29,9 @@ def flashcard(request,folder_id):
     # check page that user come from
     referrer = request.META.get('HTTP_REFERER', None)
 
+    if referrer and 'community' in referrer:
+        request.session['came_from_community'] = True
+
     if referrer and "flashcard" in referrer:
         highscore = Highscore.objects.get(
             user=user,
@@ -82,6 +85,12 @@ def correct_answer(request, folder_id, playtime):
         # Increment score if user has not already answered
         highscore.score += 1
         highscore.save()
+        
+        # for public game
+        if request.session.get('came_from_community'):
+            if highscore.score % 3 == 0:
+                user.credits += 10
+                user.save()
 
         # Mark that the user has answered
         request.session['answered'] = True
@@ -90,7 +99,7 @@ def correct_answer(request, folder_id, playtime):
     request.session['showMeaning'] = True
     # Redirect to flashcard page
     request.session['came_from_answer'] = True
-    request.session['time_value'] = None
+    # request.session['time_value'] = None
 
     return redirect('flashcard', folder_id=folder.folder_id)
 
@@ -107,7 +116,7 @@ def wrong_answer(request, folder_id):
     request.session['showMeaning'] = True
 
     request.session['came_from_answer'] = True
-    request.session['time_value'] = None
+    # request.session['time_value'] = None
 
     # Redirect to flashcard page
     return redirect('flashcard', folder_id=folder.folder_id)

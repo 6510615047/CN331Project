@@ -84,6 +84,9 @@ def word_guess_view(request, folder_id):
 
     referrer = request.META.get('HTTP_REFERER', None)
     
+    if referrer and 'community' in referrer:
+        request.session['came_from_community'] = True
+
     if referrer and "wordguess" in referrer:
         highscore = Highscore.objects.get(
             user=user,
@@ -107,6 +110,12 @@ def word_guess_view(request, folder_id):
         if hearts_left != 0:
             update_highscore(user, folder, playtime)
             highscore.refresh_from_db()
+
+            if request.session.get('came_from_community'):
+                if highscore.score % 3 == 0:
+                    user.credits += 10
+                    user.save()
+
         #reset session
         request.session.pop('word_id', None)
         request.session.pop('guesses', None)
