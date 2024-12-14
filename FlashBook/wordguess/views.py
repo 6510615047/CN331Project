@@ -63,6 +63,8 @@ def word_guess_view(request, folder_id):
                 request.session['guesses'] = guesses
             else:
                 hint_message = "Not enough credits for a hint!"
+                
+            user.refresh_from_db()
     
     display_word = get_display_word(word, guesses) # Call display_word method
     request.session['display_word'] = display_word
