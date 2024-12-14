@@ -13,7 +13,8 @@ class WordGuessViewTests(TestCase):
             fname='Test',
             lname='User',
             email='testuser@example.com',
-            password='testpassword'
+            password='testpassword',
+            hint_ava=1
         )
 
         self.user_built_in = UserBuiltIn.objects.create_user(
@@ -153,3 +154,18 @@ class WordGuessViewTests(TestCase):
         self.assertIn("You lost!", response.context.get('message'))
         self.assertEqual(highscore.score, 0)
 
+    def test_hint_available(self):
+        response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'hint_request': 'true'})
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.hint_ava, 0)
+        hint_message = response.context.get('hint_message')
+        self.assertIsNotNone(hint_message)
+
+    def test_hint_not_available(self):
+        self.user.hint_ava = 0
+        self.user.save()
+        response = self.client.post(reverse('wordguess', args=[self.folder.folder_id]), {'hint_request': 'true'})
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.hint_ava, 0)
+        hint_message = response.context.get('hint_message')
+        self.assertEqual(hint_message,"Not enough hint!")
