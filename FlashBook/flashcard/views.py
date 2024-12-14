@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from homepage.models import User, Folder, Highscore,Word
+from homepage.models import *
 from django.db.models import Min,Max
 
 # Create your views here.
@@ -7,7 +7,15 @@ from django.db.models import Min,Max
 def flashcard(request,folder_id):
     username = request.user
     user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user,folder_id=folder_id)
+
+
+    referrer = request.META.get('HTTP_REFERER', None)
+
+    if referrer and 'community' in referrer:
+        request.session['came_from_community'] = True
+        folder = Folder.objects.get(user_id=request.session.get('admin'),folder_id=folder_id)
+    else:
+        folder = Folder.objects.get(user=user,folder_id=folder_id)
 
     time_value = request.GET.get('time', request.session.get('time_value'))
 
@@ -25,12 +33,6 @@ def flashcard(request,folder_id):
     request.session['currentWordId'] = currentWordId
 
     word = Word.objects.filter(user=user, folder=folder, word_id=currentWordId).first()
-
-    # check page that user come from
-    referrer = request.META.get('HTTP_REFERER', None)
-
-    if referrer and 'community' in referrer:
-        request.session['came_from_community'] = True
 
     if referrer and "flashcard" in referrer:
         highscore = Highscore.objects.get(

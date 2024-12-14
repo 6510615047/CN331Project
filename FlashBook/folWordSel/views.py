@@ -519,7 +519,7 @@ def join_game(request, game_id):
 
     # Get the game type and difficulty
     game_type = game.game_type
-
+    request.session['admin'] = user.user_id
     # Redirect based on the game type
     if game_type == 'FLASHCARD':
         return redirect('flashcard', folder_id=game.folder.folder_id)
