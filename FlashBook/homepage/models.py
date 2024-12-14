@@ -176,7 +176,7 @@ class PublicGame(models.Model):
         ('WORDGUESS_NORMAL', 'Wordguess Normal'),
         ('WORDGUESS_HARD', 'Wordguess Hard'),
     ]
-    
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     max_players = models.PositiveIntegerField()

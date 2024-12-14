@@ -477,6 +477,7 @@ def community(request):
 
 def add_public_game(request):
     if request.method == 'POST':
+        creator = User.objects.get(user_id=request.session.get('user_id'))
         name = request.POST.get('name')
         description = request.POST.get('description')
         max_players = request.POST.get('max_players')
@@ -491,6 +492,7 @@ def add_public_game(request):
 
         # Create the new game
         game = PublicGame(
+            creator = creator,
             name=name,
             description=description,
             max_players=max_players,
@@ -519,7 +521,8 @@ def join_game(request, game_id):
 
     # Get the game type and difficulty
     game_type = game.game_type
-    request.session['admin'] = user.user_id
+    request.session['user_id_admin'] = game.creator.user_id
+    request.session['folder_id_admin'] = game.folder.folder_id
     # Redirect based on the game type
     if game_type == 'FLASHCARD':
         return redirect('flashcard', folder_id=game.folder.folder_id)

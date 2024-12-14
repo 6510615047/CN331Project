@@ -11,8 +11,22 @@ from django.http import JsonResponse
 
 def flashcard_choice(request, folder_id):
     username = request.user
-    user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user, folder_id=folder_id)
+
+    
+    referrer = request.META.get('HTTP_REFERER', None)
+
+    if (referrer and 'community' in referrer) or request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder_id = request.session.get('folder_id_admin')
+        request.session['came_from_community'] = True
+        time_value = 10
+    else:
+        user = User.objects.get(user=username)
+        time_value = request.GET.get('time', request.session.get('time_value'))
+        
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
+    # time_value = request.GET.get('time', request.session.get('time_value'))
+
     min_word_id = Word.objects.filter(user=user, folder=folder).aggregate(Min('word_id'))['word_id__min']
 
     max_play_time = Highscore.objects.filter(user=user, folder=folder, game_id=3).aggregate(Max('play_time'))['play_time__max']
@@ -71,11 +85,6 @@ def flashcard_choice(request, folder_id):
         answers += incorrect_answers
         random.shuffle(answers)
 
-    referrer = request.META.get('HTTP_REFERER', None)
-
-    if referrer and 'community' in referrer:
-        request.session['came_from_community'] = True
-
     if referrer and "flashcardChoice" in referrer:
         highscore = Highscore.objects.get(
             user=user,
@@ -113,8 +122,12 @@ def flashcard_choice(request, folder_id):
 
 def check_answer(request, folder_id, play_time):
     username = request.user
-    user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user, folder_id=folder_id)
+    if request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder = Folder.objects.get(user=request.session.get('user_id_admin'),folder_id=request.session.get('folder_id_admin'))
+    else:
+        user = User.objects.get(user=username)
+        folder = Folder.objects.get(user=user, folder_id=folder_id)
 
     highscore = Highscore.objects.get(
         user=user,
@@ -136,8 +149,9 @@ def check_answer(request, folder_id, play_time):
 
             if request.session.get('came_from_community'):
                 if highscore.score % 3 == 0:
-                    user.credits += 10
-                    user.save()
+                    user_add_credits = User.objects.get(user=username)
+                    user_add_credits.credits += 10
+                    user_add_credits.save()
 
         else:
             pop_up_message_correct = False
@@ -151,8 +165,13 @@ def check_answer(request, folder_id, play_time):
 
 def finishChoice(request, folder_id):
     username = request.user
-    user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user, folder_id=folder_id)
+
+    if request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder = Folder.objects.get(user=request.session.get('user_id_admin'),folder_id=request.session.get('folder_id_admin'))
+    else:
+        user = User.objects.get(user=username)
+        folder = Folder.objects.get(user=user, folder_id=folder_id)
 
     highscore = Highscore.objects.filter(user=user, folder=folder, game_id=3).order_by('-play_time').first()
 
@@ -161,7 +180,10 @@ def finishChoice(request, folder_id):
         'highscore': highscore,
         'pop_up_message_correct': pop_up_message_correct,
     }
-
+    
+    del request.session['user_id_admin']
+    del request.session['folder_id_admin']
+    request.session['came_from_community'] = False
     request.session.pop('pop_up_message_correct', None)
     return render(request, 'finishChoice.html', context)
 

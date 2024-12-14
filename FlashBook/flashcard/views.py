@@ -6,18 +6,20 @@ from django.db.models import Min,Max
 
 def flashcard(request,folder_id):
     username = request.user
-    user = User.objects.get(user=username)
-
 
     referrer = request.META.get('HTTP_REFERER', None)
 
-    if referrer and 'community' in referrer:
+    if (referrer and 'community' in referrer) or request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder_id = request.session.get('folder_id_admin')
         request.session['came_from_community'] = True
-        folder = Folder.objects.get(user_id=request.session.get('admin'),folder_id=folder_id)
+        time_value = 10
     else:
-        folder = Folder.objects.get(user=user,folder_id=folder_id)
-
-    time_value = request.GET.get('time', request.session.get('time_value'))
+        user = User.objects.get(user=username)
+        time_value = request.GET.get('time', request.session.get('time_value'))
+        
+    folder = Folder.objects.get(user=user,folder_id=folder_id)
+    # time_value = request.GET.get('time', request.session.get('time_value'))
 
     request.session['time_value'] = time_value
     if request.session.get('came_from_answer'):
@@ -33,7 +35,7 @@ def flashcard(request,folder_id):
     request.session['currentWordId'] = currentWordId
 
     word = Word.objects.filter(user=user, folder=folder, word_id=currentWordId).first()
-
+    
     if referrer and "flashcard" in referrer:
         highscore = Highscore.objects.get(
             user=user,
@@ -72,8 +74,13 @@ def flashcard(request,folder_id):
 
 def correct_answer(request, folder_id, playtime):
     username = request.user
-    user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user, folder_id=folder_id)
+
+    if request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder = Folder.objects.get(user=request.session.get('user_id_admin'),folder_id=request.session.get('folder_id_admin'))
+    else:
+        user = User.objects.get(user=username)
+        folder = Folder.objects.get(user=user, folder_id=folder_id)
 
     # Retrieve or create Highscore for the user and folder
     highscore = Highscore.objects.get(
@@ -91,8 +98,9 @@ def correct_answer(request, folder_id, playtime):
         # for public game
         if request.session.get('came_from_community'):
             if highscore.score % 3 == 0:
-                user.credits += 10
-                user.save()
+                user_add_credits = User.objects.get(user=username)
+                user_add_credits.credits += 10
+                user_add_credits.save()
 
         # Mark that the user has answered
         request.session['answered'] = True
@@ -109,7 +117,12 @@ def correct_answer(request, folder_id, playtime):
 def wrong_answer(request, folder_id):
     username = request.user
     user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user, folder_id=folder_id)
+    if request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder = Folder.objects.get(user=request.session.get('user_id_admin'),folder_id=request.session.get('folder_id_admin'))
+    else:
+        user = User.objects.get(user=username)
+        folder = Folder.objects.get(user=user, folder_id=folder_id)
     
     # Set time to 0 when the user clicks "Wrong"
     # request.session['time_value'] = None
@@ -127,7 +140,12 @@ def wrong_answer(request, folder_id):
 def next_word(request, folder_id, playtime):
     username = request.user
     user = User.objects.get(user=username)
-    folder = Folder.objects.get(user=user, folder_id=folder_id)
+    if request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder = Folder.objects.get(user=request.session.get('user_id_admin'),folder_id=request.session.get('folder_id_admin'))
+    else:
+        user = User.objects.get(user=username)
+        folder = Folder.objects.get(user=user, folder_id=folder_id)
     currentWord = request.session.get('currentWordId')
 
     # time_value = request.GET.get('time', 10)  # Retrieve the initial time value
@@ -157,6 +175,9 @@ def next_word(request, folder_id, playtime):
 
 
 def finish(request,folder_id):
+    del request.session['user_id_admin']
+    del request.session['folder_id_admin']
+    request.session['came_from_community'] = False
     return render(request,'finish.html')
 
 

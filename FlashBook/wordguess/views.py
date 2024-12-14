@@ -5,7 +5,16 @@ from django.db.models import Max
 
 def word_guess_view(request, folder_id):
     username = request.user
-    user = User.objects.get(user=username)
+
+    referrer = request.META.get('HTTP_REFERER', None)
+
+    if (referrer and 'community' in referrer) or request.session.get('came_from_community'):
+        user = User.objects.get(user_id=request.session.get('user_id_admin'))
+        folder_id = request.session.get('folder_id_admin')
+        request.session['came_from_community'] = True
+    else:
+        user = User.objects.get(user=username)
+
     folder = Folder.objects.get(user=user, folder_id=folder_id)
     words = Word.objects.filter(user=user, folder=folder)
     difficulty = request.GET.get('difficulty')
@@ -81,11 +90,6 @@ def word_guess_view(request, folder_id):
 
     max_play_time = Highscore.objects.filter(user=user, folder=folder,game_id=2).aggregate(Max('play_time'))['play_time__max']
 
-    referrer = request.META.get('HTTP_REFERER', None)
-    
-    if referrer and 'community' in referrer:
-        request.session['came_from_community'] = True
-
     if referrer and "wordguess" in referrer:
         highscore = Highscore.objects.get(
             user=user,
@@ -112,8 +116,9 @@ def word_guess_view(request, folder_id):
 
             if request.session.get('came_from_community'):
                 if highscore.score % 3 == 0:
-                    user.credits += 10
-                    user.save()
+                    user_add_credits = User.objects.get(user=username)
+                    user_add_credits.credits += 10
+                    user_add_credits.save()
 
         #reset session
         request.session.pop('word_id', None)

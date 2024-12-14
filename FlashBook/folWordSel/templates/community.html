@@ -159,9 +159,9 @@
                                     <form method="POST" action="{% url 'join_game' game.id %}">
                                         {% csrf_token %}
                                         <button type="submit" class="play-btn" 
-                                            {% if game.players.count >= game.max_players or game.is_joined %}
+                                            {% comment %} {% if game.players.count >= game.max_players or game.is_joined %}
                                                 disabled 
-                                            {% endif %}
+                                            {% endif %} {% endcomment %}
                                             >
                                             {% if game.is_joined %}
                                                 Already Joined
