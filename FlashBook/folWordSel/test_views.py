@@ -710,6 +710,17 @@ class Community(TestCase):
             day_streak=5,
         )
 
+        self.admin = User.objects.create(
+            user_id=2,
+            user='testadmin',
+            fname='Test',
+            lname='Admin',
+            email='testadmin@example.com',
+            password='testpassword',
+            credits=200,
+            day_streak=5,
+        )
+
         self.user_built_in = UserBuiltIn.objects.create_user(
             username='testuser',
             password='testpassword',
@@ -718,15 +729,16 @@ class Community(TestCase):
             email='testuser@example.com'
         )
 
-        self.folder = Folder.objects.create(user=self.user, folder_name="Test Folder")
+        self.folder = Folder.objects.create(user=self.admin, folder_name="Test Folder")
         self.word = Word.objects.create(
-            user=self.user,
+            user=self.admin,
             folder=self.folder,
             word="Test Word",
             meaning="Test Meaning"
         )
 
         self.flashcard_public_game = PublicGame.objects.create(
+            creator = self.admin,
             name="Test Game1",
             description="A test public game.",
             max_players=5,
@@ -738,6 +750,7 @@ class Community(TestCase):
         )
 
         self.flashcardChoice_public_game = PublicGame.objects.create(
+            creator = self.admin,
             name="Test Game2",
             description="A test public game.",
             max_players=5,
@@ -749,6 +762,7 @@ class Community(TestCase):
         )
 
         self.wordguess_easy_public_game = PublicGame.objects.create(
+            creator = self.admin,
             name="Test Game3",
             description="A test public game.",
             max_players=5,
@@ -760,6 +774,7 @@ class Community(TestCase):
         )
 
         self.wordguess_normal_public_game = PublicGame.objects.create(
+            creator = self.admin,
             name="Test Game4",
             description="A test public game.",
             max_players=5,
@@ -771,6 +786,7 @@ class Community(TestCase):
         )
 
         self.wordguess_hard_public_game = PublicGame.objects.create(
+            creator = self.admin,
             name="Test Game5",
             description="A test public game.",
             max_players=5,
@@ -782,6 +798,7 @@ class Community(TestCase):
         )
 
         self.invalid_public_game = PublicGame.objects.create(
+            creator = self.admin,
             name="Test Game5",
             description="A test public game.",
             max_players=5,
@@ -793,7 +810,7 @@ class Community(TestCase):
         )
 
         self.highscore_1 = Highscore.objects.create(
-            user=self.user, 
+            user=self.admin, 
             folder=self.folder, 
             game_id=1, 
             score=2,
@@ -801,7 +818,7 @@ class Community(TestCase):
         )
 
         self.highscore_2 = Highscore.objects.create(
-            user=self.user, 
+            user=self.admin, 
             folder=self.folder, 
             game_id=2, 
             score=2,
@@ -809,7 +826,7 @@ class Community(TestCase):
         )
 
         self.highscore_3 = Highscore.objects.create(
-            user=self.user, 
+            user=self.admin, 
             folder=self.folder, 
             game_id=3, 
             score=2,
