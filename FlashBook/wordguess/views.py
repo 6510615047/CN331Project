@@ -45,14 +45,13 @@ def word_guess_view(request, folder_id):
 
     meaning = word.meaning
     
-    hearts_left = request.session.get('hearts_left', 6)
-    hearts_range = range(hearts_left)
+    hearts_left = request.session.get('hearts_left')
 
     # Process guess
     if request.method == "POST":
 
         if 'guess' in request.POST:  # Handle guesses
-            guesses, hearts_left = process_guess(request, word, guesses, request.session.get('hearts_left', 6))
+            guesses, hearts_left = process_guess(request, word, guesses, request.session.get('hearts_left'))
             request.session['guesses'] = guesses
             request.session['hearts_left'] = hearts_left
 
@@ -124,7 +123,7 @@ def word_guess_view(request, folder_id):
     else:
         request.session['game_end'] = False
 
-    
+    hearts_range = range(hearts_left)
 
     # Prepare the context for the template
     context = {
@@ -158,6 +157,7 @@ def process_guess(request, word, guesses, hearts_left):
             # Check if the guess is incorrect, decrease hearts_left
             if guess not in word_lower:
                 hearts_left -= 1
+                request.session['hearts_left'] = hearts_left
 
     return guesses, hearts_left
 
