@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
+from django.urls import reverse
 from .forms import RegisterForm, LoginForm
 from homepage.models import User
+from django.contrib.auth.models import User as DjangoUser
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
-from django.db.utils import IntegrityError
+from django.db import IntegrityError, transaction
 # Create your views here.
 
 def homepage(request):
@@ -18,17 +20,27 @@ def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            form.save()
+            #form.save()
             try:
-                # สร้าง User ใหม่
-                newUser = User.objects.create(
-                    user=form.cleaned_data['username'],
-                    fname=form.cleaned_data['fname'],
-                    lname=form.cleaned_data['lname'],
-                    email=form.cleaned_data['email'],
-                )
-                newUser.set_password(form.cleaned_data['password1'])
-                newUser.save()
+                with transaction.atomic():
+                    # สร้าง User ในโมเดลของคุณ
+                    newUser = User.objects.create(
+                        user=form.cleaned_data['username'],
+                        fname=form.cleaned_data['fname'],
+                        lname=form.cleaned_data['lname'],
+                        email=form.cleaned_data['email'],
+                    )
+                    newUser.set_password(form.cleaned_data['password1'])
+                    newUser.save()
+
+                    # สร้าง Django User โดยไม่ commit ทันที
+                    django_user = form.save(commit=False)
+                    # ตั้งค่า first_name และ last_name ให้ Django User จาก fname, lname ในฟอร์ม
+                    django_user.first_name = form.cleaned_data['fname']
+                    django_user.last_name = form.cleaned_data['lname']
+                    django_user.save()
+                    # User ใน Django
+                    #form.save()
 
                 messages.success(request, 'Account created successfully! Please log in.')
                 return redirect('login')
@@ -103,55 +115,78 @@ def profile_view(request):
         messages.error(request, 'User not found.')
         return redirect('login')
 
-    if request.method == 'POST':
-        # รับข้อมูลใหม่จากผู้ใช้แล้วอัปเดต
-        new_username = request.POST.get('user')
-        new_fname = request.POST.get('fname')
-        new_lname = request.POST.get('lname')
-        new_title = request.POST.get('title')
-        new_card_color = request.POST.get('card_color')
-        new_email = request.POST.get('email')
-        current_password = request.POST.get('current_password')
-        new_password = request.POST.get('new_password')
+    # ตรวจสอบว่าอยู่ใน Edit Mode หรือไม่ (ถ้า URL มี ?edit=true)
+    edit_mode = (request.GET.get('edit') == 'true')
 
-        # ตรวจสอบว่าชื่อผู้ใช้ใหม่ซ้ำหรือไม่
-        if auth_user.username != new_username and User.objects.filter(user=new_username).exists():
-            messages.error(request, 'Username already exists. Please choose a different one.')
+    if request.method == 'POST':
+        action = request.POST.get('action')  # รับ action จากฟอร์ม เช่น save, discard, cancel
+
+        if action == 'save':
+            # ผู้ใช้กด Save Changes -> บันทึกข้อมูล
+            with transaction.atomic():
+                new_username = request.POST.get('user')
+                new_fname = request.POST.get('fname')
+                new_lname = request.POST.get('lname')
+                new_title = request.POST.get('title')
+                new_card_color = request.POST.get('card_color')
+                new_email = request.POST.get('email')
+                current_password = request.POST.get('current_password')
+                new_password = request.POST.get('new_password')
+
+                # ตรวจสอบว่าชื่อผู้ใช้ใหม่ซ้ำหรือไม่
+                if auth_user.username != new_username and User.objects.filter(user=new_username).exists():
+                    messages.error(request, 'Username already exists. Please choose a different one.')
+                    #return redirect('profile?edit=true')
+                    base_url = reverse('profile')
+                    return redirect(f'{base_url}?edit=true')
+
+                # อัปเดตข้อมูลใน custom User
+                custom_user.user = new_username
+                custom_user.fname = new_fname
+                custom_user.lname = new_lname
+                custom_user.title = new_title
+                custom_user.card_color = new_card_color
+                custom_user.email = new_email
+                if 'profile_picture' in request.FILES:
+                    custom_user.profile_picture = request.FILES['profile_picture']
+                custom_user.save()
+
+                # อัปเดตข้อมูลใน auth User (Django default User model)
+                auth_user.username = new_username
+                auth_user.first_name = new_fname
+                auth_user.last_name = new_lname
+                auth_user.email = new_email
+
+                # หากผู้ใช้กรอก new_password ให้เปลี่ยนรหัสผ่าน
+                if new_password:
+                    if not auth_user.check_password(current_password):
+                        messages.error(request, 'Current password is incorrect.')
+                        #return redirect('profile?edit=true')
+                        base_url = reverse('profile')
+                        return redirect(f'{base_url}?edit=true')
+                    auth_user.set_password(new_password)  
+                auth_user.save()
+                update_session_auth_hash(request, auth_user)
+
+            messages.success(request, 'Profile updated successfully!')
+            # หลังบันทึกเสร็จ ให้กลับไป View Mode
             return redirect('profile')
 
-        # อัปเดตข้อมูลใน custom User
-        custom_user.user = new_username
-        custom_user.fname = new_fname
-        custom_user.lname = new_lname
-        custom_user.title = new_title
-        custom_user.card_color = new_card_color
-        custom_user.email = new_email
-        if 'profile_picture' in request.FILES:
-            custom_user.profile_picture = request.FILES['profile_picture']
-        custom_user.save()
+        elif action == 'discard':
+            # ผู้ใช้กด Discard -> ไม่บันทึกข้อมูลอะไร และยังคงอยู่ใน Edit Mode
+            # แค่ redirect กลับไปหน้า edit mode เดิมด้วยข้อมูลเดิม
+            messages.info(request, 'Changes discarded.')
+            #return redirect('profile?edit=true')
+            base_url = reverse('profile')
+            return redirect(f'{base_url}?edit=true')
 
-        # อัปเดตข้อมูลใน auth User (Django default User model)
-        auth_user.username = new_username
-        auth_user.first_name = new_fname
-        auth_user.last_name = new_lname
-        auth_user.email = new_email
-
-        # หากผู้ใช้กรอก new_password ให้ทำการตรวจสอบรหัสผ่านปัจจุบันก่อนเปลี่ยน
-        if new_password:
-            if not auth_user.check_password(current_password):
-                messages.error(request, 'Current password is incorrect.')
-                return redirect('profile')
-            auth_user.set_password(new_password)  # เปลี่ยนรหัสผ่านและเข้ารหัส
-
-        auth_user.save()
-
-        # อัปเดต session authentication hash เพื่อให้ผู้ใช้ยังคงเข้าสู่ระบบอยู่หลังจากเปลี่ยนข้อมูล
-        update_session_auth_hash(request, auth_user)
-
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('folder')
+        elif action == 'cancel':
+            # ผู้ใช้กด Cancel -> ไม่บันทึกอะไร และกลับไป View Mode
+            messages.info(request, 'Edit canceled.')
+            return redirect('profile')
 
     context = {
         'user': custom_user,
+        'edit_mode': edit_mode,
     }
     return render(request, 'profile.html', context)
