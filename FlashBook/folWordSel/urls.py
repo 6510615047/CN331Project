@@ -29,4 +29,6 @@ urlpatterns = [
     path('join_game/<int:game_id>/', views.join_game, name='join_game'),
     path('<int:folder_id>/correct/<int:playtime>',fviews.correct_answer,name="correct_answer_fws"),
     path('<int:folder_id>/check_answer/<int:play_time>',fcviews.check_answer,name='check_answer_fws'),
+    #path('upload_flashcards/<int:folder_id>/', views.upload_flashcards, name='upload_flashcards')
+    path('folder/<int:folder_id>/upload_flashcards/', views.upload_flashcards, name='upload_flashcards')
 ]

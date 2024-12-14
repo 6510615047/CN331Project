@@ -1,3 +1,4 @@
+from urllib import response
 from django.test import TestCase, Client
 from django.contrib.auth.models import User as UserBuiltIn
 from homepage.models import *
@@ -5,6 +6,17 @@ from django.urls import reverse
 import base64
 from datetime import date
 import json
+from io import StringIO
+import pandas as pd
+from folWordSel.views import upload_flashcards
+from django.http import HttpRequest
+from django.contrib.messages import get_messages
+from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+import io
+from django.contrib.auth import get_user_model
+from io import BytesIO
+from unittest.mock import patch
 from django.utils.timezone import now, timedelta
 
 class FolderTests(TestCase):
@@ -619,6 +631,69 @@ class Reward(TestCase):
     def test_invalid_reward_id(self):
         response = self.client.get(reverse('redeem_reward', args=[9999]))
         self.assertIn('Invalid reward_id!', response.context['noti'])
+
+class UploadFlashcardsTest(TestCase):
+    def setUp(self):
+        # Create a test user
+        self.user = User.objects.create(
+            user_id=1,
+            user='testuser',
+            fname='Test',
+            lname='User',
+            email='testuser@example.com',
+            password='testpassword'
+        )
+
+        self.client = Client()
+
+        # Log in the user
+        login_url = reverse('login')
+        response = self.client.get(login_url)
+        csrf_token = response.cookies['csrftoken'].value
+
+        self.client.post(
+            login_url,
+            {
+                'csrfmiddlewaretoken': csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
+
+        # Create initial folders for the user
+        self.folder1 = Folder.objects.create(user=self.user, folder_name='Folder1')
+
+    def test_upload_valid_csv(self):
+        file_content = "word,meaning\nHello,สวัสดี\nWorld,โลก"
+        file = SimpleUploadedFile("flashcards.csv", file_content.encode('utf-8'), content_type="text/csv")
+        response = self.client.post(reverse('upload_flashcards', kwargs={'folder_id': self.folder1.id}), {'flashcards_file': file})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+
+    def test_upload_empty_file(self):
+        file = SimpleUploadedFile("flashcards.csv", b"", content_type="text/csv")
+        response = self.client.post(reverse('upload_flashcards', kwargs={'folder_id': self.folder1.id}), {'flashcards_file': file})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+
+    def test_upload_invalid_format(self):
+        file = SimpleUploadedFile("flashcards.txt", b"Invalid content", content_type="text/plain")
+        response = self.client.post(reverse('upload_flashcards', kwargs={'folder_id': self.folder1.id}), {'flashcards_file': file})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+
+    def test_upload_no_file(self):
+        response = self.client.post(reverse('upload_flashcards', kwargs={'folder_id': self.folder1.id}), {})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+
+    def test_upload_duplicate_word(self):
+        file_content = "word,meaning\nWorld,โลก\nWorld,โลก"
+        file = SimpleUploadedFile("flashcards.csv", file_content.encode('utf-8'), content_type="text/csv")
+        response = self.client.post(reverse('upload_flashcards', kwargs={'folder_id': self.folder1.id}), {'flashcards_file': file})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+
 
 class Community(TestCase):
 
