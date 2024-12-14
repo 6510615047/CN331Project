@@ -400,7 +400,7 @@ def add_public_game(request):
 
     else:
         # If the method is GET, pass the folders of the logged-in user
-        folders = Folder.objects.filter(user=request.user)
+        folders = Folder.objects.filter(user=request.session.get('user_id'))
         return render(request, 'folder.html', {'folders': folders})
     
 def join_game(request, game_id):

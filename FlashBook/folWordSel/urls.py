@@ -27,4 +27,6 @@ urlpatterns = [
     path('redeem_reward/<int:reward_id>/', views.redeem_reward, name='redeem_reward'),
     path('add_public_game/', views.add_public_game, name='add_public_game'),
     path('join_game/<int:game_id>/', views.join_game, name='join_game'),
+    path('<int:folder_id>/correct/<int:playtime>',fviews.correct_answer,name="correct_answer_fws"),
+    path('<int:folder_id>/check_answer/<int:play_time>',fcviews.check_answer,name='check_answer_fws'),
 ]

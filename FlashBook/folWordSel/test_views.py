@@ -5,6 +5,7 @@ from django.urls import reverse
 import base64
 from datetime import date
 import json
+from django.utils.timezone import now, timedelta
 
 class FolderTests(TestCase):
     def setUp(self):
@@ -618,3 +619,229 @@ class Reward(TestCase):
     def test_invalid_reward_id(self):
         response = self.client.get(reverse('redeem_reward', args=[9999]))
         self.assertIn('Invalid reward_id!', response.context['noti'])
+
+class Community(TestCase):
+
+    def setUp(self):
+        # Create a test user
+        self.user = User.objects.create(
+            user_id=1,
+            user='testuser',
+            fname='Test',
+            lname='User',
+            email='testuser@example.com',
+            password='testpassword',
+            credits=200,
+            day_streak=5,
+        )
+
+        self.user_built_in = UserBuiltIn.objects.create_user(
+            username='testuser',
+            password='testpassword',
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com'
+        )
+
+        self.folder = Folder.objects.create(user=self.user, folder_name="Test Folder")
+        self.word = Word.objects.create(
+            user=self.user,
+            folder=self.folder,
+            word="Test Word",
+            meaning="Test Meaning"
+        )
+
+        self.flashcard_public_game = PublicGame.objects.create(
+            name="Test Game1",
+            description="A test public game.",
+            max_players=5,
+            folder=self.folder,
+            game_type="FLASHCARD",
+            start_time=now() - timedelta(hours=1),
+            end_time=now() + timedelta(hours=1),
+            status="OPEN"
+        )
+
+        self.flashcardChoice_public_game = PublicGame.objects.create(
+            name="Test Game2",
+            description="A test public game.",
+            max_players=5,
+            folder=self.folder,
+            game_type="FLASHCARDCHOICE",
+            start_time=now() - timedelta(hours=1),
+            end_time=now() + timedelta(hours=1),
+            status="OPEN"
+        )
+
+        self.wordguess_easy_public_game = PublicGame.objects.create(
+            name="Test Game3",
+            description="A test public game.",
+            max_players=5,
+            folder=self.folder,
+            game_type="WORDGUESS_EASY",
+            start_time=now() - timedelta(hours=1),
+            end_time=now() + timedelta(hours=1),
+            status="OPEN"
+        )
+
+        self.wordguess_normal_public_game = PublicGame.objects.create(
+            name="Test Game4",
+            description="A test public game.",
+            max_players=5,
+            folder=self.folder,
+            game_type="WORDGUESS_NORMAL",
+            start_time=now() - timedelta(hours=1),
+            end_time=now() + timedelta(hours=1),
+            status="OPEN"
+        )
+
+        self.wordguess_hard_public_game = PublicGame.objects.create(
+            name="Test Game5",
+            description="A test public game.",
+            max_players=5,
+            folder=self.folder,
+            game_type="WORDGUESS_HARD",
+            start_time=now() - timedelta(hours=1),
+            end_time=now() + timedelta(hours=1),
+            status="OPEN"
+        )
+
+        self.invalid_public_game = PublicGame.objects.create(
+            name="Test Game5",
+            description="A test public game.",
+            max_players=5,
+            folder=self.folder,
+            game_type="INVALID",
+            start_time=now() - timedelta(hours=1),
+            end_time=now() + timedelta(hours=1),
+            status="OPEN"
+        )
+
+        self.highscore_1 = Highscore.objects.create(
+            user=self.user, 
+            folder=self.folder, 
+            game_id=1, 
+            score=2,
+            play_time=2
+        )
+
+        self.highscore_2 = Highscore.objects.create(
+            user=self.user, 
+            folder=self.folder, 
+            game_id=2, 
+            score=2,
+            play_time=2
+        )
+
+        self.highscore_3 = Highscore.objects.create(
+            user=self.user, 
+            folder=self.folder, 
+            game_id=3, 
+            score=2,
+            play_time=2
+        )
+
+        self.client = Client()
+        
+        login_url = reverse('login')
+        session = self.client.session
+        session['came_from_community'] = True  # ตั้งค่า session ให้ผู้ใช้มาจาก community
+        session.save()
+        # Get the CSRF token first by making a GET request
+        response = self.client.get(login_url)
+        csrf_token = response.cookies['csrftoken'].value  # Extract the CSRF token
+
+        # Now submit the POST request with the CSRF token
+        response = self.client.post(
+            login_url,
+            {   
+                'csrfmiddlewaretoken': csrf_token,
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+        )
+
+    def test_community_view(self):
+        response = self.client.get(reverse('community'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'community.html')
+        self.assertIn('top_users', response.context)
+        self.assertIn('folders', response.context)
+        self.assertIn('open_games', response.context)
+
+    def test_join_game(self):
+        response = self.client.post(reverse('join_game', args=[self.flashcard_public_game.id]))
+        self.assertEqual(response.status_code, 302)  # Should redirect
+        self.assertTrue(GamePlayer.objects.filter(game=self.flashcard_public_game, user=self.user).exists())
+
+    def test_add_public_game_post(self):
+        data = {
+            'name': 'New Public Game',
+            'description': 'Description of the game.',
+            'max_players': 10,
+            'folder': self.folder.folder_id,
+            'game_type': 'FLASHCARDCHOICE',
+            'start_time': (now() + timedelta(hours=1)).isoformat(),
+            'end_time': (now() + timedelta(hours=2)).isoformat(),
+            'status': 'OPEN',
+        }
+        response = self.client.post(reverse('add_public_game'), data)
+        self.assertEqual(response.status_code, 302)  # Should redirect after adding
+        self.assertTrue(PublicGame.objects.filter(name='New Public Game').exists())
+
+    def test_add_public_game_get(self):
+        response = self.client.get(reverse('add_public_game'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'folder.html')
+        self.assertIn('folders', response.context)
+        
+    def test_play_flash_card(self):
+        # redirect to flashcard from community
+        response = self.client.post(reverse('join_game', args=[self.flashcard_public_game.id]),HTTP_REFERER='community')
+        self.assertRedirects(response, reverse('flashcard', args=[self.folder.folder_id]))
+        session = self.client.session
+        self.assertTrue(session.get('came_from_community'))
+
+        # test for correct answer and get 10 credits
+        response = self.client.get(reverse('correct_answer_fws', args=[self.folder.folder_id,self.highscore_1.play_time]))
+        initail_credit = self.user.credits
+        self.user.refresh_from_db()
+        self.highscore_1.refresh_from_db()
+        self.assertEqual(self.user.credits, initail_credit + 10)
+        self.assertEqual(self.highscore_1.score, 3)
+
+    def test_play_flash_card_choice(self):
+        # redirect to flashcardChoice from community
+        response = self.client.post(reverse('join_game', args=[self.flashcardChoice_public_game.id]),HTTP_REFERER='community')
+        self.assertRedirects(response, reverse('flashcard_choice', args=[self.folder.folder_id]))
+        session = self.client.session
+        self.assertTrue(session.get('came_from_community'))
+
+        # test for correct answer and get 10 credits
+        url = reverse('check_answer', kwargs={'folder_id': self.folder.folder_id, 'play_time': self.highscore_3.play_time})
+        response = self.client.post(url, {'selected_answer': 'Test Meaning', 'correct_answer': 'Test Meaning'})
+        initail_credit = self.user.credits
+        self.user.refresh_from_db()
+        self.highscore_3.refresh_from_db()
+        self.assertEqual(self.user.credits, initail_credit + 10)
+        self.assertEqual(self.highscore_3.score, 3)
+
+    def test_play_word_guess_easy(self):
+        response = self.client.post(reverse('join_game', args=[self.wordguess_easy_public_game.id]),HTTP_REFERER='community')
+        expected_url = f"{reverse('wordguess', kwargs={'folder_id': self.folder.folder_id})}?difficulty=easy"
+        self.assertRedirects(response, expected_url)
+
+    def test_play_word_guess_normal(self):
+        response = self.client.post(reverse('join_game', args=[self.wordguess_normal_public_game.id]),HTTP_REFERER='community')
+        expected_url = f"{reverse('wordguess', kwargs={'folder_id': self.folder.folder_id})}?difficulty=normal"
+        self.assertRedirects(response, expected_url)
+
+    def test_play_word_guess_hard(self):
+        response = self.client.post(reverse('join_game', args=[self.wordguess_hard_public_game.id]),HTTP_REFERER='community')
+        expected_url = f"{reverse('wordguess', kwargs={'folder_id': self.folder.folder_id})}?difficulty=hard"
+        self.assertRedirects(response, expected_url)
+
+    def test_play_invalid_game(self):
+        response = self.client.post(reverse('join_game', args=[self.invalid_public_game.id]))
+        self.assertRedirects(response, reverse('community'))
