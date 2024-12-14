@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
+from django.contrib.auth.models import User
 from homepage.models import *
 import matplotlib
 matplotlib.use('Agg')
@@ -7,10 +8,13 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from io import BytesIO
 import base64
-import json
+from django.http import JsonResponse
+import pandas as pd
+import io
 import random
 from urllib.parse import urlencode
 from django.urls import reverse
+import chardet
 # Create your views here.
 
 def folder_view(request,noti="Looks like you don't have any folders yet. Let's add one to get started!"):
@@ -113,6 +117,109 @@ def add_word(request,folder_id):
             newWord.save()
     
     # words = Word.objects.filter(user=user,folder=folder)
+    return word_view(request,folder_id)
+
+def upload_flashcards(request, folder_id):
+    """
+    ฟังก์ชันสำหรับอัปโหลดไฟล์ Flashcards (ในรูปแบบ CSV หรือ Excel)
+    """
+    if request.method == 'POST':
+        try:
+            # ตรวจสอบ user จาก session
+            user = User.objects.get(user_id=request.session.get('user_id'))
+        except User.DoesNotExist:
+            messages.error(request, "User not found. Please login.")
+            return redirect('login')
+
+        try:
+            # ตรวจสอบโฟลเดอร์
+            folder = Folder.objects.get(user=user, folder_id=folder_id)
+        except Folder.DoesNotExist:
+            messages.error(request, "Folder not found.")
+            return word_view(request,folder_id)
+
+        # ตรวจสอบว่าไฟล์ถูกส่งมาหรือไม่
+        if 'flashcards_file' not in request.FILES:
+            messages.error(request, "No file uploaded.")
+            return word_view(request, folder_id)
+
+        # อ่านไฟล์
+        flashcards_file = request.FILES['flashcards_file']
+        file_extension = flashcards_file.name.split('.')[-1].lower()
+
+        try:
+            '''# อ่านไฟล์ CSV หรือ Excel ขึ้นอยู่กับชนิดไฟล์
+            if file_extension == 'csv':
+                #decoded_file = flashcards_file.read().decode('ISO-8859-1').splitlines()
+                flashcards_file.seek(0)  # รีเซ็ต pointer
+                decoded_file = codecs.decode(flashcards_file.read(), 'tis-620').splitlines()
+                reader = pd.read_csv(io.StringIO('\n'.join(decoded_file)))
+            elif file_extension in ['xls', 'xlsx']:
+                # ใช้ pandas อ่านไฟล์ Excel
+                reader = pd.read_excel(flashcards_file)
+            else:
+                messages.warning(request, "Unsupported file format. Please upload a CSV or Excel file.")
+                return word_view(request, folder_id)'''
+            # อ่านไฟล์และใช้ chardet ตรวจสอบ encoding
+            raw_data = flashcards_file.read()
+            result = chardet.detect(raw_data)
+            encoding = result['encoding']  # ค่า encoding ที่ chardet ตรวจพบ
+            print(f"Detected encoding: {encoding}")  # ตรวจสอบ encoding ที่ถูกตรวจพบ
+
+            flashcards_file.seek(0)  # รีเซ็ต pointer ของไฟล์
+
+            # อ่านไฟล์ด้วย encoding ที่ตรวจพบ
+            if file_extension == 'csv':
+                # ใช้ open() สำหรับอ่านไฟล์
+                data = flashcards_file.read().decode(encoding, errors='ignore')
+                # ส่งข้อมูลไปให้ pandas อ่าน
+                from io import StringIO
+                reader = pd.read_csv(StringIO(data))
+            elif file_extension in ['xls', 'xlsx']:
+                reader = pd.read_excel(io.BytesIO(flashcards_file.read()))
+            else:
+                messages.warning(request, "Unsupported file format. Please upload a CSV or Excel file.")
+                return word_view(request, folder_id)
+            
+            #เก็บคำศัพท์จากไฟล์ที่อัปโหลด
+            words_data = []
+            for index, row in reader.iterrows():
+                if len(row) != 2:
+                    # ตรวจสอบว่าไฟล์มีสองคอลัมน์หรือไม่
+                    messages.warning(request, "Invalid format in file. Each row must contain a word and a meaning.")
+                    continue
+                
+                #word, meaning = row[0], row[1]
+                word, meaning = row.iloc[0], row.iloc[1]
+                word = word.strip()
+                meaning = meaning.strip()
+                
+                # แก้ไขการแสดงผลของข้อความที่มีการเข้ารหัสเป็น Unicode
+                #meaning = bytes(meaning, 'utf-8').decode('tis-620')
+
+                # ตรวจสอบว่าคำศัพท์ซ้ำหรือไม่
+                if Word.objects.filter(user=user, folder=folder, word=word).exists():
+                    messages.warning(request, f"Word '{word}' already exists. Skipping.")
+                    continue
+
+                # สร้างคำศัพท์ใหม่
+                new_word = Word.objects.create(
+                    user=user,
+                    folder=folder,
+                    word=word,
+                    meaning=meaning
+                )
+                new_word.save()
+                words_data.append({'word': word, 'meaning': meaning})
+
+            # ส่งข้อมูลคำศัพท์กลับไปยังหน้าจอ
+            #return JsonResponse({'success': True, 'words': words_data})
+            return word_view(request,folder_id)
+
+        except Exception as e:
+            messages.error(request, f"Error processing file: {str(e)}")
+            #return JsonResponse({'success': False, 'error': str(e)})
+
     return word_view(request,folder_id)
 
 def edit_word(request,folder_id,word_id):

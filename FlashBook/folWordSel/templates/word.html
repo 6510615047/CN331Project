@@ -235,7 +235,17 @@
             <br />
             <button type="submit" name="action" value="add" class="btn btn-primary">Add Word</button>
             <button type="button" id="autoMeaningBtn" class="btn btn-secondary">Auto Meaning</button>
-        </form>
+          </form>
+          <hr>
+          <!-- เพิ่มฟอร์มสำหรับอัปโหลดไฟล์ -->
+          <form method="POST" enctype="multipart/form-data" action="{% url 'upload_flashcards' folder_id=folder.folder_id %}">
+            {% csrf_token %}
+          <div class="form-group">
+            <label for="flashcards_file">Upload Flashcards (CSV/Excel):</label>
+            <input type="file" class="form-control" id="fileUpload" name="flashcards_file" accept=".csv, .xls, .xlsx" required>
+          </div>
+            <button type="submit" class="btn btn-primary mt-3">Upload</button>
+          </form>
         </div>
       </div>
     </div>
@@ -276,9 +286,52 @@
       }
   });
 
+  document.getElementById('uploadFileBtn').addEventListener('click', function () {
+    const form = document.getElementById('uploadFileForm');
+    const formData = new FormData(form);
+    const fileInput = document.getElementById('fileUpload');
+
+    if (!fileInput.files.length) {
+        alert('Please select a file to upload.');
+        return;
+    }
+
+    fetch("{% url 'upload_flashcards' folder_id=folder.folder_id %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const cardContainer = document.querySelector('.card-container');
+            data.words.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="word-title">${word.word}</h5>
+                        <p class="word-meaning">${word.meaning}</p>
+                    </div>`;
+                cardContainer.appendChild(card);
+            });
+            $('#addWordModal').modal('hide');
+        } else {
+            alert(data.error || 'An error occurred.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while uploading the file.');
+    });
+});
+
 </script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
 
 {% endblock %}

@@ -27,4 +27,6 @@ urlpatterns = [
     path('redeem_reward/<int:reward_id>/', views.redeem_reward, name='redeem_reward'),
     path('add_public_game/', views.add_public_game, name='add_public_game'),
     path('join_game/<int:game_id>/', views.join_game, name='join_game'),
+    #path('upload_flashcards/<int:folder_id>/', views.upload_flashcards, name='upload_flashcards')
+    path('folder/<int:folder_id>/upload_flashcards/', views.upload_flashcards, name='upload_flashcards')
 ]
